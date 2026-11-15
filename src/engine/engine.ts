@@ -19,7 +19,7 @@ import {
   type Framing,
   type Rect,
 } from './framing.ts';
-import { cameraExponent, exponentAt, type JourneyNode } from './journey.ts';
+import { cameraExponent, exponentAt, neighbour, type JourneyNode } from './journey.ts';
 import type { LabelSpec, LevelContext, LevelDef, LevelFrame } from './level.ts';
 import { LevelManager, type ActiveLevel } from './level-manager.ts';
 import { Motion } from './motion.ts';
@@ -113,7 +113,7 @@ export class Engine {
     this.container.appendChild(this.canvas);
 
     const ctx: LevelContext = { renderer: this.renderer, isStatic: this.clock.isStatic, reducedMotion: this.reducedMotion };
-    this.manager = new LevelManager(options.defs, ctx);
+    this.manager = new LevelManager(options.defs, ctx, this.forceOffscreen);
 
     this.resize();
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -216,16 +216,55 @@ export class Engine {
     };
   }
 
+  /**
+   * First draw of a level that has just been loaded, clipped to one pixel that the frame
+   * then clears. At most one level per frame.
+   */
+  private prime(): void {
+    const item = this.manager.takeUnprimed();
+    const scene = item?.level.scene;
+    if (!item || !scene) return;
+    const { def, level } = item;
+    const { renderer, camera, clock } = this;
+    // The view in the middle of the life of the level: its content is certainly in sight.
+    const u = (def.range[0] + def.range[1]) / 2;
+    const e = cameraExponent(u);
+    const framing = makeFraming(this.width, this.height, this.free, e, centreAt(e));
+    const view = levelView(framing, def.unit, ANCHORS[def.origin]);
+    applyFraming(camera, framing, view, def.depth ?? DEFAULT_DEPTH);
+    level.update({
+      u,
+      e,
+      fade: 1,
+      time: clock.time,
+      dt: 0,
+      isStatic: clock.isStatic,
+      camera,
+      viewWidth: view.viewWidth,
+      pxPerUnit: view.pxPerUnit,
+      pixelRatio: this.pixelRatio,
+      quality: this.quality,
+    });
+    renderer.setScissor(0, 0, 1, 1);
+    renderer.setScissorTest(true);
+    renderer.render(scene, camera);
+    renderer.setScissorTest(false);
+  }
+
   private render(): void {
     const { renderer, camera, clock, motion } = this;
     const u = motion.u;
     const eCam = cameraExponent(u);
     const framing = makeFraming(this.width, this.height, this.free, eCam, centreAt(eCam));
-    const active = this.manager.frame(u, clock.time);
+    // Where to load ahead: along an animated trip, or towards the next stop while resting
+    // on one, so that pressing ▶ finds everything ready.
+    const ahead = motion.heading ?? (motion.atNode ? neighbour(u, 1) : null);
+    const active = this.manager.frame(u, clock.time, ahead?.u ?? u);
     const labels: PlacedLabel[] = [];
 
-    renderer.info.reset();
     renderer.setRenderTarget(null);
+    this.prime();
+    renderer.info.reset();
     renderer.clear();
 
     for (const item of active) {

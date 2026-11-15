@@ -165,6 +165,7 @@ Se la grafica 3D negli screenshot è nera, prova `--gpu` (usa la GPU invece di S
 ## Come lavorare
 
 - Una milestone alla volta. Comincia in modalità piano, proponi, aspetta l'approvazione.
+- Ogni milestone si divide in passi, elencati nello stato qui sotto. Alla fine di **ogni passo**: typecheck, build e test puliti, **un commit**, e l'elenco dei passi aggiornato in questo file (✅ fatto, ⬜ da fare, più quello che serve sapere per ripartire). Se la sessione si interrompe, la successiva riparte dal primo passo senza ✅.
 - Alla fine di ogni milestone: typecheck, build, screenshot guardati, **commit** con un messaggio chiaro (in inglese, all'imperativo). Poi di' a Nicola cosa provare. I push su `main` sono permessi: pubblicano il sito, ma la pagina ha `noindex` e il link non lo ha nessuno finché non lo manda Nicola.
 - Chiedi prima di aggiungere dipendenze oltre a three.js e piccole librerie mirate (es. `@fontsource/*`, una libreria di semplificazione per i dati geografici). Mai framework pesanti.
 - Se una scelta di design è incerta, proponi 2 opzioni con screenshot.

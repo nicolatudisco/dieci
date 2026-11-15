@@ -15,6 +15,10 @@
  * - With `frame.isStatic` nothing may depend on time: `frame.time` is 0 and must give a
  *   complete, good-looking picture.
  * - Free every geometry, material, texture and render target in `dispose()`.
+ * - `update()` may be called more than once in a frame: right after loading, the engine
+ *   draws every level once into a hidden pixel (with `dt = 0`), so that shaders are compiled
+ *   and buffers uploaded before the level enters the frame. Create every material and
+ *   texture in `init()`, not lazily in `update()`, or that first draw cannot warm them up.
  */
 import type { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import type { DepthRange } from './framing.ts';

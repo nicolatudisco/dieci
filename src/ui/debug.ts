@@ -15,6 +15,9 @@ export class DebugOverlay {
   private fps = 0;
   private worst = 0;
   private worstShown = 0;
+  /** Frames longer than 25 ms since the page opened, and the longest of them. */
+  private slow = 0;
+  private slowest = 0;
 
   constructor() {
     this.element.className = 'debug';
@@ -28,6 +31,10 @@ export class DebugOverlay {
     const now = performance.now();
     this.frames++;
     this.worst = Math.max(this.worst, info.dt * 1000);
+    if (info.dt > 0.025 && info.time > 1) {
+      this.slow++;
+      this.slowest = Math.max(this.slowest, info.dt * 1000);
+    }
     if (now - this.since >= 500) {
       this.fps = (this.frames * 1000) / (now - this.since);
       this.worstShown = this.worst;
@@ -39,6 +46,7 @@ export class DebugOverlay {
     const levels = info.active.map((a) => `${a.def.id} ${a.fade.toFixed(2)}`).join('\n  ');
     this.text.textContent =
       `fps ${this.fps.toFixed(0)}  worst ${this.worstShown.toFixed(0)} ms\n` +
+      `slow frames ${this.slow}${this.slow ? `  (max ${this.slowest.toFixed(0)} ms)` : ''}\n` +
       `u ${info.u.toFixed(3)}  e ${cameraExponent(info.u).toFixed(3)}\n` +
       `${info.atNode ? `at ${info.atNode.id}` : info.heading ? `to ${info.heading.id}` : info.moving ? 'moving' : 'rest'}\n` +
       `calls ${info.drawCalls}  dpr ${info.pixelRatio.toFixed(2)}  ${f.width}×${f.height}\n` +
