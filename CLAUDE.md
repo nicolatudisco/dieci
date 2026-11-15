@@ -1,6 +1,6 @@
 # Dieci — un viaggio in potenze di 10
 
-Regalo per il 10° compleanno di una bambina che vive a **Rifredi, Firenze**. È un sito web interattivo: si parte da lei, sdraiata su un prato a guardare le stelle, e moltiplicando la scala per 10 a ogni passo si arriva fino al bordo dell'universo osservabile. Poi oltre, dove restano solo i numeri, e infine a un messaggio personale scritto da Nicola.
+Regalo per il 10° compleanno di una bambina che vive a **Rifredi, Firenze**. È un sito web interattivo: si parte da lei, seduta sulla soglia di un grande portone in una strada di Rifredi, col naso all'insù a guardare le stelle, e moltiplicando la scala per 10 a ogni passo si arriva fino al bordo dell'universo osservabile. Poi oltre, dove restano solo i numeri, e infine a un messaggio personale scritto da Nicola.
 
 Obiettivi, in ordine: **stupirla** (impatto visivo altissimo), **ispirarla** (accendere la curiosità per spazio, robotica e scienza), **farla sentire parte della storia** (si parte dal suo quartiere, la "bolla" ha la sua età). Non è una lezione: è meraviglia, ma tutto quello che dice è vero.
 
@@ -29,8 +29,8 @@ Obiettivi, in ordine: **stupirla** (impatto visivo altissimo), **ispirarla** (ac
 
 ### Struttura
 
-1. **Apertura** (`UI.intro`): schermo nero, una sola stella. Le righe compaiono una alla volta, poi il pulsante «Inizia il viaggio». Se il link contiene `#nome=`, prima compare il saluto.
-2. **Atto I, il viaggio** (`kind: 'space'`): da 10⁰ m (il prato a Rifredi) a 10^26,94 m (l'universo osservabile).
+1. **Apertura** (`UI.intro`): schermo nero, una sola stella. Le righe compaiono una alla volta, poi il pulsante «Inizia il viaggio». Se il link contiene `#nome=`, prima compare il saluto. La prima riga dipende dalla data (vedi «Personalizzazione via link»).
+2. **Atto I, il viaggio** (`kind: 'space'`): da 10⁰ m (una strada di Rifredi) a 10^26,94 m (l'universo osservabile).
 3. **Atto II, oltre** (`kind: 'number'`): il contatore smette di misurare metri e conta numeri: 10³⁰, 10⁸⁰, googol, googolplex.
 4. **Finale** (`finale.ts`): le frasi-ponte una alla volta, poi il messaggio di Nicola. È **la scena più bella del sito**.
 5. **Epilogo**: «Rifai il viaggio», «Crea il tuo Disco d'oro», «È tutto vero? Guarda le fonti» (pagina generata da tutti i campi `sources` più `CREDITS.md`).
@@ -39,11 +39,12 @@ Obiettivi, in ordine: **stupirla** (impatto visivo altissimo), **ispirarla** (ac
 
 - Lo zoom è **continuo**: tra una tappa e l'altra la scena scorre senza stacchi. Arrivati a una tappa il movimento si posa con un aggancio morbido e compare il pannello della didascalia.
 - Comandi: pulsanti **◀ ▶ sempre visibili**, grandi, raggiungibili col pollice (▶ = tappa successiva con zoom animato di 1,5–3 s); rotella e trackpad; pinch; swipe verticale; frecce e spazio da tastiera. Inerzia morbida. Il viaggio deve funzionare anche solo premendo ▶.
+- ▶ porta sempre alla tappa successiva, anche quando dista più di una potenza di 10: durante lo zoom il contatore **scatta in modo visibile a ogni potenza di 10 attraversata**, così «×10 a ogni passo» resta vero.
 - Si può tornare indietro in qualsiasi momento.
 
 ### Il contatore (elemento protagonista)
 
-- Sempre visibile. Etichetta `UI.counter.spaceLabel`, poi **10ⁿ** con n intero ed esponente in apice, poi la larghezza in unità amichevoli con 2 cifre significative: m, km, milioni di km, miliardi di km, anni-luce, milioni e miliardi di anni-luce (es. «1.600 km», «9,5 miliardi di km»). Sotto, la `counterLine` della tappa più vicina.
+- Sempre visibile. Etichetta `UI.counter.spaceLabel`, poi **10ⁿ** con n = esponente arrotondato all'intero più vicino, in apice (l'universo osservabile mostra 10²⁷), poi la larghezza precisa in unità amichevoli con 2 cifre significative: m, km, milioni di km, miliardi di km, anni-luce, milioni e miliardi di anni-luce (es. «1.600 km», «9,5 miliardi di km»). Sotto, la `counterLine` della tappa più vicina.
 - Nell'Atto II l'etichetta diventa `UI.counter.numberLabel` e mostra 10ⁿ; per il googolplex usa `exponentLabel`.
 - I numeri sono belli e grandi: il contatore è un elemento di design, non una nota a piè di pagina.
 
@@ -54,22 +55,31 @@ Obiettivi, in ordine: **stupirla** (impatto visivo altissimo), **ispirarla** (ac
 
 ### «Tu sei qui»
 
-Un piccolo punto caldo (oro/ambra) che segna dove si trova lei a ogni scala: sul prato, nel quartiere, sulla Terra, poi il Sole, poi la posizione del Sole nella galassia, e così via. È il filo che tiene insieme tutto il viaggio. Quando la scena non rende ovvio dov'è, il punto ha l'etichetta «Tu sei qui».
+Un piccolo punto caldo (oro/ambra) che segna dove si trova lei a ogni scala: sulla soglia, nella strada, nel quartiere, sulla Terra, poi il Sole, poi la posizione del Sole nella galassia, e così via. È il filo che tiene insieme tutto il viaggio. Quando la scena non rende ovvio dov'è, il punto ha l'etichetta «Tu sei qui».
+
+### Inquadrature
+
+- **«Largo»** = il lato corto dell'area libera dal pannello della didascalia. La scena si inquadra dentro quell'area, in ogni viewport.
+- La camera ha, oltre allo zoom, una **traccia del centro** che dipende dalla posizione nel viaggio: il centro non è sempre su «Tu sei qui» (alla Via Lattea è il nucleo galattico).
+- Il soggetto di ogni tappa deve stare **intero** nell'inquadratura. `partenza`: lei tutta dentro il metro. `voyager` e `nebulose`: inquadratura decentrata, perché con il Sole al centro Voyager (25,9 miliardi di km) e la Nebulosa di Orione (circa 1.344 anni-luce) cadrebbero sul bordo; gli esponenti restano quelli di `levels.ts`.
+- **La lente**: una sola convenzione per tutto ciò che in scala sarebbe invisibile (Luna, Giove e le sue lune, Saturno, le sonde). Un cerchio dal bordo sottile, collegato da un filo alla posizione vera dell'oggetto, che lo mostra ingrandito con la scritta «ingrandito, non in scala». È un componente condiviso: mai oggetti ingranditi direttamente nella scena.
 
 ### Tappe speciali
 
-- **Voyager** (`special: 'voyager'`): pannello «vivo» con la distanza stimata in tempo reale (`VOYAGER_1` in `data.ts`, testi in `UI.voyager`) e quanti km ha percorso da quando la pagina è aperta. Mostra `milestoneBefore` o `milestoneAfter` in base alla data attuale rispetto a `VOYAGER_1.lightDayDateUTC`. Pulsante che apre il Disco d'oro.
-- **La bolla dei 10 anni** (`special: 'bubble'`): è il momento emotivo, va curato più di tutto il resto. Sfera di luce calda attorno al Sole; le stelle di `NEARBY_STARS` sono posizionate in 3D da RA, Dec e distanza e si accendono quando la sfera le raggiunge. Con `#nata=AAAA-MM-GG` nel link il raggio è calcolato esattamente e compare `UI.bubble.exactRadius`; senza, il raggio è 10 anni-luce.
+- **Voyager** (`special: 'voyager'`): pannello «vivo» con la distanza stimata in tempo reale (`VOYAGER_1` in `data.ts`, testi in `UI.voyager`) e quanti km ha percorso da quando la pagina è aperta. Mostra `milestoneBefore` o `milestoneAfter` in base alla data attuale rispetto a `VOYAGER_1.lightDayDateUTC`. Pulsante che apre il Disco d'oro. La distanza dalla Terra si legge da una **tabella precalcolata con JPL Horizons**, salvata in `data.ts` e interpolata: la stima lineare a 17 km/s ignora l'orbita della Terra (la distanza oscilla durante l'anno e per alcuni mesi diminuisce) e vale solo come ripiego finché la tabella non c'è.
+- **La bolla dei 10 anni** (`special: 'bubble'`): è il momento emotivo, va curato più di tutto il resto. Sfera di luce calda attorno al Sole; le stelle di `NEARBY_STARS` sono posizionate in 3D da RA, Dec e distanza e si accendono quando la sfera le raggiunge. Con `#nata=AAAA-MM-GG` nel link il raggio è calcolato esattamente e compare `UI.bubble.exactRadius`; senza, il raggio è 10 anni-luce. La bolla è **viva**: raggio, stelle accese e testi derivano dalla stessa data, quindi testo e scena non si contraddicono mai (quando la luce raggiunge Epsilon Eridani, anche il testo lo dice). Le varianti dei testi di `bolla` si propongono a Nicola in M4.
 - **Oltre** (Atto II): l'universo si rimpicciolisce a un punto, la parola «metri» scivola via dal contatore con un glitch giocoso, restano solo le cifre.
 - **Finale**: se `FINALE_IS_PLACEHOLDER` è vero, mostra in modo evidente «TODO: messaggio di Nicola» e stampa un avviso in console. **Non inventare il messaggio.**
 
 ### Disco d'oro (`golden-record.ts`)
 
-Si apre dalla tappa Voyager e dall'epilogo; chiudendolo si torna esattamente al punto del viaggio. Lei sceglie un'immagine (disegnata da noi in SVG o canvas, mai foto), un suono (sintetizzato con Web Audio: battito, pioggia, mare, uccelli, la melodia di «Tanti auguri», «CIAO» in Morse) e scrive un messaggio di massimo 140 caratteri. Il sito genera un disco dorato animato (solchi, incisione `engraving`, l'immagine al centro) che può salvare come PNG. Tutto resta nel browser.
+Si apre dalla tappa Voyager e dall'epilogo; chiudendolo si torna esattamente al punto del viaggio. Ha due parti: il **racconto** (`GOLDEN_RECORD.intro`, da fare con la tappa Voyager) e il **laboratorio** (tutto il resto, saltabile). Nel laboratorio lei sceglie un'immagine (disegnata da noi in SVG o canvas, mai foto), un suono (sintetizzato con Web Audio: battito, pioggia, mare, uccelli, la melodia di «Tanti auguri», «CIAO» in Morse) e scrive un messaggio di massimo 140 caratteri. Il sito genera un disco dorato animato (solchi, incisione `engraving`, l'immagine al centro) che può salvare come PNG. Tutto resta nel browser.
 
 ### Personalizzazione via link
 
 Solo nel frammento dopo `#`, che non viene inviato al server e non finisce nel repo: `#nome=Nome` e `#nata=AAAA-MM-GG` (combinabili con `&`). Si leggono a runtime e non si salvano da nessuna parte. Senza parametri tutto funziona: il saluto viene saltato e `{nome}` sparisce dai testi.
+
+**Testi legati alla data**: ogni testo che dipende dall'età o dal giorno si calcola dalla stessa data che muove la scena, e non deve mai risultare falso. La prima riga dell'apertura usa `UI.intro.firstLine`: `birthday` solo nel giorno del 10° compleanno, `before` o `after` negli altri giorni, `unknown` senza `#nata=`.
 
 ## Direzione visiva
 
@@ -87,28 +97,30 @@ Solo nel frammento dopo `#`, che non viene inviato al server e non finisce nel r
 
 ### Motore di zoom (M1, la parte difficile)
 
-- Lo stato è un esponente `e` in virgola mobile. Atto I: `e` da 0 a 26,94. L'Atto II si aggancia dopo, sulle tappe `number`.
+- Lo stato è la **posizione nel viaggio** (dall'apertura all'epilogo, passando per tutte le tappe); l'esponente `e` è derivato da quella. Nell'Atto I `e` va da 0 a 26,94 in modo continuo. Nell'Atto II gli esponenti (30, 80, 100, googolplex) non si interpolano: si anima la posizione, non `e`.
 - **Mai un'unica scena in metri**: su più di 30 ordini di grandezza la precisione dei float non regge. Ogni livello ha unità proprie e un intervallo di visibilità `[eMin, eMax]`; la camera è derivata da `e`; i livelli adiacenti si sovrappongono e sfumano, con dimensioni e posizioni allineate nel passaggio. Origine flottante; depth buffer logaritmico se serve.
 - I livelli si inizializzano e si liberano in modo pigro, così la memoria resta limitata. Qualità adattiva (pixel ratio, numero di particelle) in base agli fps misurati.
-- L'input viene normalizzato (rotella e trackpad, pinch, swipe, tasti, pulsanti) in variazioni di `e`, con inerzia e aggancio alle tappe.
+- L'input viene normalizzato (rotella e trackpad, pinch, swipe, tasti, pulsanti) in variazioni della posizione nel viaggio, con inerzia e aggancio alle tappe.
 - **Proponi l'architettura prima di implementarla**, con almeno un'alternativa e i pro e contro. Struttura suggerita: `src/engine/` (stato della scala, input, camera, gestore dei livelli), `src/levels/` (un modulo per scena o per gruppo), `src/ui/` (contatore, pannello, comandi, apertura, finale, pagina fonti), `src/audio/`, `src/golden-record/`.
 
 ### Contratto URL (serve per test e screenshot, va rispettato sempre)
 
 | Parametro | Effetto |
 |---|---|
-| `?s=<e>` | parte da quell'esponente (es. `?s=13.7`) |
-| `?stop=<id>` | parte da quella tappa (es. `?stop=bolla`) |
-| `?static=1` | congela animazioni ed effetti legati al tempo, salta l'apertura; il contatore di Voyager usa la data fissa `VOYAGER_1.lightDayDateUTC` |
+| `?s=<e>` | parte da quell'esponente, solo nell'Atto I, da 0 a 26,94 (es. `?s=13.7`) |
+| `?stop=<id>` | parte da quella tappa (es. `?stop=bolla`) oppure da una vista che non è una tappa: `apertura`, `finale`, `epilogo`, `fonti`, `disco` |
+| `?static=1` | congela animazioni ed effetti legati al tempo e salta l'apertura (tranne con `?stop=apertura`); le viste a comparsa progressiva (apertura, finale) si mostrano nello stato finale, con tutte le righe visibili; il contatore di Voyager usa la data fissa `VOYAGER_1.lightDayDateUTC` |
 | `?debug=1` | sovrimpressione con fps, `e`, livelli attivi, draw call |
 
-Quando il primo fotogramma allo stato richiesto è stato disegnato, imposta `document.documentElement.dataset.ready = '1'`. Lo script degli screenshot aspetta questo segnale.
+Quando il primo fotogramma allo stato richiesto è stato disegnato, imposta `document.documentElement.dataset.ready = '1'`. Lo script degli screenshot aspetta questo segnale. Oggi `--stops` accetta solo gli id di `levels.ts`: in M1 va esteso alle cinque viste che non sono tappe.
 
 ### Dati geografici (M2)
 
-- Script da eseguire una volta in locale, in `scripts/geodata/`: scaricano da OpenStreetMap (Overpass API) strade, ferrovie, fiumi e l'impronta del Duomo per Rifredi e Firenze; per Toscana e Italia usano Natural Earth (pubblico dominio) o i confini ISTAT (CC BY). Semplificano, quantizzano e scrivono JSON compatti in `public/data/`, che si committano.
+- Script da eseguire una volta in locale, in `scripts/geodata/`: scaricano da OpenStreetMap (Overpass API) strade, ferrovie, fiumi, edifici, aree verdi e l'impronta del Duomo per Rifredi e Firenze; per Toscana e Italia usano Natural Earth (pubblico dominio) o i confini ISTAT (CC BY). Semplificano, quantizzano e scrivono JSON compatti in `public/data/`, che si committano.
 - Mai scaricare dati a runtime. Attribuzione «© OpenStreetMap contributors» in `CREDITS.md` e nella pagina fonti.
 - **Mai segnare luoghi privati** (case, scuole, indirizzi). Solo i luoghi pubblici citati in `levels.ts`.
+- **Punto di partenza**: un punto sul bordo di una strada pubblica di Rifredi, scelto da Nicola (chiedigli le coordinate all'inizio di M2). Nel repo compaiono solo le coordinate, nella configurazione degli script: mai il nome della via, mai un edificio evidenziato o un numero civico. `partenza` e `strada` sono scene generiche disegnate da noi, orientate come la strada reale così l'aggancio con `rifredi` non ha salti.
+- **Luci notturne**: Black Marble (circa 500 m per pixel) basta per `italia` e `terra`. Dove non basta, a partire da `toscana`, le luci sono stilizzate a partire da dati vettoriali (strade e centri abitati).
 
 ### Immagini, modelli, audio
 
@@ -132,40 +144,51 @@ Prima di dire che qualcosa è finito:
 1. `npm run typecheck` e `npm run build` senza errori.
 2. `npm run shots -- --from 0 --to 27 --step 1` (o `--stops id1,id2`): screenshot su desktop, tablet e telefono in `screenshots/`, con un foglio riassuntivo per viewport e `report.json` con gli errori di console. **Guarda davvero le immagini** (leggi i PNG) prima di dichiarare una scena pronta. La skill `/verifica-visiva` descrive la procedura.
 3. Nessun errore in console.
-4. A fine milestone, chiedi a Nicola di provare su un dispositivo vero e digli cosa guardare.
+4. A fine milestone, chiedi a Nicola di provare su un dispositivo vero e digli cosa guardare. Lei lo aprirà su tablet e PC; Nicola prova sul tablet con `npm run dev -- --host` in rete locale.
 
 Se la grafica 3D negli screenshot è nera, prova `--gpu` (usa la GPU invece di SwiftShader) o controlla gli errori in `report.json`.
 
 ## Privacy (il repo è pubblico)
 
 - Rifredi e Firenze vanno bene come luoghi. Mai: cognome, foto, data di nascita, indirizzo o via, scuola, né altro che identifichi la bambina o Nicola. Nome e data di nascita solo nel link, dopo il `#`.
+- Mai nemmeno il giorno del compleanno (insieme a «10 anni» dà la data di nascita) né il nome della via del punto di partenza: né nei file né nei messaggi di commit.
 - `finale.ts` è pubblico: Nicola lo sa.
 - Nessun tracciamento, nessuna analytics.
 
 ## Accuratezza scientifica
 
-- Testi e dati sono verificati; i segni `TODO fact-check` vanno risolti in M8 con `/fact-check`.
+- Testi e dati sono verificati; i segni `TODO fact-check` si risolvono con `/fact-check` in una sessione a parte subito dopo M1, con un ripasso finale in M8.
 - Ogni fatto nuovo che aggiungi (etichette, numeri nelle scene) deve essere corretto. Nel dubbio arrotonda e scrivi «circa», oppure chiedi.
 - Le semplificazioni per una bambina vanno bene, gli errori no.
 
 ## Come lavorare
 
 - Una milestone alla volta. Comincia in modalità piano, proponi, aspetta l'approvazione.
-- Alla fine di ogni milestone: typecheck, build, screenshot guardati, **commit** con un messaggio chiaro (in inglese, all'imperativo). Poi di' a Nicola cosa provare. **Non fare push senza chiedere**: il push pubblica il sito.
+- Alla fine di ogni milestone: typecheck, build, screenshot guardati, **commit** con un messaggio chiaro (in inglese, all'imperativo). Poi di' a Nicola cosa provare. I push su `main` sono permessi: pubblicano il sito, ma la pagina ha `noindex` e il link non lo ha nessuno finché non lo manda Nicola.
 - Chiedi prima di aggiungere dipendenze oltre a three.js e piccole librerie mirate (es. `@fontsource/*`, una libreria di semplificazione per i dati geografici). Mai framework pesanti.
 - Se una scelta di design è incerta, proponi 2 opzioni con screenshot.
 - Se una decisione di architettura cambia questo file, aggiorna la sezione «Decisioni» in fondo.
 
 ## Milestone
 
+Il sito va fatto tutto: tutte le milestone. Si lavora però **fuori ordine e in sessioni diverse, anche con modelli diversi**: prima M1, M4 e M6; poi M2, M3, M5, M7 e M8. Per questo ogni milestone deve essere autosufficiente:
+
+- Si parte da questo file, da `src/content/` e dalle skill, senza contare sulla memoria di sessioni precedenti. Quello che la milestone successiva deve sapere va scritto qui, in «Decisioni».
+- M1 lascia per ogni tappa un **segnaposto già bello** (il sito è regalabile in ogni momento) e scrive in «Decisioni» il **contratto dei livelli**: interfaccia, unità, `[eMin, eMax]`, dimensioni e posizioni di aggancio con i vicini.
+- Una milestone successiva sostituisce solo le scene delle sue tappe, senza toccare il motore. Ogni scena si allinea ai vicini tramite il contratto, non tramite la loro implementazione: il vicino può essere ancora un segnaposto.
+- I componenti condivisi (contatore, pannello, «Tu sei qui», lente, etichette) nascono in M1 e si riusano.
+- Ogni milestone finisce con il sito intero e funzionante su tutta la scala: verifica completa, commit, stato aggiornato qui sotto.
+
+Stato:
+
 - **M0, fatto**: starter, contenuti, deploy, script degli screenshot, skill.
-- **M1, motore di zoom end-to-end**: segnaposto per ogni tappa (forma, etichetta, esponente), input completo, contatore, pannello con «saperne di più» e «Come lo sappiamo?», contratto URL, overlay di debug, apertura essenziale. Si considera fatta quando si va fluidamente da 10⁰ fino al finale segnaposto, con screenshot su tutta la scala nei 3 viewport.
-- **M2, le tappe terrestri**: `prato`, `giardino`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
+- **M1, motore di zoom end-to-end**: segnaposto già belli per ogni tappa (forma, etichetta, esponente), input completo, contatore con gli scatti a ogni potenza di 10, pannello con «saperne di più» e «Come lo sappiamo?», «Tu sei qui», lente, contratto URL esteso, overlay di debug, apertura essenziale con la prima riga legata alla data. Si considera fatta quando si va fluidamente da 10⁰ fino al finale segnaposto, con screenshot su tutta la scala nei 3 viewport.
+- **M2, le tappe terrestri**: `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.
-- **M4, i momenti speciali**: `voyager` (con il pannello vivo), `oort`, `bolla`.
+- **M4, i momenti speciali**: `voyager` (con il pannello vivo, la tabella JPL Horizons e il racconto del Disco d'oro), `oort`, `bolla` (viva, con le varianti dei testi approvate da Nicola).
 - **M5, galassie e universo**: `nebulose`, `via-lattea`, `andromeda`, `laniakea`, `rete-cosmica`, `universo`.
 - **M6, oltre e finale**: `oltre`, `atomi`, `googol`, `googolplex`, il finale (col segnaposto), l'epilogo, la pagina delle fonti.
-- **M7, Disco d'oro**: da saltare se il tempo non basta.
+- **M7, Disco d'oro, il laboratorio**: da saltare se il tempo non basta (il racconto è in M4).
 - **M8, rifinitura**: apertura, audio, telefono, prestazioni, accessibilità, `/fact-check`, `CREDITS.md`, `README.md`, screenshot finali completi.
 
 ## «Finito» significa
@@ -174,4 +197,15 @@ Una bambina di 10 anni apre il link su un tablet, capisce da sola cosa fare, arr
 
 ## Decisioni
 
-_(Annota qui le decisioni di architettura man mano che le prendi.)_
+_(Annota qui le decisioni di architettura man mano che le prendi. Il dettaglio sta nelle sezioni indicate.)_
+
+Prese con Nicola prima di M1:
+
+- Lo stato del motore è la posizione nel viaggio, `e` è derivato («Motore di zoom»).
+- ▶ va alla tappa successiva; il contatore mostra l'esponente arrotondato e scatta a ogni potenza di 10 («Navigazione», «Il contatore»).
+- «Largo» è il lato corto dell'area libera dal pannello; la camera ha una traccia del centro; `voyager` e `nebulose` sono decentrate («Inquadrature»).
+- Una sola lente per gli oggetti invisibili in scala («Inquadrature»).
+- Voyager: distanza da tabella JPL Horizons interpolata («Tappe speciali»).
+- Testi e scene legati alla stessa data, mai in contraddizione («Personalizzazione via link», «Tappe speciali»).
+- Il viaggio parte da una strada reale di Rifredi; le prime due tappe sono `partenza` e `strada` («Dati geografici»).
+- Milestone fuori ordine e autosufficienti («Milestone»).

@@ -5,7 +5,7 @@
  *
  * Usage, from the project root:
  *   npm run shots                                  every stop in levels.ts (uses ?stop=<id>)
- *   npm run shots -- --stops prato,bolla           only these stops
+ *   npm run shots -- --stops partenza,bolla        only these stops
  *   npm run shots -- --from 0 --to 27 --step 0.5   a range of exponents (uses ?s=<e>)
  *   npm run shots -- --scales 0,7.2,13.7           explicit exponents
  *   npm run shots -- --viewports phone,tablet      desktop | tablet | phone

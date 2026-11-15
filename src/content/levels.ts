@@ -14,26 +14,26 @@ export const STOPS: Stop[] = [
   // ───────────────────────────── Act I: from Rifredi to the edge of the universe
 
   {
-    id: 'prato',
+    id: 'partenza',
     kind: 'space',
     exponent: 0,
     title: `Si parte da te`,
-    text: `Sei sdraiata su un prato a Rifredi e guardi le stelle. Quello che vedi adesso è largo 1 metro. A ogni passo ci allontaneremo, e la scena diventerà 10 volte più grande.`,
+    text: `Sei a Rifredi, seduta sulla soglia di un grande portone, col naso all'insù: guardi le stelle. Quello che vedi adesso è largo 1 metro. A ogni passo ci allontaneremo, e la scena diventerà 10 volte più grande.`,
     more: `Guarda il contatore: 10⁰ metri. Il numerino piccolo si chiama esponente e ti dice quanti zeri mettere dopo l'1. 10⁰ = 1, perché non ci sono zeri. 10¹ = 10, 10² = 100, 10³ = 1.000. Con gli esponenti si scrivono numeri enormi in pochissimo spazio. Ti serviranno: tra poco i numeri diventeranno giganteschi.`,
     counterLine: `un po' meno della tua altezza`,
-    visual: `Notte serena. Vista dall'alto, camera che guarda in giù. Una bambina stilizzata sdraiata a pancia in su sull'erba, braccia aperte: silhouette morbida, mai realistica, nessun tratto del viso, nessun dettaglio che la renda riconoscibile. Erba che si muove appena. Qui nasce il "punto caldo" (vedi CLAUDE.md, «Tu sei qui») che resterà visibile a tutte le scale.`,
+    visual: `Notte serena. Vista dall'alto, camera che guarda in giù. Una bambina stilizzata seduta sulla soglia di un grande portone chiuso, ginocchia piegate e piedi appoggiati sull'asfalto, mani sulla soglia, viso rivolto al cielo (cioè verso la camera): silhouette morbida, mai realistica, nessun tratto del viso, nessun dettaglio che la renda riconoscibile. Deve stare tutta dentro l'inquadratura di 1 metro: con le ginocchia piegate occupa circa 75 × 60 cm (con le gambe distese supererebbe il metro, quindi no). La soglia attraversa l'inquadratura dietro di lei, con il filo del portone appena oltre: generico, senza numeri civici, targhe o insegne. Asfalto scuro con grana fine; la luce calda di un lampione fuori campo le disegna un'ombra lunga. Qui nasce il «punto caldo» (vedi CLAUDE.md, «Tu sei qui») che resterà visibile a tutte le scale.`,
     sources: [],
   },
 
   {
-    id: 'giardino',
+    id: 'strada',
     kind: 'space',
     exponent: 1,
     title: `10 metri`,
     text: `Un passo indietro, e la scena è già 10 volte più larga: 10 metri, più o meno la lunghezza di un autobus.`,
     more: `Ogni passo moltiplica per 10. Dopo 2 passi la scena è 100 volte più larga, dopo 3 passi 1.000 volte, dopo 6 passi un milione di volte. Moltiplicare tante volte per lo stesso numero fa crescere le cose in fretta: per arrivare al bordo di tutto l'universo che possiamo vedere bastano circa 27 passi.`,
     counterLine: `lungo come un autobus`,
-    visual: `Il prato con qualche albero, una panchina, un lampione acceso. Le prime finestre illuminate ai bordi della scena.`,
+    visual: `La stessa strada, larga 10 metri nell'inquadratura: asfalto, marciapiede, il grande portone chiuso visto dall'alto (il filo del muro e un pezzo di tetto), un lampione acceso con il suo cerchio di luce calda, un'auto parcheggiata, un tombino. Lei, piccola, ancora seduta sulla soglia, con il punto caldo. Le prime finestre illuminate ai bordi della scena. Tutto generico: nessun numero civico, targa o insegna. L'asse della strada è orientato come nei dati reali della tappa successiva, così il passaggio a 100 metri non ha salti.`,
     sources: [],
   },
 
@@ -45,7 +45,7 @@ export const STOPS: Stop[] = [
     text: `100 metri: le strade di Rifredi, con le finestre accese. Sai da dove viene il nome? Da un torrente, il Terzolle, che anticamente era chiamato «rio freddo» per le sue acque gelide.`,
     more: `Il Terzolle nasce sulle colline di Cercina, a nord di Firenze. Scende attraversando Careggi e Rifredi e poi si getta nel Mugnone, che a sua volta finisce nell'Arno. I Romani lo chiamavano Rivus Frigidus, «ruscello freddo». Col passare dei secoli, da quel nome è nato «Rifredi».`,
     counterLine: `più o meno un campo da calcio`,
-    visual: `Strade stilizzate di notte viste dall'alto (dati OpenStreetMap): strade come linee calde, isolati scuri, puntini di finestre accese, macchie di verde. NESSUN segno su case, scuole o altri luoghi privati: il punto caldo sta in un punto generico del quartiere, mai su un indirizzo reale. Se il Terzolle cade nell'inquadratura, mostrarlo come un filo d'acqua che riflette la luce.`,
+    visual: `Strade stilizzate di notte viste dall'alto (dati OpenStreetMap): strade come linee calde, isolati scuri, puntini di finestre accese, macchie di verde. NESSUN segno su case, scuole o altri luoghi privati: il punto caldo sta sul punto di partenza scelto da Nicola, sul bordo di una strada pubblica (vedi CLAUDE.md, «Dati geografici»); nessun edificio evidenziato, nessun numero civico, nessun nome di via. Se il Terzolle cade nell'inquadratura, mostrarlo come un filo d'acqua che riflette la luce.`,
     sources: [
       { title: `Città Metropolitana di Firenze – Torrente Terzolle`, url: `https://www.cittametropolitana.fi.it/wp-content/uploads/Torrente_Terzolle.pdf` },
       { title: `La Nazione – Rifredi, un rione a caccia di futuro`, url: `https://www.lanazione.it/firenze/cronaca/rifredi-un-rione-a-caccia-di-futuro-la-scommessa-delle-ex-fabbriche-1.8478526` },

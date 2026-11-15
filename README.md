@@ -1,6 +1,6 @@
 # Dieci
 
-Un viaggio in potenze di 10: da un prato a Rifredi, a Firenze, fino al bordo dell'universo osservabile. E poi oltre, dove restano solo i numeri.
+Un viaggio in potenze di 10: da una strada di Rifredi, a Firenze, fino al bordo dell'universo osservabile. E poi oltre, dove restano solo i numeri.
 
 È un regalo per un decimo compleanno. Ogni numero che compare nel viaggio è vero ed è stato controllato: le fonti sono nel sito stesso, nella pagina «È tutto vero».
 

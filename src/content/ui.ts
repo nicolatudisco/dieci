@@ -8,6 +8,17 @@ export const UI = {
   intro: {
     /** Shown only when the link contains #nome=...; otherwise skipped. */
     greeting: `Ciao, {nome}.`,
+    /**
+     * The first line follows the date in the link (#nata=AAAA-MM-GG), so it is never false:
+     * `birthday` only on the day she turns 10, `before` / `after` on any other day,
+     * `unknown` when the link has no date. At runtime it replaces `lines[0]`.
+     */
+    firstLine: {
+      birthday: `Oggi compi 10 anni.`,
+      before: `Stai per compiere 10 anni.`,
+      after: `Hai compiuto 10 anni.`,
+      unknown: `Questo viaggio è per i tuoi 10 anni.`,
+    },
     lines: [
       `Oggi compi 10 anni.`,
       `10 sembra un numero piccolo.`,
