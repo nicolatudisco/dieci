@@ -109,10 +109,11 @@ Solo nel frammento dopo `#`, che non viene inviato al server e non finisce nel r
 |---|---|
 | `?s=<e>` | parte da quell'esponente, solo nell'Atto I, da 0 a 26,94 (es. `?s=13.7`) |
 | `?stop=<id>` | parte da quella tappa (es. `?stop=bolla`) oppure da una vista che non è una tappa: `apertura`, `finale`, `epilogo`, `fonti`, `disco` |
+| `?u=<pos>` | parte da quella posizione del viaggio (vedi «Decisioni»): serve per le transizioni dell'Atto II, che `?s=` non raggiunge (es. `?u=28`) |
 | `?static=1` | congela animazioni ed effetti legati al tempo e salta l'apertura (tranne con `?stop=apertura`); le viste a comparsa progressiva (apertura, finale) si mostrano nello stato finale, con tutte le righe visibili; il contatore di Voyager usa la data fissa `VOYAGER_1.lightDayDateUTC` |
 | `?debug=1` | sovrimpressione con fps, `e`, livelli attivi, draw call |
 
-Quando il primo fotogramma allo stato richiesto è stato disegnato, imposta `document.documentElement.dataset.ready = '1'`. Lo script degli screenshot aspetta questo segnale. Oggi `--stops` accetta solo gli id di `levels.ts`: in M1 va esteso alle cinque viste che non sono tappe.
+Precedenza: `stop`, poi `u`, poi `s`. Quando il primo fotogramma allo stato richiesto è stato disegnato, imposta `document.documentElement.dataset.ready = '1'`. Lo script degli screenshot aspetta questo segnale. Oggi `--stops` accetta solo gli id di `levels.ts`: in M1 va esteso alle cinque viste che non sono tappe.
 
 ### Dati geografici (M2)
 
@@ -141,7 +142,7 @@ GitHub Pages tramite `.github/workflows/deploy.yml` a ogni push su `main`. `base
 
 Prima di dire che qualcosa è finito:
 
-1. `npm run typecheck` e `npm run build` senza errori.
+1. `npm run typecheck`, `npm run build` e `npm test` senza errori (i test sono in `tests/`, girano con `node --test` senza dipendenze).
 2. `npm run shots -- --from 0 --to 27 --step 1` (o `--stops id1,id2`): screenshot su desktop, tablet e telefono in `screenshots/`, con un foglio riassuntivo per viewport e `report.json` con gli errori di console. **Guarda davvero le immagini** (leggi i PNG) prima di dichiarare una scena pronta. La skill `/verifica-visiva` descrive la procedura.
 3. Nessun errore in console.
 4. A fine milestone, chiedi a Nicola di provare su un dispositivo vero e digli cosa guardare. Lei lo aprirà su tablet e PC; Nicola prova sul tablet con `npm run dev -- --host` in rete locale.
@@ -183,6 +184,15 @@ Stato:
 
 - **M0, fatto**: starter, contenuti, deploy, script degli screenshot, skill.
 - **M1, motore di zoom end-to-end**: segnaposto già belli per ogni tappa (forma, etichetta, esponente), input completo, contatore con gli scatti a ogni potenza di 10, pannello con «saperne di più» e «Come lo sappiamo?», «Tu sei qui», lente, contratto URL esteso, overlay di debug, apertura essenziale con la prima riga legata alla data. Si considera fatta quando si va fluidamente da 10⁰ fino al finale segnaposto, con screenshot su tutta la scala nei 3 viewport.
+  - **In corso.** Si lavora in 8 passi. Alla fine di ogni passo: typecheck, build e test puliti, un commit, e questo elenco aggiornato. Se la sessione si interrompe si riparte dal primo passo senza ✅, leggendo «Decisioni → Motore di zoom». Push solo alla fine, dopo la conferma di Nicola.
+    1. ✅ Nucleo puro con test: `src/engine/journey.ts` (asse `u`), `src/ui/format.ts`, `src/personalization.ts`, `src/route.ts`, `src/engine/clock.ts`.
+    2. ⬜ Motore: renderer a passaggi, palcoscenico e inquadratura, gestore dei livelli, overlay di debug, `data-ready`; segnaposto generico su tutte le 21 tappe dell'Atto I e segnaposto curato di `partenza` con la sagoma di lei seduta sulla soglia; comandi provvisori. **Poi fermarsi**: Nicola lo prova sul tablet prima di continuare.
+    3. ⬜ Interfaccia: token e caratteri, contatore con gli scatti, pannello, comandi, misura dell'area libera.
+    4. ⬜ Input e movimento definitivi: viaggio animato, rotella, swipe, pinch, tasti, aggancio, `prefers-reduced-motion`.
+    5. ⬜ Punto caldo, etichette, lente; specifiche curate dei segnaposto; sfondo di stelle.
+    6. ⬜ Apertura essenziale, Atto II, finale segnaposto, epilogo, `fonti`, `disco`.
+    7. ⬜ Qualità adattiva, accessibilità, `scripts/screenshot.mjs` esteso (`--stops` con le cinque viste, `--u`), `scripts/smoke.mjs`.
+    8. ⬜ Verifica completa nei 3 viewport, contratto dei livelli completo in «Decisioni», stato «fatto», conferma di Nicola e push.
 - **M2, le tappe terrestri**: `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.
 - **M4, i momenti speciali**: `voyager` (con il pannello vivo, la tabella JPL Horizons e il racconto del Disco d'oro), `oort`, `bolla` (viva, con le varianti dei testi approvate da Nicola).
@@ -209,3 +219,19 @@ Prese con Nicola prima di M1:
 - Testi e scene legati alla stessa data, mai in contraddizione («Personalizzazione via link», «Tappe speciali»).
 - Il viaggio parte da una strada reale di Rifredi; le prime due tappe sono `partenza` e `strada` («Dati geografici»).
 - Milestone fuori ordine e autosufficienti («Milestone»).
+
+### Motore di zoom (M1, architettura approvata da Nicola)
+
+**La posizione `u`** (`src/engine/journey.ts`). Lo stato del motore è un solo numero. `apertura` è a `u = −1`; nell'Atto I `u = e` (da 0 a 26,94); le tappe dell'Atto II sono a passi fissi (`oltre` 29, `atomi` 31, `googol` 33, `googolplex` 35), poi `finale` 37 ed `epilogo` 38,5. `fonti` e `disco` sono viste sovrapposte, fuori dall'asse: chiudendole si torna allo stesso `u`. La camera usa `cameraExponent(u)`: parte da −0,35 all'apertura e continua a crescere oltre 26,94, così l'universo si rimpicciolisce a un punto. Il contatore mostra 10ⁿ con n = `round(e)` e scatta quando n cambia.
+
+**Precisione.** Mai una scena in metri. (1) Lo stato è un logaritmo. (2) Ogni livello ha la sua unità, scelta perché il contenuto stia tra circa 10⁻³ e 10⁴ unità. (3) Un «palcoscenico» in metri, in float64 e solo su CPU, ha l'origine nel punto «Tu sei qui» e una tabella di ancore a distanze vere; ogni livello ha per origine un'ancora e la sua camera si calcola per sottrazione in float64. Ogni livello si disegna in un passaggio suo, con `near`, `far` e depth propri: niente depth logaritmico.
+
+**Camera.** Prospettica, 30° sul «largo»: la distanza è sempre 1,87 × 10^e. L'area libera è il viewport meno pannello agganciato, fascia del contatore, safe area e un margine del 4%; il punto principale della proiezione è il suo centro.
+
+**Livelli.** Un passaggio per livello, dal più grande al più piccolo (quello interno sta davanti), poi un passaggio HUD per punto caldo e lente; l'interfaccia è in DOM. Carico pigro con import dinamico, dissolvenze per materiale oppure fuori schermo (`fadeMode: 'offscreen'`). Alternativa scartata: scena unica con gruppi riscalati e depth logaritmico (isola peggio le milestone, pesa di più su tablet).
+
+**Input.** Tutto diventa variazione di `u` o «vai al nodo»: ▶ ◀ e tasti fanno un viaggio animato di 1,5–3 s (`travelDuration`); la rotella insegue un bersaglio con smorzamento; lo swipe ha inerzia; il pinch vale Δu = −log₁₀(rapporto). A ingresso fermo, aggancio morbido solo dentro la zona di cattura di una tappa (`snapTarget`: ±0,25, meno tra tappe vicine).
+
+**Tempo e data.** `src/engine/clock.ts` è l'unica fonte: con `?static=1` il tempo resta a zero e «adesso» è `VOYAGER_1.lightDayDateUTC`. Ogni testo o scena che dipende dalla data legge da lì.
+
+**Altre scelte approvate.** `?u=` nel contratto URL; cornice della scala (un quadrato sottile a ogni potenza di 10) nei segnaposto; nessun pulsante del suono finché l'audio non esiste (M8); caratteri proposti Fraunces e Atkinson Hyperlegible Next via `@fontsource`; nei segnaposto delle tappe terrestri nessuna geografia inventata, ma `partenza` ha già la sagoma di lei seduta sulla soglia.

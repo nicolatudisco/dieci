@@ -12,6 +12,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc",
+    "test": "node --test tests/",
     "shots": "node scripts/screenshot.mjs"
   },
   "dependencies": {
