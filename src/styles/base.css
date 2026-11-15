@@ -1,0 +1,332 @@
+/*
+ * Base styles: tokens, the stage and the layers above the canvas.
+ * The provisional interface of M1 step 2 is at the bottom; step 3 replaces it.
+ */
+:root {
+  color-scheme: dark;
+  --night: #05060d;
+  --ink: #eef1ff;
+  --muted: #9aa3c7;
+  --cool: #8fa3e6;
+  --warm: #ffd27a;
+  --warm-deep: #ffab45;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--night);
+  color: var(--ink);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* The stage receives every gesture: the page itself never scrolls or zooms. */
+.stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Layers drawn over the canvas. They never intercept gestures. */
+.labels,
+.scale-frames,
+.marker-layer,
+.debug {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── Scale frames ─────────────────────────────────────────────────────────── */
+.scale-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 1px solid rgb(143 163 230 / 0.34);
+  will-change: transform, width, height, opacity;
+}
+
+.scale-frame span {
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  white-space: nowrap;
+  text-shadow: 0 0 8px var(--night);
+}
+
+.scale-frame sup {
+  font-size: 0.72em;
+  vertical-align: 0.5em;
+  line-height: 0;
+}
+
+/* ── Labels ───────────────────────────────────────────────────────────────── */
+.label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform, opacity;
+}
+
+.label span {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 15px;
+  color: var(--ink);
+  text-shadow: 0 0 12px var(--night), 0 0 4px var(--night);
+}
+
+.label--above span {
+  transform: translate(-50%, calc(-100% - 10px));
+}
+
+.label--below span {
+  transform: translate(-50%, 10px);
+}
+
+.label--left span {
+  transform: translate(calc(-100% - 12px), -50%);
+}
+
+.label--right span {
+  transform: translate(12px, -50%);
+}
+
+.label--center span {
+  transform: translate(-50%, -50%);
+}
+
+.label--title span {
+  font-size: clamp(18px, 2.4vmin, 26px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.label--note span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── «Tu sei qui» ─────────────────────────────────────────────────────────── */
+.marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.marker i {
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff3d6;
+  box-shadow:
+    0 0 6px 2px var(--warm),
+    0 0 18px 6px rgb(255 171 69 / 0.55),
+    0 0 44px 14px rgb(255 171 69 / 0.22);
+}
+
+.marker i::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 210 122 / 0.55);
+  animation: marker-pulse 3.2s ease-out infinite;
+}
+
+@keyframes marker-pulse {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.9;
+  }
+  70%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.marker__label {
+  position: absolute;
+  left: 16px;
+  top: -11px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--warm);
+  white-space: nowrap;
+  text-shadow: 0 0 10px var(--night), 0 0 3px var(--night);
+  transition: opacity 0.4s ease;
+}
+
+/* ── Debug ────────────────────────────────────────────────────────────────── */
+.debug__text {
+  position: absolute;
+  right: calc(10px + var(--safe-right));
+  top: calc(10px + var(--safe-top));
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 0.66);
+  font: 12px/1.35 ui-monospace, 'SF Mono', Menlo, monospace;
+  color: #9fffb0;
+}
+
+.debug__free,
+.debug__largo {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.debug__free {
+  border: 1px dashed rgb(159 255 176 / 0.5);
+}
+
+.debug__largo {
+  border: 1px dotted rgb(255 120 200 / 0.7);
+}
+
+/* ── Errors ───────────────────────────────────────────────────────────────── */
+.fatal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+/* ── Time-frozen mode (?static=1) and reduced motion ──────────────────────── */
+html[data-static] *,
+html[data-static] *::before,
+html[data-static] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker i::after {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* ── PROVISIONAL interface (M1 step 2) ────────────────────────────────────── */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud__counter {
+  position: absolute;
+  left: calc(20px + var(--safe-left));
+  top: calc(14px + var(--safe-top));
+  line-height: 1.15;
+}
+
+.hud__label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.hud__power {
+  font-size: 44px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__power sup {
+  font-size: 0.55em;
+  vertical-align: 0.75em;
+  line-height: 0;
+  margin-left: 0.04em;
+}
+
+.hud__width {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__line {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.hud__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(20px + var(--safe-bottom));
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+}
+
+.hud__button {
+  pointer-events: auto;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1px solid rgb(143 163 230 / 0.55);
+  background: rgb(12 16 34 / 0.72);
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hud__button:active {
+  background: rgb(40 52 100 / 0.85);
+}
+
+.hud__button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}

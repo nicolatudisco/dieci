@@ -1,122 +1,95 @@
 /**
- * PLACEHOLDER — to be replaced in milestone M1 (see CLAUDE.md).
+ * Start-up: reads the URL contract, builds the stage and the interface, starts the engine.
  *
- * It only proves that the toolchain works end to end: three.js renders, the content
- * files compile, the URL contract (?s, ?stop, ?static, ?debug) is read, and the
- * `data-ready` flag used by scripts/screenshot.mjs is set after the first frame.
+ * M1 step 2: the interface is still provisional (ui/provisional.ts) and the opening is
+ * skipped automatically; steps 3-6 replace both.
  */
-import * as THREE from 'three';
-import './style.css';
-import { STOPS } from './content/levels';
-import { UI } from './content/ui';
+import './styles/base.css';
+import { UI } from './content/ui.ts';
+import { Clock } from './engine/clock.ts';
+import { Engine } from './engine/engine.ts';
+import type { Rect } from './engine/framing.ts';
+import { Input } from './engine/input.ts';
+import { LEVELS } from './levels/registry.ts';
+import { parseRoute } from './route.ts';
+import { DebugOverlay } from './ui/debug.ts';
+import { LabelLayer } from './ui/labels.ts';
+import { Marker } from './ui/marker.ts';
+import { ProvisionalHud } from './ui/provisional.ts';
+import { ScaleFrames } from './ui/scale-frames.ts';
 
-const params = new URLSearchParams(location.search);
-const isStatic = params.get('static') === '1';
-const isDebug = params.get('debug') === '1';
-const stopParam = params.get('stop');
-const sParam = Number.parseFloat(params.get('s') ?? '');
-
-const firstStop = STOPS[0];
-if (!firstStop) throw new Error('No stops defined in levels.ts');
-
-const requestedStop = STOPS.find((s) => s.id === stopParam);
-const exponent = Number.isFinite(sParam) ? sParam : (requestedStop ?? firstStop).exponent;
-const nearestStop = STOPS.reduce((best, s) =>
-  Math.abs(s.exponent - exponent) < Math.abs(best.exponent - exponent) ? s : best,
-);
-
-// ── Scene ────────────────────────────────────────────────────────────────────
-const app = document.querySelector<HTMLDivElement>('#app');
-if (!app) throw new Error('#app not found');
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-app.appendChild(renderer.domElement);
-
-const scene = new THREE.Scene();
-scene.background = new THREE.Color('#05060d');
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
-// A deterministic starfield (seeded), so screenshots are stable.
-let seed = 10;
-const random = () => {
-  seed = (seed * 16807) % 2147483647;
-  return (seed - 1) / 2147483646;
-};
-const starCount = 4000;
-const positions = new Float32Array(starCount * 3);
-for (let i = 0; i < starCount; i++) {
-  const r = 40 + random() * 200;
-  const theta = random() * Math.PI * 2;
-  const phi = Math.acos(2 * random() - 1);
-  positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-  positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-  positions[i * 3 + 2] = r * Math.cos(phi);
+function fail(app: HTMLElement, message: string): void {
+  const box = document.createElement('p');
+  box.className = 'fatal';
+  box.textContent = message;
+  app.replaceChildren(box);
 }
-const starGeometry = new THREE.BufferGeometry();
-starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-const stars = new THREE.Points(
-  starGeometry,
-  new THREE.PointsMaterial({ color: '#cfd8ff', size: 0.6, sizeAttenuation: true }),
-);
-scene.add(stars);
 
-// The single warm star of the opening: the future "Tu sei qui".
-const glow = new THREE.Mesh(
-  new THREE.SphereGeometry(0.12, 32, 16),
-  new THREE.MeshBasicMaterial({ color: '#ffd27a' }),
-);
-scene.add(glow);
+function boot(): void {
+  const app = document.querySelector<HTMLDivElement>('#app');
+  if (!app) throw new Error('#app not found');
 
-// ── Overlay ──────────────────────────────────────────────────────────────────
-const overlay = document.createElement('div');
-overlay.className = 'placeholder';
-overlay.innerHTML = `
-  <p class="placeholder__eyebrow">Dieci · in costruzione</p>
-  <h1 class="placeholder__title">${UI.intro.lines[0]}</h1>
-  <p class="placeholder__line">${UI.intro.lines[1]} ${UI.intro.lines[2]}</p>
-  <p class="placeholder__meta">Tappa più vicina a 10<sup>${exponent}</sup>: <strong>${nearestStop.title}</strong> · ${STOPS.length} tappe pronte</p>
-`;
-app.appendChild(overlay);
+  const params = new URLSearchParams(location.search);
+  const route = parseRoute(location.search);
+  const clock = new Clock(route.isStatic);
+  if (route.isStatic) document.documentElement.dataset.static = '1';
 
-const debug = document.createElement('pre');
-debug.className = 'placeholder__debug';
-debug.hidden = !isDebug;
-app.appendChild(debug);
+  const stage = document.createElement('div');
+  stage.className = 'stage';
+  app.append(stage);
 
-// ── Loop ─────────────────────────────────────────────────────────────────────
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let frames = 0;
-let lastFpsTime = performance.now();
-
-function render(time: number) {
-  if (!isStatic && !reducedMotion) {
-    stars.rotation.y = time * 0.00002;
-    glow.scale.setScalar(1 + Math.sin(time * 0.002) * 0.12);
-  }
-  renderer.render(scene, camera);
-
-  frames++;
-  if (isDebug && time - lastFpsTime > 500) {
-    const fps = (frames * 1000) / (time - lastFpsTime);
-    debug.textContent = `fps ${fps.toFixed(0)}  e ${exponent}  stop ${nearestStop.id}`;
-    frames = 0;
-    lastFpsTime = time;
+  let engine: Engine;
+  try {
+    engine = new Engine({
+      container: stage,
+      defs: LEVELS,
+      clock,
+      u: route.u,
+      forceOffscreen: params.get('offscreen') === '1',
+    });
+  } catch (error) {
+    console.error(error);
+    fail(app, UI.errors.noWebGL);
+    return;
   }
 
-  if (document.documentElement.dataset.ready !== '1') {
-    document.documentElement.dataset.ready = '1';
-    if (isStatic) return; // one frame is enough for screenshots
-  }
-  requestAnimationFrame(render);
+  // Layers over the canvas, back to front.
+  const frames = new ScaleFrames();
+  const labels = new LabelLayer();
+  const markerLayer = document.createElement('div');
+  markerLayer.className = 'marker-layer';
+  const marker = new Marker('Tu sei qui');
+  markerLayer.append(marker.element);
+  const hud = new ProvisionalHud((dir) => engine.go(dir));
+  const debug = route.debug ? new DebugOverlay() : null;
+  app.append(frames.element, labels.element, markerLayer, hud.element);
+  if (debug) app.append(debug.element);
+
+  // Free area: the stage minus the counter at the top and the buttons at the bottom.
+  const measure = (): Rect => {
+    const width = stage.clientWidth;
+    const height = stage.clientHeight;
+    const top = hud.counter.getBoundingClientRect().bottom + 8;
+    const bottom = height - hud.controls.getBoundingClientRect().top + 8;
+    return { x: 0, y: top, width, height: Math.max(80, height - top - bottom) };
+  };
+  engine.setFreeRect(measure(), true);
+  new ResizeObserver(() => engine.setFreeRect(measure(), true)).observe(stage);
+
+  engine.onFrame((info) => {
+    frames.update(info.framing);
+    labels.update(info.labels);
+    marker.update(info.framing, false);
+    hud.update(info);
+    debug?.update(info);
+  });
+
+  new Input({ surface: stage, motion: engine.motion, go: (dir) => engine.go(dir), enabled: () => true });
+
+  void engine.start().then(() => {
+    // Provisional: there is no opening yet, so the journey starts by itself.
+    if (!route.isStatic && engine.motion.u < 0) window.setTimeout(() => engine.go(1), 600);
+  });
 }
-requestAnimationFrame(render);
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera);
-});
+boot();
