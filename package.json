@@ -1,0 +1,26 @@
+{
+  "name": "dieci",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Dieci: un viaggio in potenze di 10, da Rifredi al bordo dell'universo.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "shots": "node scripts/screenshot.mjs"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.187.0",
+    "playwright": "^1.65.1",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.6"
+  }
+}
