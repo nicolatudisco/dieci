@@ -301,7 +301,9 @@ export class Engine {
         const opacity = (spec.opacity ?? 1) * fade;
         if (opacity < 0.01) continue;
         const p = projectLocal(framing, view, spec.at);
-        if (!p.visible || p.x < -200 || p.y < -100 || p.x > this.width + 200 || p.y > this.height + 100) continue;
+        // A label belongs to the scene: outside the free area it would sit on the interface.
+        const free = framing.free;
+        if (!p.visible || p.x < free.x || p.y < free.y + 8 || p.x > free.x + free.width || p.y > free.y + free.height) continue;
         labels.push({
           key: `${def.id}/${spec.id}`,
           text: spec.text,

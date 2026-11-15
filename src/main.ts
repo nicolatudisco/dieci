@@ -1,21 +1,20 @@
 /**
  * Start-up: reads the URL contract, builds the stage and the interface, starts the engine.
- *
- * M1 step 2: the interface is still provisional (ui/provisional.ts) and the opening is
- * skipped automatically; steps 3-6 replace both.
  */
+import './styles/tokens.css';
 import './styles/base.css';
+import './styles/ui.css';
 import { UI } from './content/ui.ts';
 import { Clock } from './engine/clock.ts';
 import { Engine } from './engine/engine.ts';
-import type { Rect } from './engine/framing.ts';
 import { Input } from './engine/input.ts';
 import { LEVELS } from './levels/registry.ts';
 import { parseRoute } from './route.ts';
 import { DebugOverlay } from './ui/debug.ts';
+import { Interface } from './ui/interface.ts';
 import { LabelLayer } from './ui/labels.ts';
+import { FreeArea } from './ui/layout.ts';
 import { Marker } from './ui/marker.ts';
-import { ProvisionalHud } from './ui/provisional.ts';
 import { ScaleFrames } from './ui/scale-frames.ts';
 
 function fail(app: HTMLElement, message: string): void {
@@ -23,6 +22,13 @@ function fail(app: HTMLElement, message: string): void {
   box.className = 'fatal';
   box.textContent = message;
   app.replaceChildren(box);
+}
+
+/** The typefaces must be there before the first frame is declared ready. */
+async function loadFonts(): Promise<void> {
+  if (!document.fonts) return;
+  const faces = ['340 1em "Fraunces Variable"', 'italic 400 1em "Fraunces Variable"', '400 1em "Andika"', '700 1em "Andika"'];
+  await Promise.all(faces.map((face) => document.fonts.load(face).catch(() => [])));
 }
 
 function boot(): void {
@@ -33,6 +39,7 @@ function boot(): void {
   const route = parseRoute(location.search);
   const clock = new Clock(route.isStatic);
   if (route.isStatic) document.documentElement.dataset.static = '1';
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const stage = document.createElement('div');
   stage.className = 'stage';
@@ -60,36 +67,31 @@ function boot(): void {
   markerLayer.className = 'marker-layer';
   const marker = new Marker('Tu sei qui');
   markerLayer.append(marker.element);
-  const hud = new ProvisionalHud((dir) => engine.go(dir));
+  const ui = new Interface({ go: (dir) => engine.go(dir), animated: !route.isStatic, reducedMotion });
   const debug = route.debug ? new DebugOverlay() : null;
-  app.append(frames.element, labels.element, markerLayer, hud.element);
+  app.append(frames.element, labels.element, markerLayer, ui.element);
   if (debug) app.append(debug.element);
 
-  // Free area: the stage minus the counter at the top and the buttons at the bottom.
-  const measure = (): Rect => {
-    const width = stage.clientWidth;
-    const height = stage.clientHeight;
-    const top = hud.counter.getBoundingClientRect().bottom + 8;
-    const bottom = height - hud.controls.getBoundingClientRect().top + 8;
-    return { x: 0, y: top, width, height: Math.max(80, height - top - bottom) };
-  };
-  engine.setFreeRect(measure(), true);
-  new ResizeObserver(() => engine.setFreeRect(measure(), true)).observe(stage);
+  const free = new FreeArea(engine, stage);
+  free.follow(ui.scene, true);
 
   engine.onFrame((info) => {
+    ui.update(info);
+    free.freeze(ui.panel.reading);
     frames.update(info.framing);
     labels.update(info.labels);
     marker.update(info.framing, false);
-    hud.update(info);
     debug?.update(info);
   });
 
   new Input({ surface: stage, motion: engine.motion, go: (dir) => engine.go(dir), enabled: () => true });
 
-  void engine.start().then(() => {
-    // Provisional: there is no opening yet, so the journey starts by itself.
-    if (!route.isStatic && engine.motion.u < 0) window.setTimeout(() => engine.go(1), 600);
-  });
+  void loadFonts()
+    .then(() => engine.start())
+    .then(() => {
+      // Provisional: there is no opening yet, so the journey starts by itself.
+      if (!route.isStatic && engine.motion.u < 0) window.setTimeout(() => engine.go(1), 600);
+    });
 }
 
 boot();

@@ -1,22 +1,7 @@
 /*
- * Base styles: tokens, the stage and the layers above the canvas.
- * The provisional interface of M1 step 2 is at the bottom; step 3 replaces it.
+ * Base styles: the page, the stage and the layers drawn over the canvas.
+ * Tokens are in tokens.css; the interface is in ui.css.
  */
-:root {
-  color-scheme: dark;
-  --night: #05060d;
-  --ink: #eef1ff;
-  --muted: #9aa3c7;
-  --cool: #8fa3e6;
-  --warm: #ffd27a;
-  --warm-deep: #ffab45;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -27,6 +12,9 @@ body {
   height: 100%;
   background: var(--night);
   color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--text);
+  line-height: 1.5;
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
@@ -85,8 +73,8 @@ body {
   position: absolute;
   left: 8px;
   top: 6px;
-  font-size: 13px;
-  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+  letter-spacing: 0.03em;
   color: var(--muted);
   white-space: nowrap;
   text-shadow: 0 0 8px var(--night);
@@ -135,9 +123,10 @@ body {
 }
 
 .label--title span {
-  font-size: clamp(18px, 2.4vmin, 26px);
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 36, 'SOFT' 60;
+  font-size: clamp(1.125rem, 2.4vmin, 1.5rem);
+  font-weight: 480;
 }
 
 .label--note span {
@@ -192,8 +181,8 @@ body {
   position: absolute;
   left: 16px;
   top: -11px;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 700;
   color: var(--warm);
   white-space: nowrap;
   text-shadow: 0 0 10px var(--night), 0 0 3px var(--night);
@@ -253,80 +242,4 @@ html[data-static] *::after {
     animation: none;
     opacity: 0.5;
   }
-}
-
-/* ── PROVISIONAL interface (M1 step 2) ────────────────────────────────────── */
-.hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.hud__counter {
-  position: absolute;
-  left: calc(20px + var(--safe-left));
-  top: calc(14px + var(--safe-top));
-  line-height: 1.15;
-}
-
-.hud__label {
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.hud__power {
-  font-size: 44px;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
-
-.hud__power sup {
-  font-size: 0.55em;
-  vertical-align: 0.75em;
-  line-height: 0;
-  margin-left: 0.04em;
-}
-
-.hud__width {
-  font-size: 18px;
-  font-variant-numeric: tabular-nums;
-}
-
-.hud__line {
-  font-size: 15px;
-  color: var(--muted);
-}
-
-.hud__controls {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(20px + var(--safe-bottom));
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-}
-
-.hud__button {
-  pointer-events: auto;
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  border: 1px solid rgb(143 163 230 / 0.55);
-  background: rgb(12 16 34 / 0.72);
-  color: var(--ink);
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.hud__button:active {
-  background: rgb(40 52 100 / 0.85);
-}
-
-.hud__button:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
 }

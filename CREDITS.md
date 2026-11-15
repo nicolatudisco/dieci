@@ -16,7 +16,10 @@ _(da completare)_
 
 ## Font
 
-_(da completare)_
+Tutti i caratteri sono nel sito (pacchetti `@fontsource`), nessuno viene scaricato da altri server.
+
+- [Fraunces](https://github.com/undercasetype/Fraunces), © 2020 The Fraunces Project Authors, licenza SIL Open Font License 1.1. Titoli e contatore.
+- [Andika](https://software.sil.org/andika/), © 2004-2022 SIL International, licenza SIL Open Font License 1.1. Tutti i testi.
 
 ## Software
 

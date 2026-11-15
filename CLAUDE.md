@@ -187,8 +187,8 @@ Stato:
 - **M1, motore di zoom end-to-end**: segnaposto già belli per ogni tappa (forma, etichetta, esponente), input completo, contatore con gli scatti a ogni potenza di 10, pannello con «saperne di più» e «Come lo sappiamo?», «Tu sei qui», lente, contratto URL esteso, overlay di debug, apertura essenziale con la prima riga legata alla data. Si considera fatta quando si va fluidamente da 10⁰ fino al finale segnaposto, con screenshot su tutta la scala nei 3 viewport.
   - **In corso.** Si lavora in 8 passi. Alla fine di ogni passo: typecheck, build e test puliti, un commit, e questo elenco aggiornato. Se la sessione si interrompe si riparte dal primo passo senza ✅, leggendo «Decisioni → Motore di zoom». Push solo alla fine, dopo la conferma di Nicola.
     1. ✅ Nucleo puro con test: `src/engine/journey.ts` (asse `u`), `src/ui/format.ts`, `src/personalization.ts`, `src/route.ts`, `src/engine/clock.ts`.
-    2. ✅ Motore (`src/engine/`: `stage`, `framing`, `level`, `level-manager`, `motion`, `input`, `renderer`, `engine`), registro dei livelli (`src/levels/registry.ts`), segnaposto generico su tutte le 21 tappe dell'Atto I, segnaposto curato di `partenza` con la sagoma, cornici della scala, punto caldo, etichette, overlay di debug, `data-ready`. L'interfaccia è ancora provvisoria (`src/ui/provisional.ts`, parte finale di `src/styles/base.css`) e l'apertura parte da sola (`src/main.ts`): le sostituiscono i passi 3 e 6. **Fermo qui in attesa della prova di Nicola sul tablet**: riprendere dal passo 3 solo dopo la sua risposta, tenendo conto delle sue osservazioni.
-    3. ⬜ Interfaccia: token e caratteri, contatore con gli scatti, pannello, comandi, misura dell'area libera.
+    2. ✅ Motore (`src/engine/`: `stage`, `framing`, `level`, `level-manager`, `motion`, `input`, `renderer`, `engine`), registro dei livelli (`src/levels/registry.ts`), segnaposto generico su tutte le 21 tappe dell'Atto I, segnaposto curato di `partenza` con la sagoma, cornici della scala, punto caldo, etichette, overlay di debug, `data-ready`. Provato da Nicola su iPad (Safari): 60 fps, ▶ ◀, swipe e rotazione a posto, la sagoma va bene così. Unico appunto, un fotogramma lungo (35 ms) nei passaggi tra livelli: da ricontrollare sull'iPad dopo il precaricamento (vedi «Decisioni → Motore di zoom → Precaricamento»; `?debug=1` ora conta i fotogrammi lenti).
+    3. ✅ Interfaccia (`src/ui/`: `interface`, `counter`, `counter-model`, `panel`, `layout`, `dom`, `rich-text`; `src/styles/`: `tokens`, `fonts`, `base`, `ui`): contatore con gli scatti e il righello delle potenze, pagina con didascalia ed espansioni, pulsanti «Più vicino» e «Più lontano», area libera misurata dalla griglia. Vedi «Decisioni → Interfaccia». L'apertura parte ancora da sola (`src/main.ts`): la sostituisce il passo 6.
     4. ⬜ Input e movimento definitivi: viaggio animato, rotella, swipe, pinch, tasti, aggancio, `prefers-reduced-motion`.
     5. ⬜ Punto caldo, etichette, lente; specifiche curate dei segnaposto; sfondo di stelle.
     6. ⬜ Apertura essenziale, Atto II, finale segnaposto, epilogo, `fonti`, `disco`.
@@ -235,6 +235,22 @@ Prese con Nicola prima di M1:
 
 **Tempo e data.** `src/engine/clock.ts` è l'unica fonte: con `?static=1` il tempo resta a zero e «adesso» è `VOYAGER_1.lightDayDateUTC`. Ogni testo o scena che dipende dalla data legge da lì.
 
+**Precaricamento.** Un livello non deve mai costare un fotogramma lungo quando entra in scena. Appena caricato, il gestore ne compila gli shader (`renderer.compileAsync`) e il motore lo disegna una volta dentro un solo pixel nascosto (`Engine.prime`), così buffer e pipeline della GPU sono pronti prima che serva. Il carico parte in anticipo: lungo tutto il tratto di un viaggio animato appena si preme ▶ e, da fermi su una tappa, verso la tappa successiva. Per questo un livello crea materiali e texture in `init()`, mai in `update()`.
+
+### Interfaccia (M1)
+
+**«Tavola e pagina».** Una sola griglia CSS (`src/styles/ui.css`) dispone contatore, scena e pagina. In verticale: contatore in alto, scena, pagina come foglio in basso (al massimo il 46% dell'altezza, richiudibile sul titolo; il testo più lungo scorre). In orizzontale: scena a sinistra e, a destra, una colonna con contatore, didascalia e pulsanti, larga `--page-width` (cresce finché la scena resta almeno quadrata).
+
+**L'area libera si misura, non si calcola.** La cella vuota della griglia (`.ui__scene`) *è* l'area libera: `src/ui/layout.ts` (`FreeArea`) ne misura il riquadro e lo passa al motore. Chi possiede lo schermo dice quale elemento seguire con `follow(elemento)` (l'interfaccia la sua cella; apertura e finale la loro). Con un'espansione aperta («saperne di più», «Come lo sappiamo?») l'area resta congelata: è modalità lettura, la scena non si muove. Safe area e breakpoint stanno solo nel CSS.
+
+**Contatore.** `src/ui/counter-model.ts` (puro, con test) decide cosa mostrare a ogni `u`; `src/ui/counter.ts` lo disegna: etichetta, «10ⁿ metri» con l'esponente che scatta rotolando, larghezza precisa, `counterLine`, e un righello con una tacca per ogni potenza di 10. Oltre il punto di mezzo tra `universo` e `oltre` passa ai numeri: «metri» scivola via e resta 10ⁿ con l'esponente della tappa più vicina.
+
+**Pagina.** `src/ui/panel.ts`. Durante un viaggio contiene già il testo della tappa di arrivo, invisibile: così prende la nuova misura durante lo zoom e non dopo. Fermi tra due tappe non c'è didascalia. Le tappe speciali aggiungono contenuto sotto il testo con `extras` (`PanelExtras`, una funzione per valore di `special`): è il punto di innesto per il pannello vivo di Voyager (M4). I pulsanti ◀ ▶ portano le etichette `UI.controls.back` e `forward`; «Più lontano» è l'unico elemento pieno e chiaro dell'interfaccia.
+
+**Caratteri.** Fraunces (titoli e contatore) e **Andika** (testi), dichiarati in `src/styles/fonts.css` con i soli sottoinsiemi latini. Andika ha sostituito Atkinson Hyperlegible Next, proposto all'inizio, perché Atkinson ha lo zero barrato e questi testi sono pieni di zeri da contare. In attesa della conferma di Nicola (confronto in `docs/confronti.local/caratteri.png`, non committato).
+
+**Testi a schermo.** `typeset()` in `src/ui/rich-text.ts` trasforma gli apici Unicode dei testi (10⁸⁰) in veri `<sup>` e gli apostrofi dritti in tipografici; ▶ e ◀ diventano icone disegnate. I testi in `src/content/` non cambiano.
+
 ### Contratto dei livelli (M1)
 
 Il contratto è nel codice, commentato: `src/engine/level.ts` (interfacce `LevelDef`, `Level`, `LevelFrame`, `LabelSpec` e regole per chi scrive un livello), `src/engine/stage.ts` (ancore e traccia del centro), `src/levels/registry.ts` (una riga per tappa). In breve:
@@ -252,4 +268,4 @@ Il contratto è nel codice, commentato: `src/engine/level.ts` (interfacce `Level
 
 La tabella completa per tappa (unità, origine, intervalli, oggetti di consegna) si scrive al passo 8.
 
-**Altre scelte approvate.** `?u=` nel contratto URL; cornice della scala (un quadrato sottile a ogni potenza di 10) nei segnaposto; nessun pulsante del suono finché l'audio non esiste (M8); caratteri proposti Fraunces e Atkinson Hyperlegible Next via `@fontsource`; nei segnaposto delle tappe terrestri nessuna geografia inventata, ma `partenza` ha già la sagoma di lei seduta sulla soglia.
+**Altre scelte approvate.** `?u=` nel contratto URL; cornice della scala (un quadrato sottile a ogni potenza di 10) nei segnaposto; nessun pulsante del suono finché l'audio non esiste (M8); caratteri via `@fontsource` (vedi «Interfaccia»); nei segnaposto delle tappe terrestri nessuna geografia inventata, ma `partenza` ha già la sagoma di lei seduta sulla soglia.
