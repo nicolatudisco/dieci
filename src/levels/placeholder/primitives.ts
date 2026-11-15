@@ -57,7 +57,7 @@ const SHAPE_VERTEX = /* glsl */ `
   }`;
 
 const SHAPE_FRAGMENT = /* glsl */ `
-  uniform int uKind;        // 0 rounded box, 1 ellipse, 2 ring
+  uniform int uKind;        // 0 rounded box, 1 ellipse, 2 ring, 3 halo
   uniform vec2 uHalf;       // half size in local units
   uniform float uRadius;    // corner radius (box) or radius (ring)
   uniform float uSoft;      // softness of the edge, in local units
@@ -93,6 +93,11 @@ const SHAPE_FRAGMENT = /* glsl */ `
       float px = fwidth(signed_);
       float half_ = 0.5 * uLine * uPixelRatio * px;
       alpha = 1.0 - smoothstep(half_ - 0.5 * px, half_ + 0.5 * px, abs(signed_));
+    } else if (uKind == 3) {
+      // A glow that is brightest on the circle: wide towards the inside, tight outside.
+      float d = length(vP) - uRadius;
+      float s = d < 0.0 ? uSoft : uSoft * 0.4;
+      alpha = exp(-(d * d) / (s * s));
     } else {
       float d = uKind == 1 ? sdEllipse(vP, uHalf) : sdBox(vP, uHalf, uRadius);
       float px = fwidth(d);
@@ -109,14 +114,14 @@ const SHAPE_FRAGMENT = /* glsl */ `
   }`;
 
 export interface ShapeOptions {
-  kind: 'box' | 'ellipse' | 'ring';
-  /** Half size in local units. For a ring only `half[0]` is used, as the radius. */
+  kind: 'box' | 'ellipse' | 'ring' | 'halo';
+  /** Half size in local units. For a ring or a halo only `half[0]` is used, as the radius. */
   half: readonly [number, number];
   /** Corner radius of a box. A box with `radius = min(half)` is a capsule. */
   radius?: number;
   color: ColorRepresentation;
   opacity?: number;
-  /** Softness of the edge in local units (shadows, glows). */
+  /** Softness of the edge in local units (shadows, glows); for a halo, its width towards the inside. */
   soft?: number;
   /** Ring line width in CSS pixels. */
   line?: number;
@@ -130,18 +135,19 @@ export interface ShapeOptions {
 }
 
 export function makeShape(options: ShapeOptions, shared: SharedUniforms): Mesh {
-  const ring = options.kind === 'ring';
+  const halo = options.kind === 'halo';
+  const ring = options.kind === 'ring' || halo;
   const [hx, hy] = options.half;
   const soft = options.soft ?? 0;
-  const padX = ring ? hx * 0.3 : soft + hx * 0.04;
-  const padY = ring ? hx * 0.3 : soft + hy * 0.04;
+  const padX = halo ? soft * 1.4 : ring ? hx * 0.3 : soft + hx * 0.04;
+  const padY = halo ? soft * 1.4 : ring ? hx * 0.3 : soft + hy * 0.04;
   const light = options.rim?.light ?? [0, 1];
   const lightLength = Math.hypot(light[0], light[1]) || 1;
 
   const material = new ShaderMaterial({
     uniforms: {
       ...shared,
-      uKind: { value: ring ? 2 : options.kind === 'ellipse' ? 1 : 0 },
+      uKind: { value: halo ? 3 : ring ? 2 : options.kind === 'ellipse' ? 1 : 0 },
       uHalf: { value: new Vector2(hx, hy) },
       uRadius: { value: ring ? hx : Math.min(options.radius ?? 0, Math.min(hx, hy)) },
       uSoft: { value: soft },
@@ -164,6 +170,73 @@ export function makeShape(options: ShapeOptions, shared: SharedUniforms): Mesh {
   const size = ring ? [2 * (hx + padX), 2 * (hx + padX)] : [2 * (hx + padX), 2 * (hy + padY)];
   const mesh = new Mesh(new PlaneGeometry(size[0], size[1]), material);
   mesh.renderOrder = options.order ?? 0;
+  return mesh;
+}
+
+// ───────────────────────────────────────────────────────────────────────────── lines
+
+const LINE_FRAGMENT = /* glsl */ `
+  uniform float uLine;      // width in CSS pixels
+  uniform vec2 uDash;       // dash and gap in CSS pixels; x = 0 means a solid line
+  uniform vec3 uColor;
+  uniform float uOpacity;
+  uniform float uFade;
+  uniform float uPixelRatio;
+  varying vec2 vP;
+  void main() {
+    // Local units per device pixel, across and along the line.
+    float across = fwidth(vP.y);
+    float along = fwidth(vP.x);
+    float half_ = 0.5 * uLine * uPixelRatio * across;
+    float alpha = 1.0 - smoothstep(half_ - 0.5 * across, half_ + 0.5 * across, abs(vP.y));
+    if (uDash.x > 0.0) {
+      float period = (uDash.x + uDash.y) * uPixelRatio;
+      float t = mod(vP.x / max(along, 1e-12), period);
+      alpha *= 1.0 - smoothstep(uDash.x * uPixelRatio - 0.5, uDash.x * uPixelRatio + 0.5, t);
+    }
+    gl_FragColor = vec4(uColor, alpha * uOpacity * uFade);
+    #include <colorspace_fragment>
+  }`;
+
+export interface LineOptions {
+  color: ColorRepresentation;
+  opacity?: number;
+  /** Width in CSS pixels. */
+  width?: number;
+  /** Dash and gap in CSS pixels. */
+  dash?: readonly [number, number];
+  order?: number;
+}
+
+/** A straight line between two points of the plane z = `a[2]`, with a constant width in pixels. */
+export function makeLine(
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
+  options: LineOptions,
+  shared: SharedUniforms,
+): Mesh {
+  const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const material = new ShaderMaterial({
+    uniforms: {
+      ...shared,
+      uLine: { value: options.width ?? 1.25 },
+      uDash: { value: new Vector2(options.dash?.[0] ?? 0, options.dash?.[1] ?? 0) },
+      uColor: { value: new Color(options.color) },
+      uOpacity: { value: options.opacity ?? 1 },
+    },
+    vertexShader: SHAPE_VERTEX,
+    fragmentShader: LINE_FRAGMENT,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: AdditiveBlending,
+  });
+  // Wide enough to hold the line at any zoom at which the whole of it is in view.
+  const mesh = new Mesh(new PlaneGeometry(length, length * 0.12), material);
+  mesh.position.set((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, a[2]);
+  mesh.rotation.z = Math.atan2(b[1] - a[1], b[0] - a[0]);
+  mesh.renderOrder = options.order ?? 0;
+  mesh.frustumCulled = false;
   return mesh;
 }
 

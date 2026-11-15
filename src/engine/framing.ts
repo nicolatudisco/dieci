@@ -131,3 +131,89 @@ export function projectLocal(f: Framing, view: LevelView, p: Vec3): ScreenPoint 
   const k = 1 / view.viewWidth;
   return project(f, (p[0] - view.target[0]) * k, (p[1] - view.target[1]) * k, (p[2] - view.target[2]) * k);
 }
+
+export interface LensCircle {
+  /** Centre and radius of the lens, in CSS pixels. */
+  readonly x: number;
+  readonly y: number;
+  readonly radius: number;
+  /** The direction that was chosen, in degrees: pass it back as `previous` on the next frame. */
+  readonly angle: number;
+}
+
+/** Room kept under a lens for its two lines of text, in CSS pixels. */
+export const LENS_CAPTION_ROOM = 52;
+/** Half the width of the text under a lens, beyond its radius. */
+export const LENS_CAPTION_OVERHANG = 40;
+
+/** Directions tried around the preferred one, in degrees. */
+const LENS_TURNS = [0, 40, -40, 80, -80, 125, -125, 180];
+
+/** Area shared by two rectangles, in square pixels. */
+export function overlap(a: Rect, b: Rect): number {
+  const w = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
+  const h = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
+  return w > 0 && h > 0 ? w * h : 0;
+}
+
+/**
+ * Where a lens sits: beside the true position of its object (`anchor`, in CSS pixels),
+ * always whole inside the free area, with its text under it.
+ *
+ * It goes in the direction `preferred` (degrees, 0 = right, 90 = up) unless there it would
+ * be pushed back by the edge of the free area, cover its own object, or cover one of the
+ * boxes in `avoid` (the warm dot and its words): then it turns to the best direction nearby.
+ * `previous` is the direction used on the frame before: the lens leaves it only for a
+ * clearly better one, so it does not hop back and forth while the scene zooms.
+ */
+export function placeLens(
+  f: Framing,
+  anchor: { x: number; y: number },
+  preferred: number,
+  avoid: readonly Rect[] = [],
+  previous?: number,
+): LensCircle {
+  const radius = Math.min(96, Math.max(38, f.largoPx * 0.14));
+  const reach = radius * 1.55 + 14;
+  const pad = 10;
+  const { free } = f;
+  // The text under the lens is wider than the lens: it must stay inside too.
+  const minX = free.x + radius + LENS_CAPTION_OVERHANG + pad;
+  const maxX = Math.max(minX, free.x + free.width - radius - LENS_CAPTION_OVERHANG - pad);
+  const minY = free.y + radius + pad;
+  const maxY = Math.max(minY, free.y + free.height - radius - pad - LENS_CAPTION_ROOM);
+
+  const attempt = (degrees: number): { circle: LensCircle; cost: number } => {
+    const a = (degrees * Math.PI) / 180;
+    const wantX = anchor.x + Math.cos(a) * reach;
+    const wantY = anchor.y - Math.sin(a) * reach;
+    const x = Math.min(Math.max(wantX, minX), maxX);
+    const y = Math.min(Math.max(wantY, minY), maxY);
+    const box: Rect = {
+      x: x - radius - LENS_CAPTION_OVERHANG,
+      y: y - radius,
+      width: 2 * (radius + LENS_CAPTION_OVERHANG),
+      height: 2 * radius + LENS_CAPTION_ROOM,
+    };
+    let cost = Math.hypot(x - wantX, y - wantY) * 60;
+    for (const rect of avoid) cost += overlap(box, rect) * 6;
+    // Covering the very object it points at is the worst outcome.
+    const gap = Math.hypot(x - anchor.x, y - anchor.y) - radius;
+    if (gap < 10) cost += (10 - gap) * 2000;
+    return { circle: { x, y, radius, angle: degrees }, cost };
+  };
+
+  let best = attempt(preferred);
+  for (const turn of LENS_TURNS.slice(1)) {
+    const candidate = attempt(preferred + turn);
+    // Turning away from the preferred direction has a small price of its own.
+    candidate.cost += Math.abs(turn) * 4;
+    if (candidate.cost < best.cost) best = candidate;
+  }
+  if (previous !== undefined && previous !== best.circle.angle) {
+    const stay = attempt(previous);
+    stay.cost += Math.abs(previous - preferred) * 4;
+    if (stay.cost <= best.cost * 1.35 + 400) best = stay;
+  }
+  return best.circle;
+}

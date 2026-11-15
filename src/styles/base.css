@@ -52,6 +52,7 @@ body {
 /* Layers drawn over the canvas. They never intercept gestures. */
 .labels,
 .scale-frames,
+.lenses,
 .marker-layer,
 .debug {
   position: absolute;
@@ -177,6 +178,11 @@ body {
   }
 }
 
+.marker--left .marker__label {
+  left: auto;
+  right: 16px;
+}
+
 .marker__label {
   position: absolute;
   left: 16px;
@@ -187,6 +193,56 @@ body {
   white-space: nowrap;
   text-shadow: 0 0 10px var(--night), 0 0 3px var(--night);
   transition: opacity 0.4s ease;
+}
+
+/* ── Lenses ───────────────────────────────────────────────────────────────── */
+.lens > * {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.lens__ring {
+  border: 1px solid rgb(185 198 247 / 0.85);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgb(5 6 13 / 0.7);
+}
+
+.lens__thread {
+  height: 1px;
+  background: rgb(185 198 247 / 0.7);
+  transform-origin: 0 50%;
+}
+
+.lens__anchor {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 1px solid rgb(185 198 247 / 0.9);
+  border-radius: 50%;
+}
+
+.lens__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.25;
+  text-shadow: 0 0 10px var(--night), 0 0 3px var(--night);
+}
+
+.lens__name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.lens__note {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 
 /* ── Veil (reduced motion: fade through night instead of zooming) ─────────── */

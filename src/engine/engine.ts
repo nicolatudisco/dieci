@@ -12,15 +12,21 @@ import { Color, PerspectiveCamera, WebGLRenderer } from 'three';
 import type { Clock } from './clock.ts';
 import {
   DEFAULT_DEPTH,
+  LENS_CAPTION_OVERHANG,
+  LENS_CAPTION_ROOM,
   applyFraming,
   levelView,
   makeFraming,
+  overlap,
+  placeLens,
   projectLocal,
+  projectStage,
   type Framing,
   type Rect,
 } from './framing.ts';
 import { cameraExponent, exponentAt, neighbour, type JourneyNode } from './journey.ts';
-import type { LabelSpec, LevelContext, LevelDef, LevelFrame } from './level.ts';
+import { LensPass } from './lens.ts';
+import type { Backdrop, LabelSpec, LensSpec, LevelContext, LevelDef, LevelFrame } from './level.ts';
 import { LevelManager, type ActiveLevel } from './level-manager.ts';
 import { Motion } from './motion.ts';
 import { OffscreenFader } from './renderer.ts';
@@ -43,6 +49,20 @@ export interface PlacedLabel {
   readonly align: NonNullable<LabelSpec['align']>;
 }
 
+/** A lens, placed: the interface draws its edge, its thread and its words. */
+export interface PlacedLens {
+  readonly key: string;
+  /** Centre and radius of the lens, in CSS pixels. */
+  readonly x: number;
+  readonly y: number;
+  readonly radius: number;
+  /** True position of the object, where the thread starts. */
+  readonly anchorX: number;
+  readonly anchorY: number;
+  readonly label: string;
+  readonly opacity: number;
+}
+
 export interface FrameInfo {
   readonly u: number;
   /** Exponent of Act I (clamped), for the counter. */
@@ -54,6 +74,9 @@ export interface FrameInfo {
   readonly heading: JourneyNode | null;
   readonly moving: boolean;
   readonly labels: readonly PlacedLabel[];
+  readonly lenses: readonly PlacedLens[];
+  /** False when a lens lies over the place of the words «Tu sei qui»: they step aside. */
+  readonly markerLabelClear: boolean;
   readonly active: readonly ActiveLevel[];
   readonly drawCalls: number;
   readonly pixelRatio: number;
@@ -65,6 +88,8 @@ export interface EngineOptions {
   readonly defs: readonly LevelDef[];
   readonly clock: Clock;
   readonly u: number;
+  /** The shared sky drawn behind every level. */
+  readonly backdrop?: Backdrop;
   /** Force every level through the off-screen fade path (debugging aid: ?offscreen=1). */
   readonly forceOffscreen?: boolean;
 }
@@ -81,6 +106,10 @@ export class Engine {
   private readonly camera = new PerspectiveCamera();
   private readonly manager: LevelManager;
   private readonly fader = new OffscreenFader();
+  private readonly lensPass = new LensPass();
+  /** Direction each lens was placed in on the last frame (see `placeLens`). */
+  private readonly lensAngles = new Map<string, number>();
+  private readonly backdrop: Backdrop | null;
   private readonly listeners: ((info: FrameInfo) => void)[] = [];
   private readonly reducedMotion: boolean;
   private readonly forceOffscreen: boolean;
@@ -101,6 +130,7 @@ export class Engine {
     this.clock = options.clock;
     this.motion = new Motion(options.u);
     this.forceOffscreen = options.forceOffscreen ?? false;
+    this.backdrop = options.backdrop ?? null;
     this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Throws when WebGL is not available: main.ts shows UI.errors.noWebGL.
@@ -158,6 +188,7 @@ export class Engine {
   /** Loads what is visible at the starting position, then starts the loop. */
   async start(): Promise<void> {
     await this.manager.ensure(this.motion.u);
+    if (this.backdrop) await this.renderer.compileAsync(this.backdrop.scene, this.backdrop.camera);
     if (document.fonts?.ready) await document.fonts.ready;
     this.running = true;
     requestAnimationFrame(this.tick);
@@ -168,6 +199,8 @@ export class Engine {
     this.resizeObserver.disconnect();
     this.manager.dispose();
     this.fader.dispose();
+    this.lensPass.dispose();
+    this.backdrop?.dispose();
     this.renderer.dispose();
     this.canvas.remove();
   }
@@ -270,11 +303,28 @@ export class Engine {
     const ahead = motion.heading ?? (motion.atNode ? neighbour(u, 1) : null);
     const active = this.manager.frame(u, clock.time, ahead?.u ?? u);
     const labels: PlacedLabel[] = [];
+    const lenses: { spec: LensSpec; place: PlacedLens }[] = [];
+    // What a lens must not cover: the warm dot and the words next to it.
+    const you = projectStage(framing, ANCHORS.you);
+    const keepClear: Rect[] = [{ x: you.x - 120, y: you.y - 18, width: 240, height: 36 }];
 
     renderer.setRenderTarget(null);
     this.prime();
     renderer.info.reset();
     renderer.clear();
+
+    if (this.backdrop) {
+      this.backdrop.update({
+        u,
+        e: eCam,
+        time: clock.time,
+        width: this.width,
+        height: this.height,
+        pixelRatio: this.pixelRatio,
+        quality: this.quality,
+      });
+      renderer.render(this.backdrop.scene, this.backdrop.camera);
+    }
 
     for (const item of active) {
       const { def, level, fade } = item;
@@ -323,7 +373,36 @@ export class Engine {
           align: spec.align ?? 'above',
         });
       }
+
+      for (const spec of level.lenses?.(frame) ?? []) {
+        const opacity = (spec.opacity ?? 1) * fade;
+        if (opacity < 0.01) continue;
+        const anchor = projectLocal(framing, view, spec.at);
+        const { free } = framing;
+        const inside = anchor.x > free.x && anchor.x < free.x + free.width && anchor.y > free.y && anchor.y < free.y + free.height;
+        if (!anchor.visible || !inside) continue;
+        const key = `${def.id}/${spec.id}`;
+        const circle = placeLens(framing, anchor, spec.angle ?? 45, keepClear, this.lensAngles.get(key));
+        this.lensAngles.set(key, circle.angle);
+        lenses.push({
+          spec,
+          place: { key, x: circle.x, y: circle.y, radius: circle.radius, anchorX: anchor.x, anchorY: anchor.y, label: spec.label ?? '', opacity },
+        });
+      }
     }
+
+    // Lenses lie over every level.
+    for (const { spec, place } of lenses) this.lensPass.render(renderer, spec, place, this.width, this.height);
+    const words: Rect = { x: you.x + 8, y: you.y - 14, width: 116, height: 28 };
+    const markerLabelClear = lenses.every(({ place }) => {
+      const box: Rect = {
+        x: place.x - place.radius - LENS_CAPTION_OVERHANG,
+        y: place.y - place.radius,
+        width: 2 * (place.radius + LENS_CAPTION_OVERHANG),
+        height: 2 * place.radius + LENS_CAPTION_ROOM,
+      };
+      return place.opacity < 0.2 || overlap(box, words) === 0;
+    });
 
     const info: FrameInfo = {
       u,
@@ -335,6 +414,8 @@ export class Engine {
       heading: motion.heading,
       moving: motion.mode !== 'rest',
       labels,
+      lenses: lenses.map((lens) => lens.place),
+      markerLabelClear,
       active,
       drawCalls: renderer.info.render.calls,
       pixelRatio: this.pixelRatio,

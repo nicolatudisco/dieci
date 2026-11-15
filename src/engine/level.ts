@@ -90,9 +90,57 @@ export interface LabelSpec {
   readonly align?: 'above' | 'below' | 'left' | 'right' | 'center';
 }
 
+/**
+ * THE LENS: the one convention for everything that would be invisible at true scale
+ * (the Moon, Jupiter and its moons, Saturn, the probes). A circle with a thin edge, tied
+ * by a thread to the true position of the object, shows it enlarged with the words
+ * «ingrandito, non in scala». Never enlarge an object directly in the scene: declare a lens.
+ */
+export interface LensSpec {
+  /** Unique within the level. */
+  readonly id: string;
+  /** True position of the object, in local units: the thread starts here. */
+  readonly at: Vec3;
+  /** What the lens shows: a small scene of its own, in any units, looked at along -z. */
+  readonly scene: Scene;
+  /** Width of the field shown inside the lens, in the units of `scene`, and its centre. */
+  readonly fieldWidth: number;
+  readonly centre?: readonly [number, number];
+  /** Where the lens sits relative to the object, in degrees (0 = right, 90 = up). */
+  readonly angle?: number;
+  /** The name of the object, written under the lens. */
+  readonly label?: string;
+  /** 0..1, multiplied by the fade of the level. Default 1. */
+  readonly opacity?: number;
+}
+
+/**
+ * What is drawn behind every level: the shared sky. Owned by the engine, drawn first.
+ */
+export interface Backdrop {
+  readonly scene: Scene;
+  readonly camera: PerspectiveCamera;
+  update(frame: BackdropFrame): void;
+  dispose(): void;
+}
+
+export interface BackdropFrame {
+  readonly u: number;
+  /** Camera exponent. */
+  readonly e: number;
+  readonly time: number;
+  /** Canvas size in CSS pixels. */
+  readonly width: number;
+  readonly height: number;
+  readonly pixelRatio: number;
+  readonly quality: number;
+}
+
 export interface Level {
   /** three.js content in local units. Omit for DOM-only levels. */
   readonly scene?: Scene;
+  /** Scenes that are drawn into a render target (the lenses): compiled ahead for that path. */
+  readonly targetScenes?: readonly Scene[];
   /** DOM content (the typographic scenes of Act II). The engine mounts and fades it. */
   readonly dom?: HTMLElement;
   init(ctx: LevelContext): void | Promise<void>;
@@ -100,5 +148,7 @@ export interface Level {
   update(frame: LevelFrame): void;
   /** Labels to show this frame. */
   labels?(frame: LevelFrame): readonly LabelSpec[];
+  /** Lenses to show this frame. */
+  lenses?(frame: LevelFrame): readonly LensSpec[];
   dispose(): void;
 }

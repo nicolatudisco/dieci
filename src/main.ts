@@ -4,17 +4,20 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/ui.css';
+import { LABELS } from './content/labels.ts';
 import { UI } from './content/ui.ts';
 import { Clock } from './engine/clock.ts';
 import { Engine } from './engine/engine.ts';
 import { Input } from './engine/input.ts';
 import { neighbour } from './engine/journey.ts';
+import { StarBackdrop } from './levels/backdrop.ts';
 import { LEVELS } from './levels/registry.ts';
 import { parseRoute } from './route.ts';
 import { DebugOverlay } from './ui/debug.ts';
 import { Interface } from './ui/interface.ts';
 import { LabelLayer } from './ui/labels.ts';
 import { FreeArea } from './ui/layout.ts';
+import { LensLayer } from './ui/lens.ts';
 import { Marker } from './ui/marker.ts';
 import { ScaleFrames } from './ui/scale-frames.ts';
 import { Veil } from './ui/veil.ts';
@@ -54,6 +57,7 @@ function boot(): void {
       defs: LEVELS,
       clock,
       u: route.u,
+      backdrop: new StarBackdrop(),
       forceOffscreen: params.get('offscreen') === '1',
     });
   } catch (error) {
@@ -67,7 +71,8 @@ function boot(): void {
   const labels = new LabelLayer();
   const markerLayer = document.createElement('div');
   markerLayer.className = 'marker-layer';
-  const marker = new Marker('Tu sei qui');
+  const marker = new Marker(LABELS.youAreHere);
+  const lenses = new LensLayer();
   markerLayer.append(marker.element);
   const veil = new Veil();
 
@@ -83,7 +88,7 @@ function boot(): void {
 
   const ui = new Interface({ go, animated: !route.isStatic, reducedMotion });
   const debug = route.debug ? new DebugOverlay() : null;
-  app.append(frames.element, labels.element, markerLayer, veil.element, ui.element);
+  app.append(frames.element, labels.element, lenses.element, markerLayer, veil.element, ui.element);
   if (debug) app.append(debug.element);
 
   const free = new FreeArea(engine, stage);
@@ -94,7 +99,8 @@ function boot(): void {
     free.freeze(ui.panel.reading);
     frames.update(info.framing);
     labels.update(info.labels);
-    marker.update(info.framing, false);
+    lenses.update(info.lenses);
+    marker.update(info.framing, info.u, info.markerLabelClear);
     debug?.update(info);
   });
 

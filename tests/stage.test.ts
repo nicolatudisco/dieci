@@ -92,3 +92,22 @@ test('precision: a level origin far from the stage origin still gives exact loca
   const local = projectLocal(f, view, [0, -2.6, 0]);
   assert.ok(Math.abs(sun.x - local.x) < 1e-3 && Math.abs(sun.y - local.y) < 1e-3);
 });
+
+test('a lens stays inside the free area, away from its object and from what it must not cover', async () => {
+  const { makeFraming, placeLens, LENS_CAPTION_ROOM } = await import('../src/engine/framing.ts');
+  const free = { x: 0, y: 170, width: 390, height: 290 };
+  const f = makeFraming(390, 844, free, 13, [0, 0, 0]);
+  const marker = { x: 190 - 120, y: 322 - 18, width: 240, height: 36 };
+  for (const anchor of [{ x: 232, y: 302 }, { x: 60, y: 200 }, { x: 370, y: 440 }, { x: 195, y: 315 }]) {
+    for (const preferred of [0, 70, 180, 270]) {
+      const lens = placeLens(f, anchor, preferred, [marker]);
+      assert.ok(lens.x - lens.radius >= free.x && lens.x + lens.radius <= free.x + free.width, 'inside, horizontally');
+      assert.ok(lens.y - lens.radius >= free.y && lens.y + lens.radius + LENS_CAPTION_ROOM <= free.y + free.height + 0.5, 'inside, with its text');
+      assert.ok(Math.hypot(lens.x - anchor.x, lens.y - anchor.y) > lens.radius, 'does not cover its own object');
+    }
+  }
+  // With room to spare, the preferred direction is kept, and so is the previous one.
+  const wide = makeFraming(1180, 820, { x: 0, y: 0, width: 760, height: 820 }, 13, [0, 0, 0]);
+  assert.equal(placeLens(wide, { x: 380, y: 410 }, 70).angle, 70);
+  assert.equal(placeLens(wide, { x: 380, y: 410 }, 70, [], 110).angle, 110);
+});

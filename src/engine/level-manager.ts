@@ -100,15 +100,17 @@ export class LevelManager {
    * parallel and this only waits for it.
    */
   private async warm(level: Level, def: LevelDef): Promise<void> {
-    if (!level.scene) return;
     const { renderer } = this.ctx;
-    const previous = renderer.getRenderTarget();
-    const jobs = [renderer.compileAsync(level.scene, this.warmCamera)];
-    if (def.fadeMode === 'offscreen' || this.forceOffscreen) {
-      // Drawing into a render target uses another variant of every shader.
+    const jobs: Promise<unknown>[] = [];
+    if (level.scene) jobs.push(renderer.compileAsync(level.scene, this.warmCamera));
+    // Drawing into a render target uses another variant of every shader.
+    const forTarget = [...(level.targetScenes ?? [])];
+    if (level.scene && (def.fadeMode === 'offscreen' || this.forceOffscreen)) forTarget.push(level.scene);
+    if (forTarget.length > 0) {
+      const previous = renderer.getRenderTarget();
       this.warmTarget ??= new WebGLRenderTarget(1, 1);
       renderer.setRenderTarget(this.warmTarget);
-      jobs.push(renderer.compileAsync(level.scene, this.warmCamera));
+      for (const scene of forTarget) jobs.push(renderer.compileAsync(scene, this.warmCamera));
       renderer.setRenderTarget(previous);
     }
     await Promise.all(jobs);
