@@ -189,6 +189,15 @@ body {
   transition: opacity 0.4s ease;
 }
 
+/* ── Veil (reduced motion: fade through night instead of zooming) ─────────── */
+.veil {
+  position: absolute;
+  inset: 0;
+  background: var(--night);
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ── Debug ────────────────────────────────────────────────────────────────── */
 .debug__text {
   position: absolute;

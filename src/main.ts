@@ -8,6 +8,7 @@ import { UI } from './content/ui.ts';
 import { Clock } from './engine/clock.ts';
 import { Engine } from './engine/engine.ts';
 import { Input } from './engine/input.ts';
+import { neighbour } from './engine/journey.ts';
 import { LEVELS } from './levels/registry.ts';
 import { parseRoute } from './route.ts';
 import { DebugOverlay } from './ui/debug.ts';
@@ -16,6 +17,7 @@ import { LabelLayer } from './ui/labels.ts';
 import { FreeArea } from './ui/layout.ts';
 import { Marker } from './ui/marker.ts';
 import { ScaleFrames } from './ui/scale-frames.ts';
+import { Veil } from './ui/veil.ts';
 
 function fail(app: HTMLElement, message: string): void {
   const box = document.createElement('p');
@@ -67,9 +69,21 @@ function boot(): void {
   markerLayer.className = 'marker-layer';
   const marker = new Marker('Tu sei qui');
   markerLayer.append(marker.element);
-  const ui = new Interface({ go: (dir) => engine.go(dir), animated: !route.isStatic, reducedMotion });
+  const veil = new Veil();
+
+  // ▶ and ◀: an animated zoom, or a fade through night when movement is not wanted.
+  const go = (dir: 1 | -1): void => {
+    if (!reducedMotion) {
+      engine.go(dir);
+      return;
+    }
+    const node = neighbour(engine.motion.u, dir);
+    if (node) void veil.through(() => engine.jumpTo(node.u));
+  };
+
+  const ui = new Interface({ go, animated: !route.isStatic, reducedMotion });
   const debug = route.debug ? new DebugOverlay() : null;
-  app.append(frames.element, labels.element, markerLayer, ui.element);
+  app.append(frames.element, labels.element, markerLayer, veil.element, ui.element);
   if (debug) app.append(debug.element);
 
   const free = new FreeArea(engine, stage);
@@ -84,13 +98,13 @@ function boot(): void {
     debug?.update(info);
   });
 
-  new Input({ surface: stage, motion: engine.motion, go: (dir) => engine.go(dir), enabled: () => true });
+  new Input({ surface: stage, motion: engine.motion, go, enabled: () => true });
 
   void loadFonts()
     .then(() => engine.start())
     .then(() => {
       // Provisional: there is no opening yet, so the journey starts by itself.
-      if (!route.isStatic && engine.motion.u < 0) window.setTimeout(() => engine.go(1), 600);
+      if (!route.isStatic && engine.motion.u < 0) window.setTimeout(() => go(1), 600);
     });
 }
 

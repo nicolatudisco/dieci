@@ -139,6 +139,15 @@ export class Engine {
     return this.motion.go(dir);
   }
 
+  /**
+   * Moves at once to position `u` and resolves when what is visible there is loaded.
+   * Used where movement is not wanted (reduced motion) or not needed («Rifai il viaggio»).
+   */
+  async jumpTo(u: number): Promise<void> {
+    this.motion.jumpTo(u);
+    await this.manager.ensure(u);
+  }
+
   /** Scales the device pixel ratio (adaptive quality). */
   setPixelRatioScale(scale: number): void {
     if (scale === this.pixelRatioScale) return;

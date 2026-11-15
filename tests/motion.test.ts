@@ -132,3 +132,17 @@ test('a swipe that would stop near a stop glides onto it', () => {
   assert.equal(motion.u, 2);
   assert.equal(motion.atNode?.id, 'rifredi');
 });
+
+test('jumpTo lands at once, at rest, and forgets the trip in progress', () => {
+  const motion = new Motion(0);
+  motion.go(1);
+  motion.step(0.3);
+  assert.equal(motion.mode, 'travel');
+  motion.jumpTo(4);
+  assert.equal(motion.u, 4);
+  assert.equal(motion.mode, 'rest');
+  assert.equal(motion.heading, null);
+  assert.equal(motion.atNode?.id, 'firenze');
+  motion.step(0.5);
+  assert.equal(motion.u, 4);
+});

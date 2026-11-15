@@ -55,8 +55,11 @@ export class Input {
     surface.addEventListener('pointermove', this.onPointerMove, { signal });
     surface.addEventListener('pointerup', this.onPointerEnd, { signal });
     surface.addEventListener('pointercancel', this.onPointerEnd, { signal });
-    // Safari: stop the page itself from zooming on a pinch.
-    surface.addEventListener('gesturestart', (e) => e.preventDefault(), { signal });
+    // Safari: stop the page itself from zooming on a pinch, wherever the fingers land.
+    document.addEventListener('gesturestart', (e) => e.preventDefault(), { signal });
+    document.addEventListener('gesturechange', (e) => e.preventDefault(), { signal });
+    // A long press must not open the system menu or select the scene.
+    surface.addEventListener('contextmenu', (e) => e.preventDefault(), { signal });
     window.addEventListener('keydown', this.onKey, { signal });
   }
 

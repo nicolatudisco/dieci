@@ -196,6 +196,8 @@
   background: var(--glass);
   border-top: 1px solid var(--hairline);
   pointer-events: auto;
+  /* The page scrolls its own text; it never zooms the browser page. */
+  touch-action: pan-y;
 }
 
 /* While reading an expansion the sheet may grow over the scene, up to here. */
