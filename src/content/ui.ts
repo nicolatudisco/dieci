@@ -78,6 +78,32 @@ export const UI = {
     exactRadius: `Oggi la tua luce è arrivata a {al} anni-luce da casa.`,
     starReached: `raggiunta dalla tua luce`,
     starNotYet: `la tua luce non ci è ancora arrivata`,
+    /**
+     * With #nata= in the link the texts of the stop `bolla` follow her real age, so that they
+     * are never false (src/bubble.ts → bubbleStop). Without a date the stop reads as written
+     * in levels.ts. {anni} = her age in whole years; {al} = the radius in light-years with
+     * one decimal, never rounded up (the light has really got that far).
+     */
+    variants: {
+      /** In the title, from her 11th birthday on, instead of «10 anni». */
+      titleYears: `{anni} anni`,
+      /**
+       * In the caption, instead of «10» in «viaggia da 10 anni» and «un raggio di 10
+       * anni-luce»: `before` her tenth birthday, `birthday` on a birthday and for about a
+       * month after it, `after` for the rest of the year.
+       */
+      span: {
+        before: `quasi 10`,
+        birthday: `{anni}`,
+        after: `più di {anni}`,
+      },
+      /** Under the counter, instead of «10 anni-luce in ogni direzione». */
+      counterLine: `{al} anni-luce in ogni direzione`,
+      /** Last sentence of «saperne di più», once the light has reached Epsilon Eridani (10.5 light-years). */
+      epsilonReached: `La tua luce ha già raggiunto anche Epsilon Eridani, una stella più giovane del Sole.`,
+      /** Last sentence of «Come lo sappiamo?», once 61 Cygni (11.4 light-years) is inside the bubble. */
+      cygniReached: `Oggi è dentro la tua bolla.`,
+    },
   },
 
   end: {

@@ -15,6 +15,7 @@
  *   npm run shots -- --headed                      show the browser window
  *   npm run shots -- --url http://localhost:5173   use a dev server that is already running
  *   npm run shots -- --extra debug=1               extra query parameters
+ *   npm run shots -- --hash nata=2016-05-20        link fragment (#nome=…&nata=…): use invented dates only
  *   npm run shots -- --wait 1500                   extra ms after data-ready (default 600)
  *   npm run shots -- --keep                        do not delete previous screenshots
  *
@@ -97,7 +98,7 @@ try {
       const query = new URLSearchParams(target.query);
       query.set('static', '1');
       if (args.extra) for (const [k, v] of new URLSearchParams(String(args.extra))) query.set(k, v);
-      const url = `${baseUrl}?${query.toString()}`;
+      const url = `${baseUrl}?${query.toString()}${args.hash ? `#${args.hash}` : ''}`;
       const file = path.join(outDir, vpName, `${String(index).padStart(2, '0')}-${target.label}.png`);
 
       await page.goto(url, { waitUntil: 'load' });

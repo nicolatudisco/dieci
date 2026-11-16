@@ -6,6 +6,7 @@
  * width in friendly units. Past the observable universe the counter stops measuring: it
  * shows the number of the nearest stop of Act II, never an interpolated one.
  */
+import type { Stop } from '../content/types.ts';
 import { UI } from '../content/ui.ts';
 import { exponentAt, nearestStop } from '../engine/journey.ts';
 import { formatWidth } from './format.ts';
@@ -23,9 +24,15 @@ export interface CounterState {
   readonly line: string;
 }
 
-export function counterAt(u: number): CounterState {
+/**
+ * The texts of a stop as they must be shown today: a stop whose words depend on the date
+ * (the bubble of her light) is handed over with the words that are true now.
+ */
+export type ResolveStop = (stop: Stop) => Stop;
+
+export function counterAt(u: number, resolve: ResolveStop = (stop) => stop): CounterState {
   const node = nearestStop(u);
-  const stop = node.stop;
+  const stop = node.stop ? resolve(node.stop) : null;
   if (stop?.kind === 'number') {
     return {
       mode: 'number',

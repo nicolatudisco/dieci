@@ -11,6 +11,7 @@
 import { UI } from '../content/ui.ts';
 import type { FrameInfo } from '../engine/engine.ts';
 import { Counter } from './counter.ts';
+import type { ResolveStop } from './counter-model.ts';
 import { el } from './dom.ts';
 import { Panel, type PanelExtras } from './panel.ts';
 import { interfaceOpacity } from './view-model.ts';
@@ -20,6 +21,8 @@ export interface InterfaceOptions {
   readonly animated: boolean;
   readonly reducedMotion: boolean;
   readonly extras?: PanelExtras;
+  /** The texts of a stop as they are true today (see counter-model.ts). */
+  readonly resolve?: ResolveStop;
 }
 
 export class Interface {
@@ -30,15 +33,18 @@ export class Interface {
   readonly panel: Panel;
   /** What assistive technology hears on arriving at a stop: title, width, caption. */
   private readonly status = el('p', 'sr-only');
+  private readonly resolve: ResolveStop;
   private announced = '';
   private opacity = -1;
 
   constructor(options: InterfaceOptions) {
-    this.counter = new Counter({ animated: options.animated, reducedMotion: options.reducedMotion });
+    this.resolve = options.resolve ?? ((stop) => stop);
+    this.counter = new Counter({ animated: options.animated, reducedMotion: options.reducedMotion, resolve: this.resolve });
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     this.panel = new Panel({
       go: options.go,
       extras: options.extras,
+      resolve: this.resolve,
       hint: coarse ? UI.hints.touch : UI.hints.pointer,
       animated: options.animated,
     });
@@ -50,10 +56,11 @@ export class Interface {
     this.counter.update(info.u);
     this.panel.update(info);
 
-    const stop = info.atNode?.stop;
-    if (stop && stop.id !== this.announced) {
-      this.announced = stop.id;
-      this.status.textContent = `${stop.title}. ${Counter.describe(info.u)} ${stop.text}`;
+    const at = info.atNode?.stop;
+    if (at && at.id !== this.announced) {
+      this.announced = at.id;
+      const stop = this.resolve(at);
+      this.status.textContent = `${stop.title}. ${Counter.describe(info.u, this.resolve)} ${stop.text}`;
     }
 
     const opacity = Math.round(interfaceOpacity(info.u) * 100) / 100;

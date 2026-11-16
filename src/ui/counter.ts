@@ -12,7 +12,7 @@
  */
 import { UI } from '../content/ui.ts';
 import { E_MAX } from '../engine/journey.ts';
-import { counterAt, type CounterState } from './counter-model.ts';
+import { counterAt, type CounterState, type ResolveStop } from './counter-model.ts';
 import { el } from './dom.ts';
 
 const ROLL_MS = 420;
@@ -24,6 +24,8 @@ export interface CounterOptions {
   readonly animated: boolean;
   /** True with prefers-reduced-motion: changes cross-fade instead of rolling. */
   readonly reducedMotion: boolean;
+  /** The texts of a stop as they are true today (see counter-model.ts). */
+  readonly resolve?: ResolveStop;
 }
 
 export class Counter {
@@ -64,13 +66,13 @@ export class Counter {
    * The counter in plain words, for assistive technology: the width in friendly units
    * (an exponent is read badly aloud), or what the number is in Act II.
    */
-  static describe(u: number): string {
-    const state = counterAt(u);
+  static describe(u: number, resolve?: ResolveStop): string {
+    const state = counterAt(u, resolve);
     return state.width ? `${state.label} ${state.width}: ${state.line}.` : `${state.label}: ${state.line}.`;
   }
 
   update(u: number): void {
-    const state = counterAt(u);
+    const state = counterAt(u, this.options.resolve);
     const previous = this.shown;
     this.shown = state;
 

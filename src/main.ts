@@ -10,6 +10,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/ui.css';
 import './styles/views.css';
+import { bubbleAt, bubbleStop, exactRadiusLine } from './bubble.ts';
 import { FINALE_IS_PLACEHOLDER } from './content/finale.ts';
 import { LABELS } from './content/labels.ts';
 import { UI } from './content/ui.ts';
@@ -21,7 +22,9 @@ import { StarBackdrop } from './levels/backdrop.ts';
 import { LEVELS } from './levels/registry.ts';
 import { civilDateOf, firstLineKey, parseHash } from './personalization.ts';
 import { parseRoute } from './route.ts';
+import type { ResolveStop } from './ui/counter-model.ts';
 import { DebugOverlay } from './ui/debug.ts';
+import { el } from './ui/dom.ts';
 import { Epilogue } from './ui/epilogue.ts';
 import { Finale } from './ui/finale.ts';
 import { GOLDEN_RECORD_LAB_READY, buildGoldenRecord } from './ui/golden-record.ts';
@@ -32,6 +35,7 @@ import { FreeArea } from './ui/layout.ts';
 import { LensLayer } from './ui/lens.ts';
 import { Marker } from './ui/marker.ts';
 import { Overlays } from './ui/overlay.ts';
+import { typeset } from './ui/rich-text.ts';
 import { ScaleFrames } from './ui/scale-frames.ts';
 import { buildSources } from './ui/sources.ts';
 import { Veil } from './ui/veil.ts';
@@ -142,13 +146,23 @@ function boot(): void {
   // to have been open for one minute and the screenshots show a real number.
   const openedAt = new Date(clock.now().getTime() - (route.isStatic ? 60_000 : 0));
 
+  // The stop of the bubble reads as it is true today: the same model moves its scene.
+  const bubble = () => bubbleAt(person.birth, clock.now());
+  const resolve: ResolveStop = (stop) => (stop.special === 'bubble' ? bubbleStop(stop, bubble()) : stop);
+
   const ui = new Interface({
     go,
     animated: !route.isStatic,
     reducedMotion,
+    resolve,
     extras: {
       // The Voyager stop: the live distance and the button that opens the Golden Record.
       voyager: () => buildVoyagerPanel({ now: () => clock.now(), openedAt, openGoldenRecord: () => overlays.show('disco') }),
+      // The bubble: with her date of birth, how far her light has got today.
+      bubble: () => {
+        const line = exactRadiusLine(bubble());
+        return line ? el('p', 'bubble-today', typeset(line)) : null;
+      },
     },
   });
   const intro = new Intro({
@@ -165,7 +179,7 @@ function boot(): void {
     go,
   });
   const underneath = [stage, ui.element, intro.element, finale.element, epilogue.element];
-  const overlays = new Overlays({ fonti: buildSources, disco: buildGoldenRecord }, () => underneath);
+  const overlays = new Overlays({ fonti: (id, close) => buildSources(id, close, resolve), disco: buildGoldenRecord }, () => underneath);
   const debug = route.debug ? new DebugOverlay() : null;
 
   app.append(

@@ -7,6 +7,7 @@ import { GOLDEN_RECORD } from '../content/golden-record.ts';
 import { STOPS } from '../content/levels.ts';
 import type { Source } from '../content/types.ts';
 import { UI } from '../content/ui.ts';
+import type { ResolveStop } from './counter-model.ts';
 import { button, el, icon } from './dom.ts';
 import type { OverlayPage } from './overlay.ts';
 import { setRich, typeset } from './rich-text.ts';
@@ -88,7 +89,8 @@ function creditSections(markdown: string): HTMLElement[] {
   return out;
 }
 
-export function buildSources(titleId: string, close: () => void): OverlayPage {
+/** `resolve` gives the stops the titles they have in the journey today (see counter-model.ts). */
+export function buildSources(titleId: string, close: () => void, resolve: ResolveStop = (stop) => stop): OverlayPage {
   const page = el('article', 'sheet sources');
   const title = el('h1', 'sheet__title', UI.sourcesPage.title);
   title.id = titleId;
@@ -100,7 +102,7 @@ export function buildSources(titleId: string, close: () => void): OverlayPage {
     if (stop.sources.length === 0) continue;
     const group = el('section', 'sources__group');
     const heading = el('h2');
-    setRich(heading, typeset(stop.title));
+    setRich(heading, typeset(resolve(stop).title));
     group.append(heading, sourceList(stop.sources));
     page.append(group);
   }

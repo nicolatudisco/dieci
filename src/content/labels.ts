@@ -17,6 +17,19 @@ export const LABELS = {
   /** Along the trail of Voyager 1: its distance from the Earth, running. {km} = the number. */
   liveKilometres: `{km} km`,
 
+  /**
+   * On the edge of the bubble of the stop `bolla`, while it grows: how old she was when her
+   * light was that far. {anni} = whole years. At the end of the growth the edge is today.
+   */
+  bubble: {
+    whenOne: `quando avevi 1 anno`,
+    whenYears: `quando avevi {anni} anni`,
+    /** With her date of birth: the edge of the bubble is where her light is today. */
+    today: `oggi`,
+    /** Without a date the bubble is the one of a tenth birthday. */
+    atTen: `a 10 anni`,
+  },
+
   places: {
     sun: `Sole`,
     moon: `Luna`,

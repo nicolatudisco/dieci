@@ -16,14 +16,18 @@ import type { SpecialStop, Stop } from '../content/types.ts';
 import { UI } from '../content/ui.ts';
 import type { FrameInfo } from '../engine/engine.ts';
 import { FIRST_STOP, type JourneyNode } from '../engine/journey.ts';
+import type { ResolveStop } from './counter-model.ts';
 import { button, el, icon } from './dom.ts';
 import { setRich, typeset } from './rich-text.ts';
 
-export type PanelExtras = Partial<Record<SpecialStop, (stop: Stop) => HTMLElement>>;
+/** What a special stop adds under its text, if anything. It gets the stop as it is shown. */
+export type PanelExtras = Partial<Record<SpecialStop, (stop: Stop) => HTMLElement | null>>;
 
 export interface PanelOptions {
   readonly go: (dir: 1 | -1) => void;
   readonly extras?: PanelExtras;
+  /** The texts of a stop as they are true today (see counter-model.ts). */
+  readonly resolve?: ResolveStop;
   /** The hint shown at the first stop until the journey moves on. */
   readonly hint: string;
   /** False with ?static=1: states are final at once. */
@@ -144,8 +148,8 @@ export class Panel {
   }
 
   private setStop(node: JourneyNode): void {
-    const stop = node.stop;
-    if (!stop) return;
+    if (!node.stop) return;
+    const stop = this.options.resolve?.(node.stop) ?? node.stop;
     this.node = node;
     this.closeAll();
     setRich(this.title, typeset(stop.title));

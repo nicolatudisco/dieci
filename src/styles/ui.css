@@ -682,3 +682,16 @@
   font-family: var(--font-display);
   font-style: italic;
 }
+
+/* The bubble: how far her light has got today. Warm, like everything that is hers. */
+.bubble-today {
+  margin: 0;
+  max-width: 34em;
+  padding-left: 0.875rem;
+  border-left: 2px solid var(--warm-deep);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: calc(var(--text) * 1.06);
+  color: var(--warm);
+  text-wrap: balance;
+}
