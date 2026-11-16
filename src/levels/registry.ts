@@ -14,11 +14,10 @@ import { AU, LY, type AnchorId } from '../engine/stage.ts';
 type Loader = LevelDef['load'];
 
 const generic: Loader = () => import('./placeholder/generic.ts');
-// Curated placeholders, one module per later milestone (M3, M4, M5).
+// Curated placeholders, one module per later milestone (M3, M5). The stops of M4
+// (`voyager`, `oort`, `bolla`) have their real scenes.
 const solar = (name: keyof typeof import('./placeholder/solar.ts')): Loader => () =>
   import('./placeholder/solar.ts').then((m) => ({ default: m[name] }));
-const far = (name: keyof typeof import('./placeholder/far.ts')): Loader => () =>
-  import('./placeholder/far.ts').then((m) => ({ default: m[name] }));
 const cosmos = (name: keyof typeof import('./placeholder/cosmos.ts')): Loader => () =>
   import('./placeholder/cosmos.ts').then((m) => ({ default: m[name] }));
 
@@ -57,7 +56,7 @@ const ACT_ONE: Record<string, Entry> = {
   voyager: { unit: 10 * AU, origin: 'sun', load: () => import('./voyager.ts'), enter: [13.05, 13.4] }, // 33.5 (tens of AU)
   // Seen from the bubble it would be a ball of sparks on the warm dot: it leaves before.
   oort: { unit: 1e3 * AU, origin: 'sun', load: () => import('./oort.ts'), leave: [16.85, 17.35] }, // 168 (thousands of AU)
-  bolla: { unit: LY, origin: 'sun', load: far('bolla'), enter: [16.6, 17.1] }, // 33.4 light-years
+  bolla: { unit: LY, origin: 'sun', load: () => import('./bolla.ts'), enter: [16.6, 17.1] }, // 33.4 light-years
   nebulose: { unit: 100 * LY, origin: 'sun', load: cosmos('nebulose') }, // 26.5 (hundreds of ly)
   // Its nine thousand points turn into a white blob as they shrink: Andromeda's level takes over.
   'via-lattea': { unit: 1e4 * LY, origin: 'galacticCentre', load: cosmos('viaLattea'), enter: [19.6, 20.4], leave: [21.5, 22.1] }, // 16.8 (tens of thousands of ly)

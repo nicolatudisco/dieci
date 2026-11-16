@@ -278,9 +278,10 @@ export default sketch((s) => {
   const ice = iceBlock();
   ice.rotation.set(0.5, 0.4, -0.3);
   scene.add(ice);
-  s.lens({ id: 'block', at: BLOCK, scene, fieldWidth: 3.5, angle: -80, label: LABELS.places.iceBlock });
+  // Lens and name leave early: the next stop is the bubble, and nothing must sit on it.
+  s.lens({ id: 'block', at: BLOCK, scene, fieldWidth: 3.5, angle: -80, label: LABELS.places.iceBlock, to: 16.6 });
 
-  s.label({ id: 'cloud', text: LABELS.places.oortCloud, at: [sun[0], sun[1] + 58, sun[2]], kind: 'note', align: 'above' });
+  s.label({ id: 'cloud', text: LABELS.places.oortCloud, at: [sun[0], sun[1] + 58, sun[2]], kind: 'note', align: 'above', to: 16.6 });
 
   const point = new Vector3();
   const headPositions = heads.geometry.getAttribute('position') as BufferAttribute;

@@ -47,6 +47,8 @@ export class Sketch implements Level {
   readonly exponent: number;
   /** Called every frame, after the shared uniforms are set. */
   tick: ((frame: LevelFrame) => void) | null = null;
+  /** Labels that change from frame to frame (text, place, opacity), added to the fixed ones. */
+  liveLabels: ((frame: LevelFrame) => readonly LabelSpec[]) | null = null;
 
   private readonly def: LevelDef;
   private readonly build: (sketch: Sketch) => void;
@@ -177,6 +179,7 @@ export class Sketch implements Level {
       const opacity = this.visibility(item, frame.e);
       if (opacity > 0.01) out.push({ ...item, opacity });
     }
+    if (this.liveLabels) out.push(...this.liveLabels(frame));
     return out;
   }
 
