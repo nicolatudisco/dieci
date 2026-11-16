@@ -52,8 +52,8 @@ export class Panel {
   private readonly more: Disclosure;
   private readonly how: Disclosure;
   private readonly hint = el('p', 'page__hint');
-  private readonly back = button('nav-button nav-button--back', UI.controls.backAria);
-  private readonly forward = button('nav-button nav-button--forward', UI.controls.forwardAria);
+  private readonly back = button('nav-button nav-button--back');
+  private readonly forward = button('nav-button nav-button--forward');
 
   private node: JourneyNode | null = null;
   private visible = false;
@@ -76,13 +76,13 @@ export class Panel {
     inner.append(this.text, this.extra, this.more.root, this.how.root);
     this.body.append(inner);
     this.caption.append(head, this.body);
-    this.caption.setAttribute('aria-live', 'polite');
     this.scroll.append(this.caption);
 
     setRich(this.hint, options.hint);
 
-    this.back.append(icon('back'), el('span', undefined, UI.controls.back));
-    this.forward.append(el('span', undefined, UI.controls.forward), icon('forward'));
+    // The accessible name starts with the visible words, then says what the button does.
+    this.back.append(icon('back'), el('span', undefined, UI.controls.back), el('span', 'sr-only', `. ${UI.controls.backAria}`));
+    this.forward.append(el('span', undefined, UI.controls.forward), icon('forward'), el('span', 'sr-only', `. ${UI.controls.forwardAria}`));
     this.back.addEventListener('click', () => options.go(-1));
     this.forward.addEventListener('click', () => options.go(1));
     const nav = el('nav', 'page__nav');

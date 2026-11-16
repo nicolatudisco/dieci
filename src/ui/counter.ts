@@ -34,11 +34,9 @@ export class Counter {
   private readonly width = el('p', 'counter__width');
   private readonly line = el('p', 'counter__line');
   private readonly pointer = el('i', 'counter__pointer');
-  private readonly spoken = el('p', 'sr-only');
   private readonly options: CounterOptions;
   private digit: HTMLSpanElement | null = null;
   private shown: CounterState | null = null;
-  private spokenFor = '';
 
   constructor(options: CounterOptions) {
     this.options = options;
@@ -59,13 +57,19 @@ export class Counter {
     const facts = el('div', 'counter__facts');
     facts.append(this.width, this.line);
     visual.append(this.label, power, facts, ruler);
-    // What assistive technology reads: the plain width, said when a stop is reached.
-    this.spoken.setAttribute('aria-live', 'polite');
-    this.element.append(visual, this.spoken);
+    this.element.append(visual);
   }
 
-  /** `stopId` is the id of the stop the journey is standing on, or null while moving. */
-  update(u: number, stopId: string | null): void {
+  /**
+   * The counter in plain words, for assistive technology: the width in friendly units
+   * (an exponent is read badly aloud), or what the number is in Act II.
+   */
+  static describe(u: number): string {
+    const state = counterAt(u);
+    return state.width ? `${state.label} ${state.width}: ${state.line}.` : `${state.label}: ${state.line}.`;
+  }
+
+  update(u: number): void {
     const state = counterAt(u);
     const previous = this.shown;
     this.shown = state;
@@ -81,11 +85,6 @@ export class Counter {
 
     const along = state.mode === 'space' ? Math.min(1, Math.max(0, u) / NOTCHES) : 1;
     this.pointer.style.left = `${(along * 100).toFixed(2)}%`;
-
-    if (stopId && stopId !== this.spokenFor) {
-      this.spokenFor = stopId;
-      this.spoken.textContent = state.width ? `${state.label} ${state.width}. ${state.line}.` : `${state.label}: ${state.line}.`;
-    }
   }
 
   /** The exponent rolls like the digit of a mechanical counter: up when the scale grows. */

@@ -68,9 +68,13 @@ function boot(): void {
   const person = parseHash(location.hash);
   if (FINALE_IS_PLACEHOLDER) console.warn('Dieci: il messaggio del finale non è ancora stato scritto (src/content/finale.ts).');
 
+  // The one heading of the page, for whoever does not see it.
+  const heading = document.createElement('h1');
+  heading.className = 'sr-only';
+  heading.textContent = document.title;
   const stage = document.createElement('div');
   stage.className = 'stage';
-  app.append(stage);
+  app.append(heading, stage);
 
   let engine: Engine;
   try {
@@ -201,6 +205,9 @@ function boot(): void {
     epilogue.setOpacity(epilogueOpacity(info.u));
     if (info.atNode === FINALE) finale.arrive();
     else if (info.u <= lastStop.u + 0.1) finale.leave();
+    // Where the journey stands, for tests and debugging: the id of the node, or nothing while moving.
+    const at = info.atNode?.id ?? '';
+    if (document.documentElement.dataset.at !== at) document.documentElement.dataset.at = at;
 
     frames.update(info.framing);
     labels.update(info.labels);

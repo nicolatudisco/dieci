@@ -494,7 +494,8 @@
 
 .ui button:focus-visible,
 .view button:focus-visible,
-.view a:focus-visible {
+.sheet button:focus-visible,
+.sheet a:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }

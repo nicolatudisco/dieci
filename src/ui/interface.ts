@@ -28,6 +28,9 @@ export class Interface {
   readonly scene = el('div', 'ui__scene');
   readonly counter: Counter;
   readonly panel: Panel;
+  /** What assistive technology hears on arriving at a stop: title, width, caption. */
+  private readonly status = el('p', 'sr-only');
+  private announced = '';
   private opacity = -1;
 
   constructor(options: InterfaceOptions) {
@@ -39,12 +42,19 @@ export class Interface {
       hint: coarse ? UI.hints.touch : UI.hints.pointer,
       animated: options.animated,
     });
-    this.element.append(this.counter.element, this.scene, this.panel.element);
+    this.status.setAttribute('role', 'status');
+    this.element.append(this.counter.element, this.scene, this.panel.element, this.status);
   }
 
   update(info: FrameInfo): void {
-    this.counter.update(info.u, info.atNode?.stop ? info.atNode.id : null);
+    this.counter.update(info.u);
     this.panel.update(info);
+
+    const stop = info.atNode?.stop;
+    if (stop && stop.id !== this.announced) {
+      this.announced = stop.id;
+      this.status.textContent = `${stop.title}. ${Counter.describe(info.u)} ${stop.text}`;
+    }
 
     const opacity = Math.round(interfaceOpacity(info.u) * 100) / 100;
     if (opacity === this.opacity) return;

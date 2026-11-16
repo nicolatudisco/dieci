@@ -45,6 +45,8 @@ export class Intro {
       event.stopPropagation();
       options.onStart();
     });
+    // Reached with the keyboard before its turn: everything comes in, nothing stays invisible.
+    this.start.addEventListener('focus', () => this.reveal.finish());
     items.push(this.start);
     this.reveal = new Reveal(items, { animated: options.animated, first: 900, step: 2300 });
 

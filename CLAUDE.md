@@ -142,7 +142,7 @@ GitHub Pages tramite `.github/workflows/deploy.yml` a ogni push su `main`. `base
 
 Prima di dire che qualcosa è finito:
 
-1. `npm run typecheck`, `npm run build` e `npm test` senza errori (i test sono in `tests/`, girano con `node --test` senza dipendenze).
+1. `npm run typecheck`, `npm run build` e `npm test` senza errori (i test sono in `tests/`, girano con `node --test` senza dipendenze). Dopo modifiche a motore, input o interfaccia anche `npm run smoke` (aggiungi `-- --gpu` per fare prima): apre il sito in un browser vero e fa tutto il viaggio premendo solo ▶, poi prova pagine sovrapposte, tastiera e rotella.
 2. `npm run shots -- --from 0 --to 27 --step 1` (o `--stops id1,id2`): screenshot su desktop, tablet e telefono in `screenshots/`, con un foglio riassuntivo per viewport e `report.json` con gli errori di console. **Guarda davvero le immagini** (leggi i PNG) prima di dichiarare una scena pronta. La skill `/verifica-visiva` descrive la procedura.
 3. Nessun errore in console.
 4. A fine milestone, chiedi a Nicola di provare su un dispositivo vero e digli cosa guardare. Lei lo aprirà su tablet e PC; Nicola prova sul tablet con `npm run dev -- --host` in rete locale.
@@ -192,7 +192,7 @@ Stato:
     4. ✅ Input e movimento definitivi: viaggio animato, rotella, swipe con inerzia, pinch, tasti e aggancio verificati dal vivo con tocchi simulati; con `prefers-reduced-motion` ▶ ◀ passano dal velo (`src/ui/veil.ts`). Il pinch resta in scala vera (guadagno 1 in `src/engine/input.ts`, `PINCH_GAIN`): Nicola non ha ancora detto se gli sembra lento.
     5. ✅ Punto caldo con le parole «Tu sei qui» dalla Luna in poi (`src/ui/marker.ts`); lente condivisa (`src/engine/lens.ts`, `src/ui/lens.ts`, `LensSpec` nel contratto); sfondo di stelle (`src/levels/backdrop.ts`); segnaposto curati in scala vera da `terra` a `universo` (`src/levels/placeholder/`: `solar.ts`, `far.ts`, `cosmos.ts`, con `sketch.ts`, `bodies.ts`, `clouds.ts`); tabella dei pianeti e coordinate del cielo condivise (`src/levels/solar-system.ts`, `src/levels/sky.ts`); etichette nuove in `src/content/labels.ts`. Le tappe terrestri restano col segnaposto generico. Vedi «Decisioni → Contratto dei livelli».
     6. ✅ Apertura (`src/ui/intro.ts`: la sola stella è il punto caldo, righe una alla volta, saluto con `#nome=`, prima riga dalla data), Atto II (`src/levels/placeholder/numbers.ts`: livelli tipografici in DOM), finale segnaposto con «TODO: messaggio di Nicola» (`src/ui/finale.ts`), epilogo (`src/ui/epilogue.ts`), pagine sovrapposte `fonti` e `disco` (`src/ui/overlay.ts`, `sources.ts`, `golden-record.ts`). Vedi «Decisioni → Viste». Lo script degli screenshot accetta già le cinque viste e `--u`.
-    7. ⬜ Qualità adattiva, accessibilità, `scripts/smoke.mjs` (`scripts/screenshot.mjs` è già esteso).
+    7. ✅ Qualità adattiva (`src/engine/quality.ts`, con test), passata di accessibilità (un solo annuncio all'arrivo su una tappa, nomi accessibili che cominciano col testo visibile, titolo di pagina per chi non vede, fuoco sempre visibile), `npm run smoke` (`scripts/smoke.mjs`: tutto il viaggio con il solo ▶ in un browser vero).
     8. ⬜ Verifica completa nei 3 viewport, contratto dei livelli completo in «Decisioni», stato «fatto», conferma di Nicola e push.
 - **M2, le tappe terrestri**: `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.
@@ -250,6 +250,12 @@ Prese con Nicola prima di M1:
 **Caratteri.** Fraunces (titoli e contatore) e **Andika** (testi), dichiarati in `src/styles/fonts.css` con i soli sottoinsiemi latini. Andika ha sostituito Atkinson Hyperlegible Next, proposto all'inizio, perché Atkinson ha lo zero barrato e questi testi sono pieni di zeri da contare. In attesa della conferma di Nicola (confronto in `docs/confronti.local/caratteri.png`, non committato).
 
 **Testi a schermo.** `typeset()` in `src/ui/rich-text.ts` trasforma gli apici Unicode dei testi (10⁸⁰) in veri `<sup>` e gli apostrofi dritti in tipografici; ▶ e ◀ diventano icone disegnate. I testi in `src/content/` non cambiano.
+
+**Qualità adattiva** (`src/engine/quality.ts`). Una media mobile del tempo di fotogramma muove il motore lungo una scala corta: prima meno pixel (`pixelRatio` 1 → 0,8 → 0,66 → 0,5), poi anche meno particelle (`frame.quality`, da applicare con `setDrawRange` alle nuvole di punti). Scende in un secondo e mezzo di fotogrammi lenti, risale dopo otto secondi buoni, e se la risalita non regge ci rinuncia a lungo: niente sfarfallio tra due livelli. `?debug=1` mostra il gradino.
+
+**Accessibilità.** All'arrivo su una tappa un'unica regione `role="status"` dice titolo, larghezza in parole («Quello che vedi è largo 16.000 km») e testo: l'esponente letto ad alta voce non si capisce, quindi il contatore visivo è nascosto ai lettori di schermo. I pulsanti hanno il nome che comincia col testo visibile e prosegue con la descrizione di `UI.controls.*Aria`. Tutto ciò che non è in scena è `inert`. Scene, etichette e lenti sono decorative (`aria-hidden`): quello che mostrano è detto dalla didascalia.
+
+**Da rifinire sul telefono (M8).** Con la didascalia aperta la scena resta piccola (circa 260 px su uno schermo da 844): la didascalia più lunga scorre e il foglio si può richiudere. Alle tappe con la lente, su schermi così piccoli la scritta della lente può finire sopra il punto caldo (a `giove` succede).
 
 ### Viste (M1)
 

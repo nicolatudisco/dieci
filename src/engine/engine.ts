@@ -30,6 +30,7 @@ import { LensPass } from './lens.ts';
 import type { Backdrop, LabelSpec, LensSpec, LevelContext, LevelDef, LevelFrame } from './level.ts';
 import { LevelManager, type ActiveLevel } from './level-manager.ts';
 import { Motion } from './motion.ts';
+import { AdaptiveQuality } from './quality.ts';
 import { OffscreenFader } from './renderer.ts';
 import { ANCHORS, centreAt } from './stage.ts';
 
@@ -81,6 +82,8 @@ export interface FrameInfo {
   readonly active: readonly ActiveLevel[];
   readonly drawCalls: number;
   readonly pixelRatio: number;
+  /** Step of the adaptive quality ladder: 0 is the best. */
+  readonly qualityLevel: number;
 }
 
 export interface EngineOptions {
@@ -110,6 +113,7 @@ export class Engine {
   private readonly camera = new PerspectiveCamera();
   private readonly manager: LevelManager;
   private readonly fader = new OffscreenFader();
+  private readonly adaptive = new AdaptiveQuality();
   private readonly lensPass = new LensPass();
   /** Direction each lens was placed in on the last frame (see `placeLens`). */
   private readonly lensAngles = new Map<string, number>();
@@ -241,6 +245,11 @@ export class Engine {
   private readonly tick = (timestamp: number): void => {
     if (!this.running) return;
     this.clock.tick(timestamp);
+    // When the device cannot keep up, draw fewer pixels and fewer particles.
+    if (!this.clock.isStatic && !document.hidden && this.adaptive.step(this.clock.dt)) {
+      this.quality = this.adaptive.current.particles;
+      this.setPixelRatioScale(this.adaptive.current.pixelRatio);
+    }
     this.motion.step(this.clock.dt);
     this.followFreeRect(this.clock.dt);
     this.render();
@@ -455,6 +464,7 @@ export class Engine {
       active,
       drawCalls: renderer.info.render.calls,
       pixelRatio: this.pixelRatio,
+      qualityLevel: this.adaptive.level,
     };
     for (const listener of this.listeners) listener(info);
   }

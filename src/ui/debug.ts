@@ -49,7 +49,7 @@ export class DebugOverlay {
       `slow frames ${this.slow}${this.slow ? `  (max ${this.slowest.toFixed(0)} ms)` : ''}\n` +
       `u ${info.u.toFixed(3)}  e ${cameraExponent(info.u).toFixed(3)}\n` +
       `${info.atNode ? `at ${info.atNode.id}` : info.heading ? `to ${info.heading.id}` : info.moving ? 'moving' : 'rest'}\n` +
-      `calls ${info.drawCalls}  dpr ${info.pixelRatio.toFixed(2)}  ${f.width}×${f.height}\n` +
+      `calls ${info.drawCalls}  dpr ${info.pixelRatio.toFixed(2)}  quality ${info.qualityLevel}  ${f.width}×${f.height}\n` +
       `largo ${f.largoPx.toFixed(0)} px\n  ${levels}`;
 
     const { free } = f;
