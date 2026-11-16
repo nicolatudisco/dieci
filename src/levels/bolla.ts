@@ -9,42 +9,21 @@
  * - The sphere is drawn as what it is: a thin bright shell (the light of the day she was
  *   born) around a faint glow (the light of every day since). Amber, the colour kept for
  *   her: the dot, the bubble and the finale.
- * - The stars are the real ones of data.ts → NEARBY_STARS. Where they are drawn depends on
- *   the layout (see `Layout`).
+ * - The stars are the real ones of data.ts → NEARBY_STARS, each in its true direction and
+ *   at its true distance from the Sun (see `starPositions`).
  * - With ?static=1 and with reduced motion the bubble is shown full, at once.
  *
  * Units: light-years, around the Sun.
  */
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, Group, Mesh, NormalBlending, PlaneGeometry, Points, Quaternion, ShaderMaterial, Vector3 } from 'three';
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, Mesh, NormalBlending, PlaneGeometry, Points, ShaderMaterial, Vector3 } from 'three';
 import { bubbleAt, type Bubble } from '../bubble.ts';
 import { LABELS } from '../content/labels.ts';
 import { UI } from '../content/ui.ts';
-import { CAMERA_DISTANCE } from '../engine/framing.ts';
 import type { LabelSpec, LevelFrame } from '../engine/level.ts';
 import type { Vec3 } from '../engine/stage.ts';
 import { drawSun } from './placeholder/bodies.ts';
 import { sketch } from './placeholder/sketch.ts';
 import { stageFromEquatorial } from './sky.ts';
-
-/**
- * How the stars are laid out in the picture.
- *
- * - `distance`: seen from above the galactic plane like every scene around this one, each
- *   star in its true direction (galactic longitude) and at its TRUE DISTANCE from the Sun.
- *   What is flattened is the depth: a star far above or below the plane is laid down on
- *   it. In exchange the picture says exactly what this stop is about: a star is inside the
- *   circle if and only if her light has reached it, and it lights up when the edge touches it.
- * - `depth`: the true positions in three dimensions, seen from the side from which the
- *   stars not yet reached fall nearest to the edge, with a slow rocking that gives depth.
- *   A star in front of or behind the bubble is drawn inside the circle although it is
- *   outside the sphere, and lights up after the edge has passed over it.
- */
-type Layout = 'distance' | 'depth';
-
-/** TEMPORARY, until Nicola chooses: `?bolla=3d` shows the other layout, for comparison. */
-function chosenLayout(): Layout {
-  return new URLSearchParams(globalThis.location?.search ?? '').get('bolla') === '3d' ? 'depth' : 'distance';
-}
 
 const WARM = '#ffb24d';
 const WARM_BRIGHT = '#ffd27a';
@@ -172,48 +151,27 @@ const STAR_FRAGMENT = /* glsl */ `
     #include <colorspace_fragment>
   }`;
 
-// ──────────────────────────────────────────────────────────────────────────── the layout
+// ──────────────────────────────────────────────────────────────── where the stars are
 
-/** Where the stars are, in light-years from the Sun, for the chosen layout. */
-function starPositions(bubble: Bubble, layout: Layout, viewWidth: number): Vector3[] {
-  const true3d = bubble.stars.map(({ star }) => new Vector3(...stageFromEquatorial(star.raHours, star.decDeg, star.ly)));
-  if (layout === 'distance') {
-    // True direction on the picture, true distance from the Sun.
-    return true3d.map((p, i) => {
-      const flat = Math.hypot(p.x, p.y) || 1;
-      const distance = bubble.stars[i]?.star.ly ?? 0;
-      return new Vector3((p.x / flat) * distance, (p.y / flat) * distance, 0);
-    });
-  }
-  // The side to look from: the one from which the stars not yet reached fall nearest to the
-  // edge of the sphere (or beyond it), and the reached ones stay well inside.
-  const camera = viewWidth * CAMERA_DISTANCE;
-  const edge = Math.tan(Math.asin(Math.min(0.99, bubble.radius / camera)));
-  let best = { score: -Infinity, n: new Vector3(0, 0, 1) };
-  const n = new Vector3();
-  const COUNT = 6000;
-  for (let k = 0; k < COUNT; k++) {
-    const z = 1 - (2 * (k + 0.5)) / COUNT;
-    const a = k * Math.PI * (3 - Math.sqrt(5));
-    const flat = Math.sqrt(1 - z * z);
-    n.set(flat * Math.cos(a), flat * Math.sin(a), z);
-    let outside = Infinity;
-    let inside = 0;
-    true3d.forEach((p, i) => {
-      const along = p.dot(n);
-      const ratio = Math.sqrt(Math.max(0, p.lengthSq() - along * along)) / (camera - along) / edge;
-      if (bubble.stars[i]?.reached) inside = Math.max(inside, ratio);
-      else outside = Math.min(outside, ratio);
-    });
-    const score = (Number.isFinite(outside) ? outside : 1) - 2 * Math.max(0, inside - 0.9);
-    if (score > best.score) best = { score, n: n.clone() };
-  }
-  // Turn the stars so that the chosen side faces the camera, keeping the galactic centre up as far as it goes.
-  const z = best.n;
-  const up = Math.abs(z.y) > 0.95 ? new Vector3(0, 0, 1) : new Vector3(0, 1, 0);
-  const x = new Vector3().crossVectors(up, z).normalize();
-  const y = new Vector3().crossVectors(z, x);
-  return true3d.map((p) => new Vector3(p.dot(x), p.dot(y), p.dot(z)));
+/**
+ * Where the stars are drawn, in light-years from the Sun (Nicola's choice, end of M4).
+ *
+ * Seen from above the galactic plane like every scene around this one, each star is in its
+ * true direction (galactic longitude) and at its TRUE DISTANCE from the Sun. What is
+ * flattened is the depth: a star far above or below the plane is laid down on it. In
+ * exchange the picture says exactly what this stop is about: a star is inside the circle if
+ * and only if her light has reached it, and it lights up when the edge touches it.
+ *
+ * A true 3D projection was tried and dropped: a star in front of or behind the sphere falls
+ * inside the circle although her light has not reached it, and lights up after the edge has
+ * passed over it. No point of view avoids that for all the stars.
+ */
+function starPositions(bubble: Bubble): Vector3[] {
+  return bubble.stars.map(({ star }) => {
+    const [x, y] = stageFromEquatorial(star.raHours, star.decDeg, star.ly);
+    const flat = Math.hypot(x, y) || 1;
+    return new Vector3((x / flat) * star.ly, (y / flat) * star.ly, 0);
+  });
 }
 
 interface Box {
@@ -243,7 +201,6 @@ function boxOn(side: Side, x: number, y: number, width: number, height: number):
 export default sketch((s) => {
   const { isStatic, reducedMotion } = s.ctx;
   const bubble = bubbleAt(s.ctx.birth, s.ctx.now());
-  const layout = chosenLayout();
   const radius = bubble.radius;
   const count = bubble.stars.length;
   const still = isStatic || reducedMotion;
@@ -281,7 +238,7 @@ export default sketch((s) => {
   const sun = drawSun(s);
 
   // The stars, nearest first (the order of the model).
-  const rest = starPositions(bubble, layout, s.units(10 ** s.exponent));
+  const places = starPositions(bubble);
   const positions = new Float32Array(count * 3);
   const sizes = new Float32Array(count);
   const lit = new Float32Array(count);
@@ -290,7 +247,7 @@ export default sketch((s) => {
   const phases = new Float32Array(count);
   const next = bubble.stars.findIndex((item) => !item.reached);
   bubble.stars.forEach(({ star }, i) => {
-    rest[i]?.toArray(positions, i * 3);
+    places[i]?.toArray(positions, i * 3);
     sizes[i] = BRIGHT.has(star.name) ? 13 : VISIBLE.has(star.name) ? 10 : 7.5;
     waiting[i] = i === next ? 1 : 0;
     phases[i] = (i * 0.618) % 1;
@@ -324,10 +281,8 @@ export default sketch((s) => {
   );
   stars.frustumCulled = false;
   stars.renderOrder = 50;
-  const cluster = new Group();
-  cluster.position.set(sun[0], sun[1], sun[2]);
-  cluster.add(stars);
-  s.scene.add(cluster);
+  stars.position.set(sun[0], sun[1], sun[2]);
+  s.scene.add(stars);
 
   const featured = new Set(FEATURED);
   /** The star her light reached last, among the ones the texts talk about, while the edge is at `wave`. */
@@ -345,12 +300,9 @@ export default sketch((s) => {
   let growing = false;
   /** 1 at the moment the edge reaches today, then it fades. */
   let arrived = 0;
-  const now = bubble.stars.map(() => new Vector3());
   /** How much of each note is shown: they come and go softly, they never pop. */
   const reachedNote = new Float32Array(count);
   let waitingNote = still ? 1 : 0;
-  const rocking = new Quaternion();
-  const axis = new Vector3();
 
   s.tick = (frame) => {
     const t = frame.time;
@@ -422,13 +374,6 @@ export default sketch((s) => {
     // Where the bubble is small (a small screen, or the journey moving on) its stars are smaller too.
     uniforms.uScale!.value = Math.min(1, Math.max(0.5, frame.pxPerUnit / 20));
 
-    // Depth layout: the stars rock a few degrees around the Sun, so that near and far are felt.
-    if (layout === 'depth') {
-      rocking.setFromAxisAngle(axis.set(Math.cos(t * 0.11), Math.sin(t * 0.11), 0), 0.11 * Math.sin(t * 0.33));
-      cluster.quaternion.copy(rocking);
-    }
-    rest.forEach((p, i) => now[i]?.copy(p).applyQuaternion(cluster.quaternion));
-
     // The two notes: «raggiunta dalla tua luce» follows the edge from star to star,
     // «la tua luce non ci è ancora arrivata» comes when the edge has stopped.
     const latest = lastReached();
@@ -490,12 +435,12 @@ export default sketch((s) => {
     // «oggi» is said aloud, in the typeface of the titles; the years on the way are quieter.
     if (edgeText) out.push({ id: full ? 'edge/today' : 'edge', text: edgeText, at: reach(wave * 1.02), kind: full ? 'title' : 'place', align: side, opacity: around });
 
-    const dots = now.map((p) => ({ x: p.x * px - 7, y: -p.y * px - 7, width: 14, height: 14 }));
+    const dots = places.map((p) => ({ x: p.x * px - 7, y: -p.y * px - 7, width: 14, height: 14 }));
     const clear = (box: Box, self: number): boolean => !taken.some((other) => overlaps(box, other)) && !dots.some((dot, k) => k !== self && overlaps(box, dot));
 
     for (const i of order) {
       const item = bubble.stars[i];
-      const p = now[i];
+      const p = places[i];
       if (!item || !p) continue;
       const name = item.star.name;
       const main = featured.has(name);
