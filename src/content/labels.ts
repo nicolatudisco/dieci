@@ -25,6 +25,8 @@ export const LABELS = {
     voyager1: `Voyager 1`,
     neptuneOrbit: `l'orbita di Nettuno`,
     oortCloud: `nube di Oort`,
+    /** Under the lens of the Oort cloud: what each of its points is. */
+    iceBlock: `un blocco di ghiaccio`,
     orionNebula: `Nebulosa di Orione`,
     milkyWay: `Via Lattea`,
     andromeda: `Andromeda`,

@@ -55,7 +55,8 @@ const ACT_ONE: Record<string, Entry> = {
   giove: { unit: AU, origin: 'sun', load: solar('giove') }, // 13.3 AU
   'pianeti-lontani': { unit: AU, origin: 'sun', load: solar('pianetiLontani') }, // 66.8 AU
   voyager: { unit: 10 * AU, origin: 'sun', load: () => import('./voyager.ts'), enter: [13.05, 13.4] }, // 33.5 (tens of AU)
-  oort: { unit: 1e3 * AU, origin: 'sun', load: far('oort') }, // 168 (thousands of AU)
+  // Seen from the bubble it would be a ball of sparks on the warm dot: it leaves before.
+  oort: { unit: 1e3 * AU, origin: 'sun', load: () => import('./oort.ts'), leave: [16.85, 17.35] }, // 168 (thousands of AU)
   bolla: { unit: LY, origin: 'sun', load: far('bolla'), enter: [16.6, 17.1] }, // 33.4 light-years
   nebulose: { unit: 100 * LY, origin: 'sun', load: cosmos('nebulose') }, // 26.5 (hundreds of ly)
   // Its nine thousand points turn into a white blob as they shrink: Andromeda's level takes over.
