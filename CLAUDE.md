@@ -156,6 +156,7 @@ Se la grafica 3D negli screenshot è nera, prova `--gpu` (usa la GPU invece di S
 - Rifredi e Firenze vanno bene come luoghi. Mai: cognome, foto, data di nascita, indirizzo o via, scuola, né altro che identifichi la bambina o Nicola. Nome e data di nascita solo nel link, dopo il `#`.
 - Mai nemmeno il giorno del compleanno (insieme a «10 anni» dà la data di nascita) né il nome della via del punto di partenza: né nei file né nei messaggi di commit.
 - `finale.ts` è pubblico: Nicola lo sa.
+- **Eccezione voluta da Nicola**: nel messaggio finale (`FINALE.message` in `src/content/finale.ts`) compaiono il nome proprio e il soprannome della bambina, scritti direttamente. Solo lì, e solo il nome: nessun cognome né altro dato. Non vanno tolti né sostituiti con `{nome}`, e non vanno ripetuti altrove (altri file, test, nomi di file, messaggi di commit). Il messaggio non si corregge e non si riformula: parole, maiuscole, punteggiatura, a capo e righe vuote restano come li ha scritti lui.
 - Nessun tracciamento, nessuna analytics.
 
 ## Accuratezza scientifica

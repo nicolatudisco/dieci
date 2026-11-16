@@ -24,8 +24,18 @@ export const FINALE = {
     `Non si misura in metri, e non si può contare.`,
   ],
 
-  // TODO: messaggio di Nicola
-  message: ``,
+  // Scritto da Nicola: non va corretto né riformulato. Il nome e il soprannome sono qui
+  // per sua scelta (eccezione alla regola sulla privacy, vedi CLAUDE.md → «Privacy»).
+  // Una riga vuota separa le strofe; un a capo semplice resta un a capo.
+  message: `Adi hai visto quanto è grande l'universo?
+Eppure in quel pallino ci sei te, così PICCINA ma così importante.
+
+Tanti auguri Adelina!
+Le cose da scoprire sono infinite, per questo devi promettermi una cosa: resta sempre curiosa, viaggia, esplora e impara a conoscere questo strano ma meraviglioso universo.
+
+(secondo me Adi dovresti studiare fisica... ma io non ti ho detto nulla)
+
+TI VOGLIO BENE`,
 
   signature: ``,
 
