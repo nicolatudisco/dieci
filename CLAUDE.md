@@ -185,7 +185,7 @@ Stato:
 
 - **M0, fatto**: starter, contenuti, deploy, script degli screenshot, skill.
 - **M1, motore di zoom end-to-end**: segnaposto già belli per ogni tappa (forma, etichetta, esponente), input completo, contatore con gli scatti a ogni potenza di 10, pannello con «saperne di più» e «Come lo sappiamo?», «Tu sei qui», lente, contratto URL esteso, overlay di debug, apertura essenziale con la prima riga legata alla data. Si considera fatta quando si va fluidamente da 10⁰ fino al finale segnaposto, con screenshot su tutta la scala nei 3 viewport.
-  - **In corso.** Si lavora in 8 passi. Alla fine di ogni passo: typecheck, build e test puliti, un commit, e questo elenco aggiornato. Se la sessione si interrompe si riparte dal primo passo senza ✅, leggendo «Decisioni → Motore di zoom». Push solo alla fine, dopo la conferma di Nicola.
+  - **Fatto, non ancora pubblicato** (vedi passo 8). Si è lavorato in 8 passi. Alla fine di ogni passo: typecheck, build e test puliti, un commit, e questo elenco aggiornato. Se la sessione si interrompe si riparte dal primo passo senza ✅, leggendo «Decisioni → Motore di zoom». Push solo alla fine, dopo la conferma di Nicola.
     1. ✅ Nucleo puro con test: `src/engine/journey.ts` (asse `u`), `src/ui/format.ts`, `src/personalization.ts`, `src/route.ts`, `src/engine/clock.ts`.
     2. ✅ Motore (`src/engine/`: `stage`, `framing`, `level`, `level-manager`, `motion`, `input`, `renderer`, `engine`), registro dei livelli (`src/levels/registry.ts`), segnaposto generico su tutte le 21 tappe dell'Atto I, segnaposto curato di `partenza` con la sagoma, cornici della scala, punto caldo, etichette, overlay di debug, `data-ready`. Provato da Nicola su iPad (Safari): 60 fps, ▶ ◀, swipe e rotazione a posto, la sagoma va bene così. Unico appunto, un fotogramma lungo (35 ms) nei passaggi tra livelli: da ricontrollare sull'iPad dopo il precaricamento (vedi «Decisioni → Motore di zoom → Precaricamento»; `?debug=1` ora conta i fotogrammi lenti).
     3. ✅ Interfaccia (`src/ui/`: `interface`, `counter`, `counter-model`, `panel`, `layout`, `dom`, `rich-text`; `src/styles/`: `tokens`, `fonts`, `base`, `ui`): contatore con gli scatti e il righello delle potenze, pagina con didascalia ed espansioni, pulsanti «Più vicino» e «Più lontano», area libera misurata dalla griglia. Vedi «Decisioni → Interfaccia». L'apertura parte ancora da sola (`src/main.ts`): la sostituisce il passo 6.
@@ -193,7 +193,7 @@ Stato:
     5. ✅ Punto caldo con le parole «Tu sei qui» dalla Luna in poi (`src/ui/marker.ts`); lente condivisa (`src/engine/lens.ts`, `src/ui/lens.ts`, `LensSpec` nel contratto); sfondo di stelle (`src/levels/backdrop.ts`); segnaposto curati in scala vera da `terra` a `universo` (`src/levels/placeholder/`: `solar.ts`, `far.ts`, `cosmos.ts`, con `sketch.ts`, `bodies.ts`, `clouds.ts`); tabella dei pianeti e coordinate del cielo condivise (`src/levels/solar-system.ts`, `src/levels/sky.ts`); etichette nuove in `src/content/labels.ts`. Le tappe terrestri restano col segnaposto generico. Vedi «Decisioni → Contratto dei livelli».
     6. ✅ Apertura (`src/ui/intro.ts`: la sola stella è il punto caldo, righe una alla volta, saluto con `#nome=`, prima riga dalla data), Atto II (`src/levels/placeholder/numbers.ts`: livelli tipografici in DOM), finale segnaposto con «TODO: messaggio di Nicola» (`src/ui/finale.ts`), epilogo (`src/ui/epilogue.ts`), pagine sovrapposte `fonti` e `disco` (`src/ui/overlay.ts`, `sources.ts`, `golden-record.ts`). Vedi «Decisioni → Viste». Lo script degli screenshot accetta già le cinque viste e `--u`.
     7. ✅ Qualità adattiva (`src/engine/quality.ts`, con test), passata di accessibilità (un solo annuncio all'arrivo su una tappa, nomi accessibili che cominciano col testo visibile, titolo di pagina per chi non vede, fuoco sempre visibile), `npm run smoke` (`scripts/smoke.mjs`: tutto il viaggio con il solo ▶ in un browser vero).
-    8. ⬜ Verifica completa nei 3 viewport, contratto dei livelli completo in «Decisioni», stato «fatto», conferma di Nicola e push.
+    8. ✅ Verifica completa: typecheck, build, 68 test, `npm run smoke` (tutto il viaggio col solo ▶), 90 screenshot guardati (apertura, 25 tappe, finale, epilogo, `fonti`, `disco` nei 3 viewport) senza errori in console; tabella del contratto in «Decisioni». **Manca solo la prova di Nicola sul tablet e, dopo la sua conferma, il push.**
 - **M2, le tappe terrestri**: `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.
 - **M4, i momenti speciali**: `voyager` (con il pannello vivo, la tabella JPL Horizons e il racconto del Disco d'oro), `oort`, `bolla` (viva, con le varianti dei testi approvate da Nicola).
@@ -291,6 +291,34 @@ Il contratto è nel codice, commentato: `src/engine/level.ts` (interfacce `Level
 - **Etichette e microtesti nuovi** stanno in `src/content/labels.ts` («Tu sei qui», «ingrandito, non in scala», i nomi dei luoghi): Nicola li può correggere lì.
 - **Il punto caldo** (`markerLook` in `src/ui/marker.ts`): sempre presente nell'Atto I (all'apertura è la «sola stella»); le parole «Tu sei qui» compaiono da 10⁸ m in poi e si fanno da parte se una lente ci passa sopra; tra i numeri dell'Atto II il punto si spegne e torna per il finale. M6 può cambiare queste soglie.
 
-La tabella completa per tappa (unità, origine, intervalli, oggetti di consegna) si scrive al passo 8.
+**Tabella per tappa** (da `src/levels/registry.ts`, che fa fede). «Entra» e «esce» sono posizioni sull'asse `u` (nell'Atto I, esponenti): da dove il livello comincia a comparire a dove è pieno, e da dove comincia a sfumare a dove è sparito. «Consegna» è ciò che il livello deve disegnare, sull'ancora e a misura vera, perché i vicini coincidano.
+
+| Tappa | E | Unità | Origine | Entra | Esce | Consegna |
+|---|---|---|---|---|---|---|
+| `partenza` | 0 | 1 m | `you` | −1 → −0,25 | 0,9 → 1,6 | lei seduta con il punto caldo sul petto; la soglia a 21 cm davanti a lei, il filo del muro 26 cm dietro |
+| `strada` | 1 | 1 m | `you` | −0,3 → 0,1 | 1,9 → 2,6 | la stessa soglia e la stessa sagoma nello stesso punto; strada orientata come quella vera |
+| `rifredi` | 2 | 100 m | `you` | 0,7 → 1,1 | 2,9 → 3,6 | il punto di partenza nell'origine, nord in alto |
+| `quartiere` | 3 | 1 km | `you` | 1,7 → 2,1 | 3,9 → 4,6 | come sopra |
+| `firenze` | 4 | 1 km | `you` | 2,7 → 3,1 | 4,9 → 5,6 | come sopra |
+| `toscana` | 5 | 10 km | `you` | 3,7 → 4,1 | 5,9 → 6,6 | come sopra; la vista è centrata 35 km a ovest |
+| `italia` | 6,1 | 100 km | `you` | 4,7 → 5,1 | 7 → 7,7 | come sopra; la vista è centrata 100 km a est e 210 km a sud |
+| `terra` | 7,2 | 1.000 km | `earth` | 5,8 → 6,2 | 8,1 → 8,8 | la Terra: raggio 6.371 km attorno a `earth`, con il punto di partenza al centro del disco e la notte lì; luce dal lato del Sole |
+| `luna` | 9 | 100.000 km | `earth` | 6,9 → 7,3 | 9,9 → 10,6 | la stessa Terra; orbita di 384.400 km; la Luna su `moon` (lente) |
+| `sole` | 11,6 | 1 UA | `sun` | 9,3 → 10,2 | 12,5 → 13,2 | il Sole su `sun`, raggio 695.700 km; orbite e pianeti da `solar-system.ts` |
+| `giove` | 12,3 | 1 UA | `sun` | 11,3 → 11,7 | 13,2 → 13,9 | Sole e pianeti dalla stessa tabella; Giove (lente) |
+| `pianeti-lontani` | 13 | 1 UA | `sun` | 12 → 12,4 | 13,9 → 14,6 | come sopra; Saturno (lente) |
+| `voyager` | 13,7 | 10 UA | `sun` | 13,05 → 13,4 | 14,6 → 15,3 | il Sole; Voyager 1 su `voyager1` (lente); la vista è centrata a metà strada |
+| `oort` | 16,4 | 1.000 UA | `sun` | 13,4 → 13,8 | 17,3 → 18 | il guscio attorno a `sun`, da poche migliaia a circa 100.000 UA |
+| `bolla` | 17,5 | 1 anno-luce | `sun` | 16,6 → 17,1 | 18,4 → 19,1 | la sfera attorno a `sun` (10 anni-luce, o l'età esatta); le stelle di `NEARBY_STARS` da `sky.ts` |
+| `nebulose` | 19,4 | 100 anni-luce | `sun` | 17,2 → 17,6 | 20,3 → 21 | la Nebulosa di Orione su `orionNebula`; nessuna stella inventata entro 30 anni-luce dal Sole |
+| `via-lattea` | 21,2 | 10.000 anni-luce | `galacticCentre` | 19,6 → 20,4 | 21,5 → 22,1 | il disco largo 100.000 anni-luce attorno a `galacticCentre`; il Sole 26.000 anni-luce sotto il centro |
+| `andromeda` | 22,8 | 1 milione di anni-luce | `localGroup` | 21,5 → 22,1 | 23,7 → 24,4 | la Via Lattea su `galacticCentre`, Andromeda su `andromeda` |
+| `laniakea` | 24,8 | 100 milioni di anni-luce | `laniakea` | 23,4 → 24,1 | 25,3 → 26 | Laniakea: raggio 260 milioni di anni-luce attorno a `laniakea`; noi su `earth`, in periferia |
+| `rete-cosmica` | 25,6 | 1 miliardo di anni-luce | `earth` | 24,5 → 24,9 | 26,2 → 26,75 | noi su `earth`, al centro |
+| `universo` | 26,94 | 10 miliardi di anni-luce | `earth` | 25,3 → 25,7 | 28,3 → 29,2 | la sfera di raggio 46,5 miliardi di anni-luce attorno a `earth`; resta viva mentre si rimpicciolisce a un punto |
+| `oltre` | — | — | — | 27,9 → 28,2 | 29,35 → 29,85 | solo DOM, nell'area libera |
+| `atomi` | — | — | — | 29,9 → 30,2 | 31,35 → 31,85 | solo DOM |
+| `googol` | — | — | — | 31,9 → 32,2 | 33,35 → 33,85 | solo DOM |
+| `googolplex` | — | — | — | 33,9 → 34,2 | 36,4 → 36,9 | solo DOM; l'ultimo tratto porta la luce verso il finale |
 
 **Altre scelte approvate.** `?u=` nel contratto URL; cornice della scala (un quadrato sottile a ogni potenza di 10) nei segnaposto; nessun pulsante del suono finché l'audio non esiste (M8); caratteri via `@fontsource` (vedi «Interfaccia»); nei segnaposto delle tappe terrestri nessuna geografia inventata, ma `partenza` ha già la sagoma di lei seduta sulla soglia.
