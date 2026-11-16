@@ -11,10 +11,10 @@ Argomenti: uno o più id di tappa, separati da virgola (es. `firenze` oppure `te
 2. **Pianifica in breve** (3-6 punti): cosa si vede, di cosa è fatta (procedurale, texture da `docs/ASSETS.md`, dati geografici in `public/data/`), come entra e come esce, quanto pesa sulle prestazioni. Se manca un dato o un asset, dillo prima di inventarlo.
 3. **Implementa** rispettando l'architettura del motore. I testi stanno in `src/content/` e non si riscrivono. Etichette nuove nella scena solo se corrette e brevi.
 4. **Asset**: solo con licenza verificata; aggiungi la riga in `CREDITS.md` nello stesso commit.
-5. **Verifica** con la skill `/verifica-visiva`, almeno su:
-   - la tappa: `npm run shots -- --stops <id>`
-   - le transizioni con le vicine: `npm run shots -- --from <e-1> --to <e+1> --step 0.25`
-   - tutti e tre i viewport (desktop, tablet, telefono). Guarda davvero le immagini.
+5. **Verifica** con la skill `/verifica-visiva`. Pochi screenshot, come dice «Verifica» in `CLAUDE.md`: solo le tappe toccate, su telefono e desktop. Il giro completo nei tre viewport si fa a fine milestone.
+   - la tappa: `npm run shots -- --stops <id> --viewports phone,desktop`
+   - le transizioni con le vicine, se è cambiato il modo in cui la scena entra o esce: `npm run shots -- --from <e-1> --to <e+1> --step 0.5 --viewports phone,desktop`
+   - Guarda davvero le immagini.
    - gli fps nel dev server con `?stop=<id>&debug=1`.
 6. **Correggi finché**: niente buchi, lampi o salti nelle transizioni; testo leggibile anche su telefono; punto «Tu sei qui» visibile; nessun errore in console; `npm run typecheck` e `npm run build` puliti.
 7. **Commit** dei soli file toccati, con un messaggio chiaro in inglese (es. `Add Florence scene with Arno and Duomo`). Non fare push.

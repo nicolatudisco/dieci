@@ -9,7 +9,8 @@ description: Controlla come appare il sito "Dieci" a una o più scale facendo sc
    - una o più tappe: `npm run shots -- --stops <id1>,<id2>`
    - una transizione: `npm run shots -- --from <e1> --to <e2> --step 0.25`
    - tutto il viaggio: `npm run shots` (tutte le tappe) oppure `npm run shots -- --from 0 --to 27 --step 1`
-   - un solo viewport: aggiungi `--viewports phone` (oppure `tablet`, `desktop`)
+   - solo alcuni viewport: aggiungi `--viewports phone,desktop` (oppure `tablet`)
+   - quanti farne lo dice «Verifica» in `CLAUDE.md`: durante un passo solo le tappe toccate, su telefono e desktop; il giro completo nei tre viewport a fine milestone
 2. **Leggi `screenshots/report.json`**: errori in console e `TIMEOUT` (il flag `data-ready` non è mai stato impostato) si risolvono per primi.
 3. **Guarda le immagini**: prima i fogli riassuntivi `screenshots/contact-<viewport>.png`, poi i singoli PNG dove serve più dettaglio.
 4. **Controlla, per ogni immagine**:

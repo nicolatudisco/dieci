@@ -143,7 +143,9 @@ GitHub Pages tramite `.github/workflows/deploy.yml` a ogni push su `main`. `base
 Prima di dire che qualcosa è finito:
 
 1. `npm run typecheck`, `npm run build` e `npm test` senza errori (i test sono in `tests/`, girano con `node --test` senza dipendenze). Dopo modifiche a motore, input o interfaccia anche `npm run smoke` (aggiungi `-- --gpu` per fare prima): apre il sito in un browser vero e fa tutto il viaggio premendo solo ▶, poi prova pagine sovrapposte, tastiera e rotella.
-2. `npm run shots -- --from 0 --to 27 --step 1` (o `--stops id1,id2`): screenshot su desktop, tablet e telefono in `screenshots/`, con un foglio riassuntivo per viewport e `report.json` con gli errori di console. **Guarda davvero le immagini** (leggi i PNG) prima di dichiarare una scena pronta. La skill `/verifica-visiva` descrive la procedura.
+2. Screenshot con `npm run shots`: finiscono in `screenshots/`, con un foglio riassuntivo per viewport e `report.json` con gli errori di console. **Guarda davvero le immagini** (leggi i PNG) prima di dichiarare una scena pronta. La skill `/verifica-visiva` descrive la procedura. Quanti farne:
+   - **Durante i passi, pochi**: solo le tappe toccate, su telefono e desktop (`npm run shots -- --stops id1,id2 --viewports phone,desktop`).
+   - **A fine milestone, il giro completo** nei 3 viewport (desktop, tablet, telefono): `npm run shots` (apertura, tutte le tappe, finale, epilogo, `fonti`, `disco`) e, per le transizioni, `npm run shots -- --from 0 --to 27 --step 1`.
 3. Nessun errore in console.
 4. A fine milestone, chiedi a Nicola di provare su un dispositivo vero e digli cosa guardare. Lei lo aprirà su tablet e PC; Nicola prova sul tablet con `npm run dev -- --host` in rete locale.
 
@@ -158,7 +160,7 @@ Se la grafica 3D negli screenshot è nera, prova `--gpu` (usa la GPU invece di S
 
 ## Accuratezza scientifica
 
-- Testi e dati sono verificati; i segni `TODO fact-check` si risolvono con `/fact-check` in una sessione a parte subito dopo M1, con un ripasso finale in M8.
+- Testi e dati sono verificati; i segni `TODO fact-check` si risolvono con `/fact-check` in una sessione a parte dopo M4, con un ripasso finale in M8. Fino ad allora, chi lavora a una tappa segnala i dubbi sui fatti invece di correggerli da solo.
 - Ogni fatto nuovo che aggiungi (etichette, numeri nelle scene) deve essere corretto. Nel dubbio arrotonda e scrivi «circa», oppure chiedi.
 - Le semplificazioni per una bambina vanno bene, gli errori no.
 
@@ -173,7 +175,7 @@ Se la grafica 3D negli screenshot è nera, prova `--gpu` (usa la GPU invece di S
 
 ## Milestone
 
-Il sito va fatto tutto: tutte le milestone. Si lavora però **fuori ordine e in sessioni diverse, anche con modelli diversi**: prima M1, M4 e M6; poi M2, M3, M5, M7 e M8. Per questo ogni milestone deve essere autosufficiente:
+Il sito va fatto tutto: tutte le milestone. Si lavora però **fuori ordine e in sessioni diverse, anche con modelli diversi**: prima M1 (fatta), poi M4, poi M6; poi M2, M3, M5, M7 e M8. Il `/fact-check` è una sessione a parte, dopo M4, e non blocca le milestone. Per questo ogni milestone deve essere autosufficiente:
 
 - Si parte da questo file, da `src/content/` e dalle skill, senza contare sulla memoria di sessioni precedenti. Quello che la milestone successiva deve sapere va scritto qui, in «Decisioni».
 - M1 lascia per ogni tappa un **segnaposto già bello** (il sito è regalabile in ogni momento) e scrive in «Decisioni» il **contratto dei livelli**: interfaccia, unità, `[eMin, eMax]`, dimensioni e posizioni di aggancio con i vicini.
