@@ -281,7 +281,8 @@ export default sketch((s) => {
   // Lens and name leave early: the next stop is the bubble, and nothing must sit on it.
   s.lens({ id: 'block', at: BLOCK, scene, fieldWidth: 3.5, angle: -80, label: LABELS.places.iceBlock, to: 16.6 });
 
-  s.label({ id: 'cloud', text: LABELS.places.oortCloud, at: [sun[0], sun[1] + 58, sun[2]], kind: 'note', align: 'above', to: 16.6 });
+  // Under the cloud: the upper half is where the lens goes when the screen is narrow.
+  s.label({ id: 'cloud', text: LABELS.places.oortCloud, at: [sun[0], sun[1] - 60, sun[2]], kind: 'note', align: 'below', to: 16.6 });
 
   const point = new Vector3();
   const headPositions = heads.geometry.getAttribute('position') as BufferAttribute;

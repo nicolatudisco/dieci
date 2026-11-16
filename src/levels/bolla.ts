@@ -419,8 +419,8 @@ export default sketch((s) => {
     uniforms.uFade!.value = frame.fade;
     uniforms.uPixelRatio!.value = frame.pixelRatio;
     uniforms.uTime!.value = t;
-    // On a small screen the bubble is small: its stars are smaller too.
-    uniforms.uScale!.value = Math.min(1, Math.max(0.62, (frame.pxPerUnit * frame.viewWidth) / 700));
+    // Where the bubble is small (a small screen, or the journey moving on) its stars are smaller too.
+    uniforms.uScale!.value = Math.min(1, Math.max(0.5, frame.pxPerUnit / 20));
 
     // Depth layout: the stars rock a few degrees around the Sun, so that near and far are felt.
     if (layout === 'depth') {

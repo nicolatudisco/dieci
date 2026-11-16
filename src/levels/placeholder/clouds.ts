@@ -1,7 +1,7 @@
 /**
- * Clouds of points for the curated placeholders: a field of stars, a hollow shell, a
- * spiral galaxy, streams that converge, a cosmic web. All deterministic (seeded), all in
- * the local units of the level that asks for them.
+ * Clouds of points for the curated placeholders: a field of stars, a spiral galaxy,
+ * streams that converge, a cosmic web. All deterministic (seeded), all in the local units
+ * of the level that asks for them.
  */
 import { mulberry32, type DotsData } from './primitives.ts';
 
@@ -62,22 +62,6 @@ export function starField(seed: number, count: number, radius: number, thickness
     const y = r * Math.sin(a);
     const bright = random() ** 4;
     cloud.put(x, y, gauss(random) * thickness, 1.8 + 3.6 * bright, mixRgb(COOL, random() < 0.2 ? CREAM : BLUE, random() * 0.7), 0.35 + 0.65 * bright, random());
-  }
-  return cloud.data;
-}
-
-/** A hollow shell of faint points between two radii: thicker and brighter in the middle. */
-export function shell(seed: number, count: number, inner: number, outer: number): DotsData {
-  const random = mulberry32(seed);
-  const cloud = new Cloud(count);
-  while (!cloud.full) {
-    // Radius: a hump in the middle of the shell (the mean of two draws), few points inside.
-    const r = inner + (outer - inner) * (0.25 + 0.75 * ((random() + random()) / 2));
-    const z = random() * 2 - 1;
-    const a = random() * Math.PI * 2;
-    const flat = Math.sqrt(1 - z * z);
-    const bright = random() ** 3;
-    cloud.put(r * flat * Math.cos(a), r * flat * Math.sin(a), r * z, 1.8 + 2 * bright, mixRgb(COOL, BLUE, random()), 0.3 + 0.3 * random() + 0.4 * bright, random());
   }
   return cloud.data;
 }
