@@ -11,6 +11,12 @@ export const LABELS = {
   continue: `Continua`,
   back: `Torna indietro`,
 
+  /**
+   * In the epilogue, the button that opens the story of the Golden Record, until the lab
+   * exists (M7): then it becomes UI.end.goldenRecord, «Crea il tuo Disco d'oro».
+   */
+  goldenRecordStory: `Che cosa porta con sé Voyager?`,
+
   /** Under every lens (see CLAUDE.md, «Inquadrature»). */
   lensNote: `ingrandito, non in scala`,
 

@@ -132,6 +132,12 @@ try {
   await page.waitForTimeout(200);
   check(await page.evaluate(() => document.querySelector('.overlay').hidden), 'Esc chiude la pagina');
   check((await whereAt()) === 'epilogo', 'chiusa la pagina si è ancora nello stesso punto');
+  await page.click('.epilogue__record');
+  await page.waitForTimeout(300);
+  check(await page.evaluate(() => !document.querySelector('.overlay').hidden && document.querySelector('.record') !== null), 'dall’epilogo si apre il Disco d’oro');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  check((await page.evaluate(() => document.querySelector('.overlay').hidden)) && (await whereAt()) === 'epilogo', 'chiuso il Disco d’oro si è ancora all’epilogo');
 
   console.log('\nTastiera e rotella');
   await page.keyboard.press('ArrowLeft');

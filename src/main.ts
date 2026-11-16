@@ -27,7 +27,7 @@ import { DebugOverlay } from './ui/debug.ts';
 import { el } from './ui/dom.ts';
 import { Epilogue } from './ui/epilogue.ts';
 import { Finale } from './ui/finale.ts';
-import { GOLDEN_RECORD_LAB_READY, buildGoldenRecord } from './ui/golden-record.ts';
+import { buildGoldenRecord } from './ui/golden-record.ts';
 import { Interface } from './ui/interface.ts';
 import { Intro } from './ui/intro.ts';
 import { LabelLayer } from './ui/labels.ts';
@@ -175,11 +175,17 @@ function boot(): void {
   const epilogue = new Epilogue({
     replay,
     openSources: () => overlays.show('fonti'),
-    openGoldenRecord: GOLDEN_RECORD_LAB_READY ? () => overlays.show('disco') : null,
+    openGoldenRecord: () => overlays.show('disco'),
     go,
   });
   const underneath = [stage, ui.element, intro.element, finale.element, epilogue.element];
-  const overlays = new Overlays({ fonti: (id, close) => buildSources(id, close, resolve), disco: buildGoldenRecord }, () => underneath);
+  const overlays = new Overlays(
+    {
+      fonti: (id, close) => buildSources(id, close, resolve),
+      disco: (id, close) => buildGoldenRecord(id, close, { animated: !route.isStatic, reducedMotion }),
+    },
+    () => underneath,
+  );
   const debug = route.debug ? new DebugOverlay() : null;
 
   app.append(

@@ -9,6 +9,9 @@ import { el } from './dom.ts';
 export interface OverlayPage {
   /** The page: an element whose first heading has the id given to the builder. */
   readonly element: HTMLElement;
+  /** Called each time the page opens, once it is on the screen; and each time it closes. */
+  readonly shown?: () => void;
+  readonly hidden?: () => void;
 }
 
 export type OverlayBuilder = (titleId: string, close: () => void) => OverlayPage;
@@ -55,6 +58,7 @@ export class Overlays {
     this.element.hidden = false;
     this.element.scrollTop = 0;
     for (const node of this.underneath()) node.inert = true;
+    page.shown?.();
     // Focus goes to the title, so that reading starts from the top.
     const title = page.element.querySelector<HTMLElement>(`#${titleId}`);
     title?.setAttribute('tabindex', '-1');
@@ -63,6 +67,7 @@ export class Overlays {
 
   close(): void {
     if (!this.open) return;
+    this.pages.get(this.open)?.hidden?.();
     this.open = null;
     this.element.hidden = true;
     for (const node of this.underneath()) node.inert = false;

@@ -1,16 +1,17 @@
 /**
- * The epilogue: what she can do after the journey. «Rifai il viaggio», «Crea il tuo Disco
- * d'oro» (only once the lab exists: M7) and «È tutto vero? Guarda le fonti».
+ * The epilogue: what she can do after the journey. «Rifai il viaggio», the Golden Record
+ * («Che cosa porta con sé Voyager?» for the story; «Crea il tuo Disco d'oro» once the lab
+ * exists, M7) and «È tutto vero? Guarda le fonti».
  */
 import { LABELS } from '../content/labels.ts';
 import { UI } from '../content/ui.ts';
 import { button, el, icon } from './dom.ts';
+import { GOLDEN_RECORD_LAB_READY } from './golden-record.ts';
 
 export interface EpilogueOptions {
   readonly replay: () => void;
   readonly openSources: () => void;
-  /** Null until the Golden Record lab exists. */
-  readonly openGoldenRecord: (() => void) | null;
+  readonly openGoldenRecord: () => void;
   readonly go: (dir: 1 | -1) => void;
 }
 
@@ -26,12 +27,10 @@ export class Epilogue {
     replay.textContent = UI.end.replay;
     replay.addEventListener('click', options.replay);
     choices.append(replay);
-    if (options.openGoldenRecord) {
-      const record = button('choice');
-      record.textContent = UI.end.goldenRecord;
-      record.addEventListener('click', options.openGoldenRecord);
-      choices.append(record);
-    }
+    const record = button('choice epilogue__record');
+    record.textContent = GOLDEN_RECORD_LAB_READY ? UI.end.goldenRecord : LABELS.goldenRecordStory;
+    record.addEventListener('click', options.openGoldenRecord);
+    choices.append(record);
     const sources = button('choice');
     sources.textContent = UI.end.sources;
     sources.addEventListener('click', options.openSources);
