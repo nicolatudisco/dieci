@@ -9,6 +9,7 @@
  *   5. tell the interface what happened (`onFrame`)
  */
 import { Color, PerspectiveCamera, WebGLRenderer } from 'three';
+import type { CivilDate } from '../personalization.ts';
 import type { Clock } from './clock.ts';
 import {
   DEFAULT_DEPTH,
@@ -90,6 +91,9 @@ export interface EngineOptions {
   readonly u: number;
   /** The shared sky drawn behind every level. */
   readonly backdrop?: Backdrop;
+  /** From the link: handed to the levels that depend on her age or name. */
+  readonly birth?: CivilDate | null;
+  readonly name?: string | null;
   /** Force every level through the off-screen fade path (debugging aid: ?offscreen=1). */
   readonly forceOffscreen?: boolean;
 }
@@ -109,6 +113,9 @@ export class Engine {
   private readonly lensPass = new LensPass();
   /** Direction each lens was placed in on the last frame (see `placeLens`). */
   private readonly lensAngles = new Map<string, number>();
+  private readonly domLayer = document.createElement('div');
+  /** DOM of the levels that are mounted now, with the frame on which each was last drawn. */
+  private readonly mounted = new Map<HTMLElement, number>();
   private readonly backdrop: Backdrop | null;
   private readonly listeners: ((info: FrameInfo) => void)[] = [];
   private readonly reducedMotion: boolean;
@@ -142,7 +149,18 @@ export class Engine {
     this.canvas.setAttribute('aria-hidden', 'true');
     this.container.appendChild(this.canvas);
 
-    const ctx: LevelContext = { renderer: this.renderer, isStatic: this.clock.isStatic, reducedMotion: this.reducedMotion };
+    // Where the DOM of the typographic levels goes: over the canvas, under the interface.
+    this.domLayer.className = 'level-dom';
+    this.container.appendChild(this.domLayer);
+
+    const ctx: LevelContext = {
+      renderer: this.renderer,
+      isStatic: this.clock.isStatic,
+      reducedMotion: this.reducedMotion,
+      now: () => this.clock.now(),
+      birth: options.birth ?? null,
+      name: options.name ?? null,
+    };
     this.manager = new LevelManager(options.defs, ctx, this.forceOffscreen);
 
     this.resize();
@@ -203,6 +221,7 @@ export class Engine {
     this.backdrop?.dispose();
     this.renderer.dispose();
     this.canvas.remove();
+    this.domLayer.remove();
   }
 
   private resize(): void {
@@ -284,6 +303,7 @@ export class Engine {
       camera,
       viewWidth: view.viewWidth,
       pxPerUnit: view.pxPerUnit,
+      free: this.free,
       pixelRatio: this.pixelRatio,
       quality: this.quality,
     });
@@ -342,10 +362,20 @@ export class Engine {
         camera,
         viewWidth: view.viewWidth,
         pxPerUnit: view.pxPerUnit,
+        free: framing.free,
         pixelRatio: this.pixelRatio,
         quality: this.quality,
       };
       level.update(frame);
+
+      if (level.dom) {
+        if (!this.mounted.has(level.dom)) {
+          level.dom.style.pointerEvents = 'none';
+          this.domLayer.appendChild(level.dom);
+        }
+        level.dom.style.opacity = fade.toFixed(3);
+        this.mounted.set(level.dom, this.frames);
+      }
 
       if (level.scene) {
         if (offscreen) {
@@ -389,6 +419,12 @@ export class Engine {
           place: { key, x: circle.x, y: circle.y, radius: circle.radius, anchorX: anchor.x, anchorY: anchor.y, label: spec.label ?? '', opacity },
         });
       }
+    }
+
+    for (const [dom, seen] of this.mounted) {
+      if (seen === this.frames) continue;
+      dom.remove();
+      this.mounted.delete(dom);
     }
 
     // Lenses lie over every level.

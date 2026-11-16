@@ -1,0 +1,383 @@
+/*
+ * The views that own the whole screen (opening, finale, epilogue), the pages that open on
+ * top of the journey (sources, Golden Record) and the typographic scenes of Act II.
+ */
+
+/* ── Shared ───────────────────────────────────────────────────────────────── */
+.view {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  justify-items: center;
+  padding: calc(var(--safe-top) + 1.5rem) calc(var(--safe-right) + var(--gutter)) calc(var(--safe-bottom) + 1.5rem)
+    calc(var(--safe-left) + var(--gutter));
+  text-align: center;
+  /* Gestures go through to the stage, except on the controls. */
+  pointer-events: none;
+}
+
+.view button {
+  pointer-events: auto;
+}
+
+/* Things that appear one at a time (ui/reveal.ts). */
+.reveal {
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+.reveal.is-on {
+  opacity: 1;
+}
+
+.view button.reveal:not(.is-on),
+.view nav.reveal:not(.is-on) button {
+  pointer-events: none;
+}
+
+/* The one filled button of a view. */
+.cta,
+.choice,
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+  padding: 0 1.75rem;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+
+.cta {
+  border: 1px solid transparent;
+  background: var(--cool);
+  color: #080b1c;
+}
+
+.choice,
+.ghost {
+  border: 1px solid rgb(143 163 230 / 0.42);
+  background: rgb(143 163 230 / 0.08);
+  color: var(--ink);
+}
+
+.ghost {
+  width: 3.5rem;
+  padding: 0;
+}
+
+.cta .icon,
+.ghost .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.cta:active,
+.choice:active,
+.ghost:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--cool-bright);
+  }
+
+  .choice:hover,
+  .ghost:hover {
+    background: rgb(143 163 230 / 0.18);
+  }
+}
+
+.view__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  align-self: end;
+}
+
+/* ── Opening ──────────────────────────────────────────────────────────────── */
+.intro {
+  grid-template-rows: minmax(6rem, 0.8fr) auto minmax(8rem, 1fr);
+  pointer-events: auto;
+}
+
+.intro__star,
+.finale__star,
+.epilogue__star {
+  width: 100%;
+  min-height: 5rem;
+}
+
+.intro__text {
+  max-width: 26em;
+}
+
+.intro__line,
+.finale__bridge {
+  margin: 0 0 0.6em;
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 2.2vmin + 0.9rem, 2.125rem);
+  font-weight: 380;
+  font-variation-settings:
+    'opsz' 60,
+    'SOFT' 80;
+  line-height: 1.28;
+  text-wrap: balance;
+}
+
+.intro__start {
+  align-self: start;
+  margin-top: 1.75rem;
+}
+
+/* ── Finale ───────────────────────────────────────────────────────────────── */
+.finale {
+  grid-template-rows: minmax(5rem, 0.55fr) auto minmax(5rem, 0.6fr);
+}
+
+.finale__text {
+  max-width: 30em;
+}
+
+.finale__message {
+  margin-top: 1.5rem;
+  font-size: calc(var(--text) * 1.12);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.finale__message p {
+  margin: 0 0 0.8em;
+}
+
+.finale__signature {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--warm);
+}
+
+/* The placeholder must be impossible to miss, and impossible to mistake for the message. */
+.finale__message--todo {
+  padding: 1.25rem 1.5rem;
+  border: 2px dashed var(--warm);
+  border-radius: var(--radius);
+  color: var(--warm);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: var(--text);
+  font-weight: 700;
+}
+
+/* ── Epilogue ─────────────────────────────────────────────────────────────── */
+.epilogue {
+  grid-template-rows: minmax(6rem, 0.8fr) auto minmax(5rem, 1fr);
+}
+
+.epilogue__choices {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.875rem;
+  width: min(100%, 22rem);
+}
+
+/* ── Pages on top of the journey ──────────────────────────────────────────── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--night);
+  -webkit-overflow-scrolling: touch;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.sheet {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: calc(var(--safe-top) + 3rem) calc(var(--safe-right) + var(--gutter)) calc(var(--safe-bottom) + 3rem)
+    calc(var(--safe-left) + var(--gutter));
+}
+
+.sheet__title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3vmin + 1.25rem, 3rem);
+  font-weight: 460;
+  font-variation-settings:
+    'opsz' 96,
+    'SOFT' 80;
+  line-height: 1.1;
+  outline: none;
+}
+
+.sheet__intro {
+  margin: 0 0 2rem;
+  text-wrap: pretty;
+}
+
+.sheet__back {
+  margin-top: 2.5rem;
+}
+
+.sheet a {
+  color: var(--cool-bright);
+  text-underline-offset: 0.18em;
+}
+
+.sources__group {
+  margin-top: 1.75rem;
+}
+
+.sources__group h2,
+.sources__credits > h2 {
+  margin: 0 0 0.375rem;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 500;
+  font-variation-settings: 'opsz' 36;
+}
+
+.sources__group h3 {
+  margin: 0 0 0.25rem;
+  font-size: var(--text);
+  font-weight: 700;
+}
+
+.sources__list {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.sources__list li {
+  margin: 0.3rem 0;
+  font-size: var(--text-small);
+  line-height: 1.45;
+}
+
+.sources__credits {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.sources__credits p {
+  margin: 0.3rem 0;
+  font-size: var(--text-small);
+}
+
+/* The Golden Record: grooves of gold, and a darker label in the middle. */
+.record__disc {
+  width: min(62vmin, 17rem);
+  aspect-ratio: 1;
+  margin: 0 auto 2.25rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #6d5320 0 5%, #e9c873 5.5% 6%, #a8842f 6.5% 27%, transparent 27.5%),
+    repeating-radial-gradient(circle, #f1d489 0 1px, #c9a54a 1px 2.5px, #dbb963 2.5px 4px),
+    #d4b05a;
+  box-shadow:
+    0 0 0 1px rgb(255 235 170 / 0.5),
+    0 0 4rem rgb(255 190 90 / 0.22);
+}
+
+/* ── Act II: the scenes made of numbers ───────────────────────────────────── */
+.numbers {
+  font-family: var(--font-display);
+  font-variation-settings:
+    'opsz' 72,
+    'SOFT' 60;
+  color: var(--ink);
+}
+
+.numbers__box {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+
+.numbers__drift {
+  position: absolute;
+  color: var(--cool-bright);
+  opacity: 0;
+  animation: numbers-drift 9s ease-in-out infinite;
+}
+
+@keyframes numbers-drift {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: var(--peak, 0.4);
+  }
+}
+
+/* With time frozen (?static=1) each digit holds part of its light. */
+html[data-static] .numbers__drift {
+  opacity: calc(var(--peak, 0.4) * 0.7);
+}
+
+.numbers__zeros {
+  display: grid;
+  grid-template-columns: repeat(11, 0.72em);
+  justify-items: center;
+  line-height: 1.12;
+  font-weight: 360;
+}
+
+.numbers__one {
+  color: var(--ink);
+  font-weight: 480;
+}
+
+.numbers__zero {
+  color: var(--cool-bright);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.numbers__zero.is-on {
+  opacity: 0.92;
+}
+
+.numbers__cascade {
+  position: absolute;
+  inset: 0;
+  white-space: pre;
+  color: var(--cool-bright);
+  letter-spacing: 0.02em;
+  will-change: transform;
+  /* Brighter in the middle, where the light will come from. */
+  mask-image: radial-gradient(ellipse at 50% 45%, #000 20%, rgb(0 0 0 / 0.35) 85%);
+}
+
+.numbers__light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 85% at 50% 45%, #fff6dc 0%, #ffe6ad 26%, #ffcf7e 52%, rgb(255 184 86 / 0.75) 78%, rgb(255 171 69 / 0.5) 100%);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition-duration: 0.3s;
+  }
+
+  .numbers__drift {
+    animation: none;
+    opacity: calc(var(--peak, 0.4) * 0.7);
+  }
+}

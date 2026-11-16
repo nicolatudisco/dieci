@@ -191,8 +191,8 @@ Stato:
     3. ✅ Interfaccia (`src/ui/`: `interface`, `counter`, `counter-model`, `panel`, `layout`, `dom`, `rich-text`; `src/styles/`: `tokens`, `fonts`, `base`, `ui`): contatore con gli scatti e il righello delle potenze, pagina con didascalia ed espansioni, pulsanti «Più vicino» e «Più lontano», area libera misurata dalla griglia. Vedi «Decisioni → Interfaccia». L'apertura parte ancora da sola (`src/main.ts`): la sostituisce il passo 6.
     4. ✅ Input e movimento definitivi: viaggio animato, rotella, swipe con inerzia, pinch, tasti e aggancio verificati dal vivo con tocchi simulati; con `prefers-reduced-motion` ▶ ◀ passano dal velo (`src/ui/veil.ts`). Il pinch resta in scala vera (guadagno 1 in `src/engine/input.ts`, `PINCH_GAIN`): Nicola non ha ancora detto se gli sembra lento.
     5. ✅ Punto caldo con le parole «Tu sei qui» dalla Luna in poi (`src/ui/marker.ts`); lente condivisa (`src/engine/lens.ts`, `src/ui/lens.ts`, `LensSpec` nel contratto); sfondo di stelle (`src/levels/backdrop.ts`); segnaposto curati in scala vera da `terra` a `universo` (`src/levels/placeholder/`: `solar.ts`, `far.ts`, `cosmos.ts`, con `sketch.ts`, `bodies.ts`, `clouds.ts`); tabella dei pianeti e coordinate del cielo condivise (`src/levels/solar-system.ts`, `src/levels/sky.ts`); etichette nuove in `src/content/labels.ts`. Le tappe terrestri restano col segnaposto generico. Vedi «Decisioni → Contratto dei livelli».
-    6. ⬜ Apertura essenziale, Atto II, finale segnaposto, epilogo, `fonti`, `disco`.
-    7. ⬜ Qualità adattiva, accessibilità, `scripts/screenshot.mjs` esteso (`--stops` con le cinque viste, `--u`), `scripts/smoke.mjs`.
+    6. ✅ Apertura (`src/ui/intro.ts`: la sola stella è il punto caldo, righe una alla volta, saluto con `#nome=`, prima riga dalla data), Atto II (`src/levels/placeholder/numbers.ts`: livelli tipografici in DOM), finale segnaposto con «TODO: messaggio di Nicola» (`src/ui/finale.ts`), epilogo (`src/ui/epilogue.ts`), pagine sovrapposte `fonti` e `disco` (`src/ui/overlay.ts`, `sources.ts`, `golden-record.ts`). Vedi «Decisioni → Viste». Lo script degli screenshot accetta già le cinque viste e `--u`.
+    7. ⬜ Qualità adattiva, accessibilità, `scripts/smoke.mjs` (`scripts/screenshot.mjs` è già esteso).
     8. ⬜ Verifica completa nei 3 viewport, contratto dei livelli completo in «Decisioni», stato «fatto», conferma di Nicola e push.
 - **M2, le tappe terrestri**: `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.
@@ -250,6 +250,18 @@ Prese con Nicola prima di M1:
 **Caratteri.** Fraunces (titoli e contatore) e **Andika** (testi), dichiarati in `src/styles/fonts.css` con i soli sottoinsiemi latini. Andika ha sostituito Atkinson Hyperlegible Next, proposto all'inizio, perché Atkinson ha lo zero barrato e questi testi sono pieni di zeri da contare. In attesa della conferma di Nicola (confronto in `docs/confronti.local/caratteri.png`, non committato).
 
 **Testi a schermo.** `typeset()` in `src/ui/rich-text.ts` trasforma gli apici Unicode dei testi (10⁸⁰) in veri `<sup>` e gli apostrofi dritti in tipografici; ▶ e ◀ diventano icone disegnate. I testi in `src/content/` non cambiano.
+
+### Viste (M1)
+
+**Chi è in scena lo decide solo `u`** (`src/ui/view-model.ts`, puro e con test): apertura prima della partenza, interfaccia lungo le tappe, poi finale ed epilogo. Ogni vista ha un'opacità funzione di `u`, quindi sfuma col movimento, e ha una cella vuota che fa da area libera (`FreeArea.follow`). Una vista invisibile è `inert` ma conserva il layout (mai `hidden`): la sua cella si misura.
+
+**Apertura** (`src/ui/intro.ts`). Schermo nero e una sola stella, che è il punto caldo: quando parte il primo zoom (più lento degli altri) la strada le compare attorno. Le righe compaiono una alla volta (`src/ui/reveal.ts`); un tocco le fa arrivare tutte. Nome e data si leggono dal frammento in `src/main.ts` e passano al motore (`LevelContext.birth`, `name`, `now()`): un livello che dipende dall'età li prende da lì.
+
+**Atto II** (`src/levels/placeholder/numbers.ts`, da sostituire in M6). I livelli possono essere solo DOM (`Level.dom`): il motore li monta sopra il canvas, li sfuma e li toglie. `atomi` e `googol` scrivono gli zeri in righe da dieci, così si possono contare; `googolplex` finisce in una cascata di luce che porta al finale. Due numeri non sono mai in scena insieme (c'è un test).
+
+**Finale ed epilogo** (`src/ui/finale.ts`, `src/ui/epilogue.ts`). Segnaposto: frasi-ponte una alla volta, poi il messaggio; finché `FINALE_IS_PLACEHOLDER` è vero c'è il riquadro «TODO: messaggio di Nicola» e un avviso in console. Qui i due pulsanti del viaggio non ci sono: si va avanti con «Continua» e indietro con una freccia (`LABELS.continue`, `LABELS.back`), oltre che con tasti e gesti. «Rifai il viaggio» torna all'apertura dietro un sipario. Nell'epilogo «Crea il tuo Disco d'oro» compare solo quando il laboratorio esiste: `GOLDEN_RECORD_LAB_READY` in `src/ui/golden-record.ts` (lo accende M7).
+
+**Pagine sovrapposte** (`src/ui/overlay.ts`). `fonti` (generata da tutti i `sources` e da `CREDITS.md`, senza `innerHTML`) e `disco` (per ora solo il racconto). Prendono il fuoco, rendono inerte tutto il resto, si chiudono col pulsante o con Esc e restituiscono il viaggio allo stesso `u`. Dalla tappa Voyager il Disco si apre col pulsante `UI.voyager.openGoldenRecord`.
 
 ### Contratto dei livelli (M1)
 

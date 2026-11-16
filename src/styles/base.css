@@ -49,6 +49,15 @@ body {
   display: block;
 }
 
+/* The DOM of the typographic levels (Act II): each one is as large as the stage. */
+.level-dom,
+.level-dom > * {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* Layers drawn over the canvas. They never intercept gestures. */
 .labels,
 .scale-frames,

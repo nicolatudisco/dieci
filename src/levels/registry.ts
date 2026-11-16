@@ -7,6 +7,7 @@
  * the engine aligns the level with its neighbours through the stage, not through them.
  */
 import { STOPS } from '../content/levels.ts';
+import { FINALE, nodeById } from '../engine/journey.ts';
 import type { LevelDef } from '../engine/level.ts';
 import { AU, LY, type AnchorId } from '../engine/stage.ts';
 
@@ -100,4 +101,40 @@ function buildActOne(): LevelDef[] {
   });
 }
 
-export const LEVELS: readonly LevelDef[] = buildActOne();
+const numbers = (name: keyof typeof import('./placeholder/numbers.ts')): Loader => () =>
+  import('./placeholder/numbers.ts').then((m) => ({ default: m[name] }));
+
+/**
+ * Act II: one typographic level per stop. Each one comes in while the journey approaches
+ * its stop and is gone before the next one starts, so two numbers are never on screen
+ * together. The last one stays until the finale takes over.
+ */
+function buildActTwo(): LevelDef[] {
+  const stops = STOPS.filter((s) => s.kind === 'number');
+  const loaders: Record<string, Loader> = {
+    oltre: numbers('oltre'),
+    atomi: numbers('atomi'),
+    googol: numbers('googol'),
+    googolplex: numbers('googolplex'),
+  };
+  return stops.map((stop, k) => {
+    const u = nodeById(stop.id)?.u;
+    const load = loaders[stop.id];
+    if (u === undefined || !load) throw new Error(`No level registered for stop "${stop.id}"`);
+    const last = k === stops.length - 1;
+    const gone = last ? FINALE.u - 0.1 : u + 0.85;
+    return {
+      id: stop.id,
+      // DOM only: unit and origin are not used.
+      unit: 1,
+      origin: 'you',
+      range: [u - 1.1, gone],
+      fadeIn: [u - 1.1, u - 0.8],
+      fadeOut: [last ? FINALE.u - 0.6 : u + 0.35, gone],
+      order: 100 + k,
+      load,
+    };
+  });
+}
+
+export const LEVELS: readonly LevelDef[] = [...buildActOne(), ...buildActTwo()];

@@ -10,30 +10,16 @@
  */
 import { UI } from '../content/ui.ts';
 import type { FrameInfo } from '../engine/engine.ts';
-import { FINALE, NODES } from '../engine/journey.ts';
 import { Counter } from './counter.ts';
 import { el } from './dom.ts';
 import { Panel, type PanelExtras } from './panel.ts';
+import { interfaceOpacity } from './view-model.ts';
 
 export interface InterfaceOptions {
   readonly go: (dir: 1 | -1) => void;
   readonly animated: boolean;
   readonly reducedMotion: boolean;
   readonly extras?: PanelExtras;
-}
-
-/** The last stop: past it the interface gives way to the finale. */
-const lastStop = [...NODES].reverse().find((node) => node.stop) ?? FINALE;
-
-function ramp(from: number, to: number, x: number): number {
-  const t = Math.min(1, Math.max(0, (x - from) / (to - from)));
-  return t * t * (3 - 2 * t);
-}
-
-/** Opacity of the interface along the journey axis. */
-export function interfaceOpacity(u: number): number {
-  const leaving = lastStop.u + 0.35 * (FINALE.u - lastStop.u);
-  return ramp(-0.55, -0.1, u) * (1 - ramp(leaving, leaving + 0.5, u));
 }
 
 export class Interface {

@@ -7,6 +7,10 @@ export const LABELS = {
   /** Next to the warm dot, when the scene does not make it obvious where she is. */
   youAreHere: `Tu sei qui`,
 
+  /** In the finale and in the epilogue, where the two big buttons of the journey are gone. */
+  continue: `Continua`,
+  back: `Torna indietro`,
+
   /** Under every lens (see CLAUDE.md, «Inquadrature»). */
   lensNote: `ingrandito, non in scala`,
 

@@ -4,8 +4,10 @@
  * can look at every scale without clicking through by hand.
  *
  * Usage, from the project root:
- *   npm run shots                                  every stop in levels.ts (uses ?stop=<id>)
- *   npm run shots -- --stops partenza,bolla        only these stops
+ *   npm run shots                                  every stop in levels.ts, then the five views
+ *   npm run shots -- --stops partenza,bolla        only these stops (uses ?stop=<id>)
+ *   npm run shots -- --stops apertura,finale       the views work too: apertura, finale, epilogo, fonti, disco
+ *   npm run shots -- --u 28,30,36                  positions of the journey axis (uses ?u=<pos>): Act II transitions
  *   npm run shots -- --from 0 --to 27 --step 0.5   a range of exponents (uses ?s=<e>)
  *   npm run shots -- --scales 0,7.2,13.7           explicit exponents
  *   npm run shots -- --viewports phone,tablet      desktop | tablet | phone
@@ -30,6 +32,9 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
+
+/** Views that are not stops but can be opened with ?stop=<id> (see CLAUDE.md, «Contratto URL»). */
+const VIEWS = ['apertura', 'finale', 'epilogo', 'fonti', 'disco'];
 
 const VIEWPORTS = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
@@ -151,7 +156,14 @@ function parseArgs(argv) {
 }
 
 function buildTargets(a, stops) {
-  const fmt = (n) => `s${String(n).replace('-', 'm').replace('.', '_')}`;
+  const fmt = (n, prefix = 's') => `${prefix}${String(n).replace('-', 'm').replace('.', '_')}`;
+  if (a.u) {
+    return String(a.u)
+      .split(',')
+      .map(Number)
+      .filter(Number.isFinite)
+      .map((n) => ({ label: fmt(n, 'u'), query: { u: String(n) } }));
+  }
   if (a.scales) {
     return String(a.scales)
       .split(',')
@@ -171,9 +183,10 @@ function buildTargets(a, stops) {
     }
     return list;
   }
-  const ids = a.stops ? String(a.stops).split(',').map((s) => s.trim()) : stops.map((s) => s.id);
+  const known = [...stops.map((s) => s.id), ...VIEWS];
+  const ids = a.stops ? String(a.stops).split(',').map((s) => s.trim()) : ['apertura', ...stops.map((s) => s.id), ...VIEWS.slice(1)];
   for (const id of ids) {
-    if (!stops.some((s) => s.id === id)) fail(`Tappa sconosciuta: "${id}". Tappe valide: ${stops.map((s) => s.id).join(', ')}`);
+    if (!known.includes(id)) fail(`Tappa sconosciuta: "${id}". Valide: ${known.join(', ')}`);
   }
   return ids.map((id) => ({ label: id, query: { stop: id } }));
 }

@@ -21,7 +21,8 @@
  *   texture in `init()`, not lazily in `update()`, or that first draw cannot warm them up.
  */
 import type { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import type { DepthRange } from './framing.ts';
+import type { CivilDate } from '../personalization.ts';
+import type { DepthRange, Rect } from './framing.ts';
 import type { AnchorId, Vec3 } from './stage.ts';
 
 export interface LevelDef {
@@ -52,6 +53,14 @@ export interface LevelContext {
   readonly renderer: WebGLRenderer;
   readonly isStatic: boolean;
   readonly reducedMotion: boolean;
+  /**
+   * «Today», from the one clock of the site (fixed with ?static=1). Every scene that
+   * depends on the date reads it from here, so that scenes and texts never disagree.
+   */
+  readonly now: () => Date;
+  /** From the link (#nata=…, #nome=…), or null. Never stored anywhere. */
+  readonly birth: CivilDate | null;
+  readonly name: string | null;
 }
 
 export interface LevelFrame {
@@ -69,6 +78,8 @@ export interface LevelFrame {
   /** View width in local units, and CSS pixels per local unit on the focus plane. */
   readonly viewWidth: number;
   readonly pxPerUnit: number;
+  /** The free area of the scene, in CSS pixels from the top-left corner of the stage. */
+  readonly free: Rect;
   /** Device pixels per CSS pixel currently used by the renderer. */
   readonly pixelRatio: number;
   /** 0..1 share of particles to draw, lowered when the device struggles. */
@@ -141,7 +152,11 @@ export interface Level {
   readonly scene?: Scene;
   /** Scenes that are drawn into a render target (the lenses): compiled ahead for that path. */
   readonly targetScenes?: readonly Scene[];
-  /** DOM content (the typographic scenes of Act II). The engine mounts and fades it. */
+  /**
+   * DOM content (the typographic scenes of Act II). The engine mounts it over the canvas,
+   * as large as the stage, fades it with the level and removes it when the level leaves.
+   * It must not catch gestures: the engine sets `pointer-events: none` on it.
+   */
   readonly dom?: HTMLElement;
   init(ctx: LevelContext): void | Promise<void>;
   /** Called every frame while the level is alive, just before it is drawn. */
