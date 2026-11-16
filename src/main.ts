@@ -22,7 +22,6 @@ import { LEVELS } from './levels/registry.ts';
 import { civilDateOf, firstLineKey, parseHash } from './personalization.ts';
 import { parseRoute } from './route.ts';
 import { DebugOverlay } from './ui/debug.ts';
-import { button } from './ui/dom.ts';
 import { Epilogue } from './ui/epilogue.ts';
 import { Finale } from './ui/finale.ts';
 import { GOLDEN_RECORD_LAB_READY, buildGoldenRecord } from './ui/golden-record.ts';
@@ -36,6 +35,7 @@ import { Overlays } from './ui/overlay.ts';
 import { ScaleFrames } from './ui/scale-frames.ts';
 import { buildSources } from './ui/sources.ts';
 import { Veil } from './ui/veil.ts';
+import { buildVoyagerPanel } from './ui/voyager-panel.ts';
 import { epilogueOpacity, finaleOpacity, introOpacity, screenOwner, type ScreenOwner } from './ui/view-model.ts';
 
 /** Seconds of the first zoom, from the single star to the street: slower than the others. */
@@ -138,18 +138,17 @@ function boot(): void {
   const marker = new Marker(LABELS.youAreHere);
   markerLayer.append(marker.element);
 
+  // «Da quando sei su questa pagina»: with ?static=1 time stands still, so the page pretends
+  // to have been open for one minute and the screenshots show a real number.
+  const openedAt = new Date(clock.now().getTime() - (route.isStatic ? 60_000 : 0));
+
   const ui = new Interface({
     go,
     animated: !route.isStatic,
     reducedMotion,
     extras: {
-      // The Voyager stop opens the Golden Record. (M4 adds its live panel here.)
-      voyager: () => {
-        const open = button('choice');
-        open.textContent = UI.voyager.openGoldenRecord;
-        open.addEventListener('click', () => overlays.show('disco'));
-        return open;
-      },
+      // The Voyager stop: the live distance and the button that opens the Golden Record.
+      voyager: () => buildVoyagerPanel({ now: () => clock.now(), openedAt, openGoldenRecord: () => overlays.show('disco') }),
     },
   });
   const intro = new Intro({

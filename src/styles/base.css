@@ -144,6 +144,19 @@ body {
   color: var(--muted);
 }
 
+/* A number that runs: digits of equal width, so that it ticks without trembling. */
+.label--figure span {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 480px) {
+  .label--figure span {
+    font-size: 13px;
+  }
+}
+
 /* ── «Tu sei qui» ─────────────────────────────────────────────────────────── */
 .marker {
   position: absolute;

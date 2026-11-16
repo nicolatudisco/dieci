@@ -8,7 +8,7 @@
  */
 import { Scene, type Mesh, type Points } from 'three';
 import { STOPS } from '../../content/levels.ts';
-import type { LabelSpec, LensSpec, Level, LevelDef, LevelFactory, LevelFrame } from '../../engine/level.ts';
+import type { LabelSpec, LensSpec, Level, LevelContext, LevelDef, LevelFactory, LevelFrame } from '../../engine/level.ts';
 import { ANCHORS, type Vec3 } from '../../engine/stage.ts';
 import {
   disposeTree,
@@ -56,6 +56,7 @@ export class Sketch implements Level {
   private readonly labelList: SketchLabel[] = [];
   private readonly lensList: SketchLens[] = [];
   private readonly clouds: { points: Points; count: number }[] = [];
+  private context: LevelContext | null = null;
   private order = 0;
 
   constructor(def: LevelDef, build: (sketch: Sketch) => void) {
@@ -67,8 +68,15 @@ export class Sketch implements Level {
     this.lensShared.uPixelRatio.value = 2;
   }
 
-  init(): void {
+  init(ctx: LevelContext): void {
+    this.context = ctx;
     this.build(this);
+  }
+
+  /** What the engine tells every level: today's date, her date of birth, static mode. */
+  get ctx(): LevelContext {
+    if (!this.context) throw new Error('Sketch.ctx is available from init() onwards');
+    return this.context;
   }
 
   /** A point of the stage (metres) in the units of this level. */

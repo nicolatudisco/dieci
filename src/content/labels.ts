@@ -14,6 +14,9 @@ export const LABELS = {
   /** Under every lens (see CLAUDE.md, «Inquadrature»). */
   lensNote: `ingrandito, non in scala`,
 
+  /** Along the trail of Voyager 1: its distance from the Earth, running. {km} = the number. */
+  liveKilometres: `{km} km`,
+
   places: {
     sun: `Sole`,
     moon: `Luna`,

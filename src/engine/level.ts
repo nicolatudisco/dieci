@@ -96,7 +96,8 @@ export interface LabelSpec {
   readonly at: Vec3;
   /** 0..1, multiplied by the fade of the level. Default 1. */
   readonly opacity?: number;
-  readonly kind?: 'title' | 'place' | 'note';
+  /** `figure` is for numbers that run: every digit keeps its place. */
+  readonly kind?: 'title' | 'place' | 'note' | 'figure';
   /** Where the text sits relative to the point. Default `above`. */
   readonly align?: 'above' | 'below' | 'left' | 'right' | 'center';
 }
