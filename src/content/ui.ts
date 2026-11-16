@@ -60,9 +60,15 @@ export const UI = {
   voyager: {
     liveDistance: `In questo momento Voyager 1 è a circa {km} chilometri dalla Terra.`,
     sincePageOpened: `Da quando sei su questa pagina si è allontanato di altri {km} chilometri.`,
-    /** Before 18 Nov 2026, 06:16 UTC (see data.ts → VOYAGER_1.lightDayDateUTC). */
+    /**
+     * Used instead of `sincePageOpened` while the distance from the Earth is shrinking: every
+     * year from late January to late April, when the Earth moves towards the probe faster
+     * than the probe moves away (about 30 km/s against 17).
+     */
+    sincePageOpenedCloser: `Da quando sei su questa pagina si è avvicinato di {km} chilometri. Non ha fatto retromarcia: in questi mesi la Terra, girando intorno al Sole, gli corre dietro più veloce di lui.`,
+    /** Before 18 Nov 2026, 10:16 UTC (see data.ts → VOYAGER_1.lightDayDateUTC). */
     milestoneBefore: `Il 18 novembre 2026 arriverà a un giorno-luce da noi: sarà la prima volta nella storia.`,
-    /** From 18 Nov 2026, 06:16 UTC onwards. */
+    /** From 18 Nov 2026, 10:16 UTC onwards. */
     milestoneAfter: `Dal 18 novembre 2026 è a più di un giorno-luce da noi: è la prima volta nella storia.`,
     openGoldenRecord: `Che cosa porta con sé?`,
   },

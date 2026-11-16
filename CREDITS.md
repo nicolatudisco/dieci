@@ -6,6 +6,10 @@ Questo file si completa durante lo sviluppo: ogni immagine, modello, font o dato
 
 _(da completare in M2; per OpenStreetMap il credito è «© OpenStreetMap contributors», licenza ODbL)_
 
+## Dati astronomici
+
+- Distanza di Voyager 1 dalla Terra, un valore ogni due giorni dal 2026 al 2041 (`src/content/voyager-distance.ts`): [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/), Solar System Dynamics Group, Jet Propulsion Laboratory. Dati di pubblico dominio; credito «NASA/JPL-Caltech». Scaricati una volta con `scripts/voyager-horizons.mjs`.
+
 ## Immagini e texture
 
 _(da completare)_

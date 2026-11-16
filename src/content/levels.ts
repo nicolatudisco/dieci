@@ -210,6 +210,7 @@ export const STOPS: Stop[] = [
     sources: [
       { title: `EarthSky – Voyager 1 a un giorno-luce dalla Terra il 18 novembre 2026`, url: `https://earthsky.org/space/voyager-1-1-light-day-from-earth-november-17-18-2026/` },
       { title: `IFLScience – Confermata la data del 18 novembre 2026`, url: `https://iflscience.com/its-official-voyager-1-will-cross-the-1-light-day-threshold-on-november-18-2026-82733` },
+      { title: `NASA/JPL Horizons – Dov'è Voyager 1, giorno per giorno`, url: `https://ssd.jpl.nasa.gov/horizons/` },
       // TODO fact-check: fonte NASA/JPL per trasmettitore (~22 W), memoria (~69,6 kB) e antenne DSN da 70 m.
     ],
   },

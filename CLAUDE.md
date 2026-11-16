@@ -198,7 +198,13 @@ Stato:
     8. ✅ Verifica completa: typecheck, build, 68 test, `npm run smoke` (tutto il viaggio col solo ▶), 90 screenshot guardati (apertura, 25 tappe, finale, epilogo, `fonti`, `disco` nei 3 viewport) senza errori in console; tabella del contratto in «Decisioni». Poi la prova di Nicola su PC e iPad, la sua conferma e il push.
 - **M2, le tappe terrestri**: `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, più gli script dei dati geografici.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.
-- **M4, i momenti speciali**: `voyager` (con il pannello vivo, la tabella JPL Horizons e il racconto del Disco d'oro), `oort`, `bolla` (viva, con le varianti dei testi approvate da Nicola).
+- **M4, i momenti speciali, in corso**: `voyager` (con il pannello vivo, la tabella JPL Horizons e il racconto del Disco d'oro), `oort`, `bolla` (viva, con le varianti dei testi approvate da Nicola). Piano approvato da Nicola, in 6 passi (alla fine di ognuno: typecheck, build e test puliti, un commit, e questo elenco aggiornato). Chi riparte da qui legge «Decisioni → M4».
+    1. ✅ Voyager, dati e modello: `scripts/voyager-horizons.mjs` (da eseguire una volta) scrive `src/content/voyager-distance.ts`; `src/voyager.ts` (puro, con test) dà la distanza a ogni istante. Corretta l'ora del giorno-luce in `data.ts` (10:16:07 UTC, non 06:16:07). Testo nuovo approvato: `UI.voyager.sincePageOpenedCloser`.
+    2. ⬜ Voyager, scena e pannello vivo: `src/levels/voyager.ts` (sonda in 3D nella lente, scia, posizione dalla tabella) e `src/ui/voyager-panel.ts` (innesto `PanelExtras.voyager`). Il pulsante apre il Disco d'oro segnaposto di M1.
+    3. ⬜ Nube di Oort: `src/levels/oort.ts` (guscio di punti in 3D senza foschia, comete senza coda, lente «un blocco di ghiaccio»). La nube esce prima, così il centro della bolla resta pulito.
+    4. ⬜ Bolla, modello e testi: `src/bubble.ts` (puro, con test: raggio dall'età, stelle raggiunte, testi della tappa risolti), aggancio in `Panel`, contatore e annuncio, `PanelExtras.bubble` con `UI.bubble.exactRadius`. Varianti dei testi approvate da Nicola: vanno in `UI.bubble`.
+    5. ⬜ Bolla, la scena: `src/levels/bolla.ts` (sfera vera che nasce dal punto caldo e cresce fino al raggio di oggi, stelle che si accendono alla distanza vera, etichetta sul bordo «quando avevi N anni» fino a «oggi»). Per la profondità, due versioni con screenshot da far scegliere a Nicola.
+    6. ⬜ Chiusura: cancellare `src/levels/placeholder/far.ts`, tabella del contratto e «Decisioni» aggiornate, giro completo di screenshot nei 3 viewport, transizioni da 13 a 19,5, `npm run smoke`. **Il racconto del Disco d'oro resta da fare** (per ora c'è il segnaposto di M1).
 - **M5, galassie e universo**: `nebulose`, `via-lattea`, `andromeda`, `laniakea`, `rete-cosmica`, `universo`.
 - **M6, oltre e finale**: `oltre`, `atomi`, `googol`, `googolplex`, il finale (col segnaposto), l'epilogo, la pagina delle fonti.
 - **M7, Disco d'oro, il laboratorio**: da saltare se il tempo non basta (il racconto è in M4).
@@ -322,5 +328,9 @@ Il contratto è nel codice, commentato: `src/engine/level.ts` (interfacce `Level
 | `atomi` | — | — | — | 29,9 → 30,2 | 31,35 → 31,85 | solo DOM |
 | `googol` | — | — | — | 31,9 → 32,2 | 33,35 → 33,85 | solo DOM |
 | `googolplex` | — | — | — | 33,9 → 34,2 | 36,4 → 36,9 | solo DOM; l'ultimo tratto porta la luce verso il finale |
+
+### M4 (in corso)
+
+**Voyager, la distanza.** `src/voyager.ts` è l'unico modello: `voyagerDistanceKm(data)` interpola (cubica, entro 10 km da Horizons) la tabella `VOYAGER_1_DISTANCE`, generata da `scripts/voyager-horizons.mjs` in `src/content/voyager-distance.ts` e riesportata da `data.ts`: distanza **geometrica** dal centro della Terra, un valore ogni 2 giorni dal 2026 al 2041 (ogni 2 giorni perché la Terra oscilla anche attorno al baricentro con la Luna). Prima e dopo quegli anni prosegue in linea retta a 17 km/s. Pannello e scena leggono da qui. Tre fatti verificati con Horizons: il giorno-luce cade il 18 novembre 2026 alle 10:16:07 UTC; dopo, la distanza non torna mai sotto un giorno-luce; ogni anno, da fine gennaio a fine aprile, la distanza dalla Terra **diminuisce** (per questo esiste `UI.voyager.sincePageOpenedCloser`).
 
 **Altre scelte approvate.** `?u=` nel contratto URL; cornice della scala (un quadrato sottile a ogni potenza di 10) nei segnaposto; nessun pulsante del suono finché l'audio non esiste (M8); caratteri via `@fontsource` (vedi «Interfaccia»); nei segnaposto delle tappe terrestri nessuna geografia inventata, ma `partenza` ha già la sagoma di lei seduta sulla soglia. A fine M1 Nicola ha approvato anche: i testi di `src/content/labels.ts`; «Crea il tuo Disco d'oro» nascosto nell'epilogo finché il laboratorio non esiste; il pinch in scala vera; apostrofi e apici tipografici solo a schermo.

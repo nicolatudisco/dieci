@@ -20,20 +20,27 @@ export const VOYAGER_1 = {
   /** Launch date. Source: NASA/JPL. */
   launchDateUTC: '1977-09-05T12:56:00Z',
   /**
-   * Crosses one light-day from Earth at 12:16:07 a.m. CST on 18 Nov 2026 = 06:16:07 UTC.
-   * Source: EarthSky citing NASA,
+   * Crosses one light-day from Earth at 4:16:07 a.m. CST on 18 Nov 2026 = 10:16:07 UTC
+   * (11:16:07 in Italy). Source: EarthSky citing NASA,
    * https://earthsky.org/space/voyager-1-1-light-day-from-earth-november-17-18-2026/
+   * JPL Horizons gives the same instant to the second (geometric distance from the centre of
+   * the Earth): tests/voyager.test.ts checks the table below against it.
    */
-  lightDayDateUTC: '2026-11-18T06:16:07Z',
+  lightDayDateUTC: '2026-11-18T10:16:07Z',
   /** Distance from Earth at that moment, by definition. */
   kmAtLightDay: LIGHT_DAY_KM,
   /**
-   * Approximate speed relative to the Sun, ~17 km/s (about 61,000 km/h; CNN quotes 38,000 mph).
-   * The distance from Earth also oscillates by ±1 AU over the year: for a "live" counter a linear
-   * estimate from the light-day moment is good enough if the UI says "circa". verify
+   * Approximate speed relative to the Sun, ~17 km/s (about 61,000 km/h; CNN quotes 38,000 mph;
+   * JPL Horizons: 16.88 km/s in November 2026). The distance from the EARTH does not grow at
+   * this speed: it swings by about ±0.8 AU over the year with the orbit of the Earth, and for
+   * three months a year it shrinks. The live counter reads `VOYAGER_1_DISTANCE`; this speed is
+   * used only before and after the years the table covers (see src/voyager.ts).
    */
   speedKmS: 17,
 } as const;
+
+/** Distance of Voyager 1 from the Earth, day by day, from NASA/JPL Horizons. */
+export { VOYAGER_1_DISTANCE } from './voyager-distance.ts';
 
 export interface NearbyStar {
   /** Name as shown to the child (Italian where a common Italian name exists). */
