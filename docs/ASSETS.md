@@ -11,7 +11,7 @@ Regole:
 
 | Cosa | Dove | Licenza e credito |
 |---|---|---|
-| Terra di giorno (texture) | NASA Visible Earth, «Blue Marble Next Generation» | NASA, uso libero; credito «NASA Visible Earth» |
+| Terra di giorno (texture) | NASA «Blue Marble: Next Generation», ora sul sito di NASA Earth Observatory: <https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/> (Visible Earth ha cambiato indirizzo) | NASA, uso libero; credito «NASA Earth Observatory» (lo chiede la pagina) |
 | Terra e Italia di notte | NASA Black Marble: <https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps> e <https://svs.gsfc.nasa.gov/30878> | NASA, uso libero; credito «NASA Earth Observatory» |
 | Luna, Sole, pianeti, anelli di Saturno, nuvole | Solar System Scope: <https://www.solarsystemscope.com/textures> | CC BY 4.0; credito «© Solar System Scope», con link alla licenza |
 | Modello 3D di Voyager | NASA 3D Resources: <https://nasa3d.arc.nasa.gov/detail/jpl-vtad-voyager>, repo <https://github.com/nasa/NASA-3D-Resources> | Le risorse sono dichiarate libere da copyright; seguire le linee guida NASA sull'uso dei media. In alternativa: modello procedurale stilizzato |

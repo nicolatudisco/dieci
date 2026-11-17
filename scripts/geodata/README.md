@@ -22,6 +22,7 @@ Le coordinate del punto di partenza stanno solo in `scripts/geodata/origin.local
 ```sh
 node scripts/geodata/build.mjs          # OSM e Natural Earth → rifredi.json, city.json, toscana.json, italia.json
 node scripts/geodata/black-marble.mjs   # NASA Black Marble → night-italia.webp, night-toscana.webp, night.json
+node scripts/geodata/globe.mjs          # il globo di terra e luna → globe-day, globe-lights, globe-clouds, globe-land (.webp)
 node scripts/geodata/check-privacy.mjs  # prima di ogni commit: nessuna traccia del punto nel repo
 ```
 
@@ -36,6 +37,7 @@ I download grezzi finiscono in `scripts/geodata/cache/` (ignorata da git): riese
 - OpenStreetMap, © OpenStreetMap contributors, licenza ODbL: città, Arno, autostrade.
 - Natural Earth 1:10m, pubblico dominio: coste, confini, regione Toscana, posizione di Firenze e Pisa.
 - NASA Black Marble 2016 (NASA Earth Observatory): luci notturne.
+- NASA Blue Marble: Next Generation, novembre 2004 (NASA Earth Observatory): la Terra di giorno. Nuvole: Solar System Scope, CC BY 4.0. Il globo ha sempre il punto di partenza al centro e non gira, quindi le sue immagini coprono un solo emisfero, nella stessa proiezione ortografica di tutto il resto.
 - Virgo: vertice e direzione dei bracci dalle costanti ufficiali dei rivelatori LIGO/Virgo, controllati sui bracci mappati in OSM.
 
 I crediti per chi guarda il sito sono in `CREDITS.md`.

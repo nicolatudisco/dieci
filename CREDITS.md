@@ -14,7 +14,12 @@ Questo file si completa durante lo sviluppo: ogni immagine, modello, font o dato
 
 ## Immagini e texture
 
-_(da completare)_
+- La Terra di giorno (`public/data/globe-day.webp`): [NASA Blue Marble: Next Generation](https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/), novembre 2004, con topografia e batimetria, di Reto Stöckli, NASA Earth Observatory (NASA Goddard Space Flight Center). Uso libero; credito «NASA Earth Observatory».
+- Le luci della Terra di notte (`public/data/globe-lights.webp`): [NASA Black Marble 2016](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/), mappa da 3 km, come sopra. Credito «NASA Earth Observatory».
+- Le nuvole della Terra (`public/data/globe-clouds.webp`) e le texture della Luna, di Giove, di Saturno e dei suoi anelli (`public/textures/`): © [Solar System Scope](https://www.solarsystemscope.com/textures/), licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Ridimensionate e, per le nuvole, riproiettate.
+- Terra e mare del globo (`public/data/globe-land.webp`): [Natural Earth](https://www.naturalearthdata.com), scala 1:10m, pubblico dominio.
+
+Le immagini del globo sono riproiettate una volta con `scripts/geodata/globe.mjs`, quelle dei pianeti ridimensionate con `scripts/textures.mjs`.
 
 ## Modelli 3D
 

@@ -36,3 +36,4 @@ screenshots
 # Geodata (M2): the starting point stays on this machine; raw downloads are not committed
 scripts/geodata/origin.local.json
 scripts/geodata/cache
+scripts/cache
