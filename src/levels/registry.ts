@@ -61,10 +61,10 @@ const ACT_ONE: Record<string, Entry> = {
   'via-lattea': { unit: 1e4 * LY, origin: 'galacticCentre', load: () => import('./via-lattea.ts'), enter: [18.3, 19.2], leave: [21.5, 22.1] }, // 16.8 (tens of thousands of ly)
   // Its Milky Way is drawn full from the start: the twin of `via-lattea` is underneath.
   andromeda: { unit: 1e6 * LY, origin: 'localGroup', load: () => import('./andromeda.ts'), enter: [21.5, 22.1] }, // 6.7 million ly
-  // Its cloud of points turns into a bright blob as it shrinks: it leaves early.
-  laniakea: { unit: 1e8 * LY, origin: 'laniakea', load: cosmos('laniakea'), enter: [23.4, 24.1], leave: [25.3, 26] }, // 6.7 (hundreds of millions of ly)
-  // Its ball of web is local: it must be gone before the whole universe is in view.
-  'rete-cosmica': { unit: 1e9 * LY, origin: 'earth', load: cosmos('reteCosmica'), leave: [26.2, 26.75] }, // 4.2 billion ly
+  // Its galaxies dim as the view widens; its edge stays a little longer, inside the web.
+  laniakea: { unit: 1e8 * LY, origin: 'laniakea', load: () => import('./laniakea.ts'), enter: [23.4, 24.1], leave: [25.3, 26] }, // 6.7 (hundreds of millions of ly)
+  // The same web as Laniakea's, more coarsely: it comes in once Laniakea has been seen.
+  'rete-cosmica': { unit: 1e9 * LY, origin: 'earth', load: cosmos('reteCosmica'), enter: [24.95, 25.4], leave: [26.2, 26.75] }, // 4.2 billion ly
   // Stays alive while the camera keeps pulling back in Act II, until it is a point.
   universo: { unit: 1e10 * LY, origin: 'earth', load: cosmos('universo'), leave: [28.3, 29.2] }, // 9.2
 };

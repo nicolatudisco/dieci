@@ -115,7 +115,7 @@ export default sketch((s) => {
   // Words: light, and only where they do not crowd. «Tu sei qui» is to the right of the warm dot.
   s.label({ id: 'milky-way', text: LABELS.places.milkyWay, at: [centre[0], centre[1] - milkyWayRadius, centre[2]], align: 'below', from: 22.35, to: 23.4 });
   const smcAt = place(smc.l, smc.ly);
-  s.label({ id: 'magellanic', text: LABELS.places.magellanicClouds, at: [smcAt[0], smcAt[1] + smc.radiusLy * perLy, smcAt[2]], kind: 'note', align: 'above', from: 21.75, to: 22.35 });
+  s.label({ id: 'magellanic', text: LABELS.places.magellanicClouds, at: [smcAt[0], smcAt[1] + smc.radiusLy * perLy, smcAt[2]], kind: 'note', align: 'above', from: 21.75, to: 22.15 });
   // On a small screen the lens of Andromeda needs that room: the name of Triangulum is left out.
   const triangulumLabel = { id: 'triangulum', text: LABELS.places.triangulum, at: [m33At[0], m33At[1] - triangulum.radiusLy * perLy, m33At[2]] as Vec3, kind: 'note' as const, align: 'below' as const };
   s.liveLabels = (frame) => {

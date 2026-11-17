@@ -19,7 +19,18 @@
  * «stage» coordinates are centred on us and turned so that the Great Attractor is at its true
  * longitude (about 307°, on screen 37°), like the rest of the stage.
  */
-import { mulberry32 } from './levels/placeholder/primitives.ts';
+
+/** Deterministic pseudo-random generator (the same as levels/placeholder/primitives.ts, kept here so that the worker does not load three.js). */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 export const WEB = {
   /** Side of the periodic tile, Mly, and cells per side. */
@@ -508,4 +519,213 @@ export function distanceToOutline(points: readonly [number, number][], x: number
     best = Math.min(best, Math.hypot(ax + t * dx - x, ay + t * dy - y));
   }
   return best;
+}
+
+// ──────────────────────────────────────────────────────────── what the scenes draw
+
+/** Galaxies: x, y pairs on the stage around us (Mly), and how dense the matter is at each. */
+export interface GalaxySet {
+  readonly positions: Float32Array;
+  readonly density: Float32Array;
+}
+
+export interface WebData {
+  /** The edge of Laniakea, closed (x, y pairs, stage Mly), smoothed. */
+  readonly outline: Float32Array;
+  readonly attractor: readonly [number, number];
+  readonly centre: readonly [number, number];
+  /** The galaxies whose matter started inside our basin (about 100,000), sampled finely. */
+  readonly laniakea: GalaxySet;
+  /** The galaxies around Laniakea, more sparsely. */
+  readonly around: GalaxySet;
+  /** One galaxy for every cell of the whole tile, wrapped around us: the web at large. */
+  readonly web: GalaxySet;
+  /** Flow lines: points (x, y pairs, stage Mly), where each line starts, and whether it flows into our attractor. */
+  readonly flows: { readonly points: Float32Array; readonly starts: Uint32Array; readonly inside: Uint8Array };
+  /** The density of the whole tile as a picture (width × width bytes), in tile coordinates. */
+  readonly texture: { readonly data: Uint8Array; readonly width: number };
+  readonly frame: Frame;
+}
+
+export interface WebOptions {
+  /** Points per cell side inside Laniakea and around it. */
+  readonly fine: number;
+  readonly sparse: number;
+  /** How far around the centre of Laniakea the sparse galaxies go, Mly. */
+  readonly reach: number;
+  /** No galaxy of the web within this distance of us (Mly): that is the Local Group of `andromeda`. */
+  readonly hole: number;
+  /** Density at which a bit of matter is sure to hold a galaxy (below, the chance falls). */
+  readonly bias: number;
+  readonly textureWidth: number;
+}
+
+export const WEB_OPTIONS: WebOptions = { fine: 23, sparse: 3, reach: 780, hole: 6, bias: 2.5, textureWidth: 1024 };
+
+function chaikin(points: readonly [number, number][], passes: number): [number, number][] {
+  let current = points.slice() as [number, number][];
+  for (let pass = 0; pass < passes; pass++) {
+    const next: [number, number][] = [];
+    for (let i = 0; i < current.length; i++) {
+      const [x0, y0] = current[i]!;
+      const [x1, y1] = current[(i + 1) % current.length]!;
+      next.push([0.75 * x0 + 0.25 * x1, 0.75 * y0 + 0.25 * y1], [0.25 * x0 + 0.75 * x1, 0.25 * y0 + 0.75 * y1]);
+    }
+    current = next;
+  }
+  return current;
+}
+
+function shuffle(positions: number[], density: number[], random: () => number): GalaxySet {
+  const count = density.length;
+  const order = Array.from({ length: count }, (_, i) => i);
+  for (let i = count - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j]!, order[i]!];
+  }
+  const p = new Float32Array(count * 2);
+  const d = new Float32Array(count);
+  order.forEach((from, to) => {
+    p[to * 2] = positions[from * 2]!;
+    p[to * 2 + 1] = positions[from * 2 + 1]!;
+    d[to] = density[from]!;
+  });
+  return { positions: p, density: d };
+}
+
+/** Everything the three scenes of the web draw, in one go (about half a second: run it in a worker). */
+export function buildWebData(options: WebOptions = WEB_OPTIONS): WebData {
+  const field = makeField();
+  const label = basins(field);
+  const lan = findLaniakea(field, label, WEB.us, WEB.attractorAngle);
+  const { n, cell, tile } = field;
+  const random = mulberry32(2014);
+  const unwrap = (v: number, near: number): number => v + n * Math.round((near - v) / n);
+  const [cx, cy] = lan.centroid;
+  const centreCell = [unwrap(lan.id % n, WEB.us[0]), unwrap(Math.floor(lan.id / n), WEB.us[1])] as const;
+
+  // Galaxies form where matter is densest: a bit of matter becomes a galaxy with a chance
+  // that grows with its density, so the voids empty and the walls thin into filaments.
+  const chance = (d: number): number => Math.min(1, (d / options.bias) ** 1.4);
+  const galaxy = (qx: number, qy: number, positions: number[], density: number[]): void => {
+    const d = sample(field, field.density, qx / cell, qy / cell);
+    if (random() > chance(d)) return;
+    const [x, y] = slid(field, qx, qy);
+    const [sx, sy] = toStage(lan.frame, x, y, true);
+    if (Math.hypot(sx, sy) < options.hole) return;
+    positions.push(sx, sy);
+    density.push(d);
+  };
+
+  // Inside: every cell of the basin, finely; around it, sparsely, as far as `reach`.
+  const insideP: number[] = [];
+  const insideD: number[] = [];
+  const aroundP: number[] = [];
+  const aroundD: number[] = [];
+  const window = Math.ceil(options.reach / cell) + 4;
+  for (let b = -window; b <= window; b++) {
+    for (let a = -window; a <= window; a++) {
+      const i = centreCell[0] + a;
+      const j = centreCell[1] + b;
+      const k = (((j % n) + n) % n) * n + (((i % n) + n) % n);
+      const own = label[k] === lan.id;
+      const m = own ? options.fine : options.sparse;
+      for (let y = 0; y < m; y++) {
+        for (let x = 0; x < m; x++) {
+          const qx = (i - 0.5 + (x + random()) / m) * cell;
+          const qy = (j - 0.5 + (y + random()) / m) * cell;
+          if (own) galaxy(qx, qy, insideP, insideD);
+          else {
+            const before = aroundP.length;
+            galaxy(qx, qy, aroundP, aroundD);
+            if (aroundP.length > before && Math.hypot(aroundP[before]! - cx, aroundP[before + 1]! - cy) > options.reach) {
+              aroundP.length = before;
+              aroundD.length = aroundD.length - 1;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // The whole tile, one galaxy per cell, and its picture.
+  const webP: number[] = [];
+  const webD: number[] = [];
+  const width = options.textureWidth;
+  const picture = new Float32Array(width * width);
+  for (let j = 0; j < n; j++) {
+    for (let i = 0; i < n; i++) {
+      const qx = (i - 0.5 + random()) * cell;
+      const qy = (j - 0.5 + random()) * cell;
+      const [x, y] = slid(field, qx, qy);
+      const [sx, sy] = toStage(lan.frame, x, y, true);
+      const d = sample(field, field.density, qx / cell, qy / cell);
+      const weight = chance(d);
+      if (Math.hypot(sx, sy) >= options.hole && random() < weight) {
+        webP.push(sx, sy);
+        webD.push(d);
+      }
+      // Splat into the picture of the tile (bilinear, periodic).
+      const u = (((x / tile) % 1) + 1) % 1 * width - 0.5;
+      const v = (((y / tile) % 1) + 1) % 1 * width - 0.5;
+      const u0 = Math.floor(u);
+      const v0 = Math.floor(v);
+      const fu = u - u0;
+      const fv = v - v0;
+      for (const [du, dv, w] of [[0, 0, (1 - fu) * (1 - fv)], [1, 0, fu * (1 - fv)], [0, 1, (1 - fu) * fv], [1, 1, fu * fv]] as const) {
+        picture[(((v0 + dv) % width) + width) % width * width + ((((u0 + du) % width) + width) % width)]! += w * weight;
+      }
+    }
+  }
+  // Soften twice (separable 1-2-1), then tone: 1 = the mean density.
+  for (let pass = 0; pass < 2; pass++) {
+    const tmp = new Float32Array(width * width);
+    for (let y = 0; y < width; y++) for (let x = 0; x < width; x++) tmp[y * width + x] = 0.25 * picture[y * width + ((x + width - 1) % width)]! + 0.5 * picture[y * width + x]! + 0.25 * picture[y * width + ((x + 1) % width)]!;
+    for (let y = 0; y < width; y++) for (let x = 0; x < width; x++) picture[y * width + x] = 0.25 * tmp[((y + width - 1) % width) * width + x]! + 0.5 * tmp[y * width + x]! + 0.25 * tmp[((y + 1) % width) * width + x]!;
+  }
+  let total = 0;
+  for (const v of picture) total += v;
+  const mean = total / (width * width);
+  const data = new Uint8Array(width * width);
+  for (let p = 0; p < width * width; p++) data[p] = Math.round(255 * Math.sqrt(Math.min(1, picture[p]! / mean / 8)));
+
+  // Flow lines: inside into our attractor, outside away to the others.
+  const flowPoints: number[] = [];
+  const starts: number[] = [];
+  const insideFlags: number[] = [];
+  const line = (qx: number, qy: number, own: boolean): void => {
+    const path = flowLine(field, qx, qy);
+    if (path.length < 6) return;
+    starts.push(flowPoints.length / 2);
+    insideFlags.push(own ? 1 : 0);
+    for (const [lx, ly] of path) {
+      const [sx, sy] = slidSmooth(field, lx, ly);
+      flowPoints.push(...toStage(lan.frame, sx, sy, false));
+    }
+  };
+  for (let b = -window; b <= window; b += 2) {
+    for (let a = -window; a <= window; a += 2) {
+      const i = centreCell[0] + a + (random() - 0.5) * 1.6;
+      const j = centreCell[1] + b + (random() - 0.5) * 1.6;
+      const k = (((Math.round(j) % n) + n) % n) * n + (((Math.round(i) % n) + n) % n);
+      const own = label[k] === lan.id;
+      if (!own && (Math.abs(a) % 4 !== 0 || Math.abs(b) % 4 !== 0)) continue;
+      const [sx, sy] = toStage(lan.frame, ...slidSmooth(field, i * cell, j * cell), false);
+      if (Math.hypot(sx - cx, sy - cy) > options.reach * 0.85) continue;
+      line(i * cell, j * cell, own);
+    }
+  }
+
+  const outline = chaikin(lan.outline, 2);
+  return {
+    outline: Float32Array.from(outline.flat()),
+    attractor: lan.attractor,
+    centre: lan.centroid,
+    laniakea: shuffle(insideP, insideD, random),
+    around: shuffle(aroundP, aroundD, random),
+    web: shuffle(webP, webD, random),
+    flows: { points: Float32Array.from(flowPoints), starts: Uint32Array.from(starts), inside: Uint8Array.from(insideFlags) },
+    texture: { data, width },
+    frame: lan.frame,
+  };
 }
