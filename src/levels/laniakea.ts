@@ -52,9 +52,11 @@ export default asyncSketch(async (s) => {
     // Wider and wider, the same galaxies would pile up into a blob: they dim as the view widens.
     const wide = e <= s.exponent ? 1 : 10 ** (-1.3 * (e - s.exponent));
     const largo = frame.pxPerUnit * frame.viewWidth;
-    const room = Math.min(1, Math.max(0.35, (largo / 820) ** 1.4)) * frame.quality;
-    inside.update(0.5 * frame.fade * wide, 1.25, room, frame.pixelRatio);
-    around.update(0.42 * frame.fade * wide, 1.45, Math.min(1, room * 1.3), frame.pixelRatio);
+    // A small screen holds fewer galaxies, each a little fainter: the same light per area.
+    const room = Math.min(1, Math.max(0.25, (largo / 820) ** 1.4)) * frame.quality;
+    const small = Math.min(1, Math.max(0.4, (largo / 820) ** 0.6));
+    inside.update(0.5 * small * frame.fade * wide, 1.25, room, frame.pixelRatio);
+    around.update(0.42 * small * frame.fade * wide, 1.45, Math.min(1, room * 1.3), frame.pixelRatio);
     const flowing = smoothstep(24.15, 24.55, e) * (1 - smoothstep(25.1, 25.4, e)) * frame.fade;
     flows.update(frame.isStatic ? 0 : frame.time, flowing, 0.12, 0.045);
     // The edge outlives the level's own fade: it is still there, small, inside the web.

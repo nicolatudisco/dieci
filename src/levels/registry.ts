@@ -64,7 +64,7 @@ const ACT_ONE: Record<string, Entry> = {
   // Its galaxies dim as the view widens; its edge stays a little longer, inside the web.
   laniakea: { unit: 1e8 * LY, origin: 'laniakea', load: () => import('./laniakea.ts'), enter: [23.4, 24.1], leave: [25.3, 26] }, // 6.7 (hundreds of millions of ly)
   // The same web as Laniakea's, more coarsely: it comes in once Laniakea has been seen.
-  'rete-cosmica': { unit: 1e9 * LY, origin: 'earth', load: cosmos('reteCosmica'), enter: [24.95, 25.4], leave: [26.2, 26.75] }, // 4.2 billion ly
+  'rete-cosmica': { unit: 1e9 * LY, origin: 'earth', load: () => import('./rete-cosmica.ts'), enter: [24.95, 25.4], leave: [26.2, 26.75] }, // 4.2 billion ly
   // Stays alive while the camera keeps pulling back in Act II, until it is a point.
   universo: { unit: 1e10 * LY, origin: 'earth', load: cosmos('universo'), leave: [28.3, 29.2] }, // 9.2
 };
