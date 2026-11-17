@@ -6,9 +6,10 @@
  * door and the kerb lie as they do in reality, and the map of `rifredi`, which keeps north
  * up, continues them without a jump.
  *
- * The turn happens gently during the first zoom (option B, proposed to Nicola): at 1 m she
+ * The turn happens gently during the first zoom (option B, chosen by Nicola): at 1 m she
  * sits upright as in the picture; by the time the street enters the frame it lies along the
- * real one. With `?giro=a` the picture is turned from the start (option A), only to compare.
+ * real one. (Option A, the picture turned from the start, put her hands and feet out of the
+ * metre.)
  */
 import { STREET } from '../content/street.ts';
 
@@ -38,10 +39,7 @@ function smoothstep(a: number, b: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
-/** Only to compare the two options with Nicola: `?giro=a` turns the picture from the start. */
-const fixedTurn = typeof location !== 'undefined' && new URLSearchParams(location.search).get('giro') === 'a';
-
 /** How much the picture is turned at exponent `e`: done before the map of `rifredi` appears. */
 export function streetTurn(e: number): number {
-  return fixedTurn ? STREET_TURN : STREET_TURN * smoothstep(0.1, 0.75, e);
+  return STREET_TURN * smoothstep(0.1, 0.75, e);
 }
