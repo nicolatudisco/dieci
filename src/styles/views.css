@@ -155,6 +155,11 @@
 .finale__text {
   position: relative;
   width: min(100%, 34em);
+  /* A halo of night around every letter: the circles and the stars pass behind the words. */
+  text-shadow:
+    0 0 0.5em var(--night),
+    0 0 0.22em var(--night),
+    0 0 1.1em var(--night);
   /* A tap on the words brings the next ones. */
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;

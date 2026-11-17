@@ -141,4 +141,24 @@ function buildActTwo(): LevelDef[] {
   ];
 }
 
-export const LEVELS: readonly LevelDef[] = [...buildActOne(), ...buildActTwo()];
+/**
+ * The scene of the finale: drawn in 2D over the stage like Act II, around the warm dot. It
+ * comes in while the light of the googolplex gathers into the dot and leaves with the view
+ * of the finale (ui/view-model.ts → finaleOpacity). The unit only keeps the numbers small:
+ * the one thing it places is the lens, on the origin.
+ */
+function buildFinale(): LevelDef {
+  const u = FINALE.u;
+  return {
+    id: 'finale',
+    unit: 1e40,
+    origin: 'you',
+    range: [u - 0.5, u + 0.72],
+    fadeIn: [u - 0.45, u - 0.1],
+    fadeOut: [u + 0.15, u + 0.68],
+    order: 110,
+    load: () => import('./finale.ts'),
+  };
+}
+
+export const LEVELS: readonly LevelDef[] = [...buildActOne(), ...buildActTwo(), buildFinale()];
