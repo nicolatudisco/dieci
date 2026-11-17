@@ -12,6 +12,8 @@ import {
   ringText,
   splitEngraving,
 } from '../src/golden-record/design.ts';
+import { EARTH_COASTS } from '../src/golden-record/earth-outline.ts';
+import { PICTURES } from '../src/golden-record/pictures.ts';
 import { MELODY, MORSE_UNIT, SCORES, envelope, morseCode, morseTimeline } from '../src/golden-record/scores.ts';
 
 // Invented dates and names only (see CLAUDE.md, «Privacy»).
@@ -95,6 +97,52 @@ test('the shape of the Morse sound is loud on the tones and silent between them'
     const end = (tones[i - 1]?.at ?? 0) + (tones[i - 1]?.dur ?? 0);
     assert.ok(at((end + (tones[i]?.at ?? 0)) / 2) < 0.01);
   }
+});
+
+// ── Pictures ────────────────────────────────────────────────────────────────
+
+/** The points of an SVG path made of absolute M, L, Q, C, A and Z (control points too; for arcs, the end point). */
+function pathPoints(d: string): [number, number][] {
+  const tokens = d.match(/[MLQCAZ]|-?\d*\.?\d+(?:e-?\d+)?/g) ?? [];
+  const points: [number, number][] = [];
+  let command = '';
+  let numbers: number[] = [];
+  const arity: Record<string, number> = { M: 2, L: 2, Q: 4, C: 6, A: 7, Z: 0 };
+  const flush = (): void => {
+    if (command === 'A') points.push([numbers[5] ?? NaN, numbers[6] ?? NaN]);
+    else for (let i = 0; i + 1 < numbers.length; i += 2) points.push([numbers[i] ?? NaN, numbers[i + 1] ?? NaN]);
+    numbers = [];
+  };
+  for (const token of tokens) {
+    if (/[A-Z]/.test(token)) {
+      assert.ok(token in arity, `only absolute M L Q C A Z: ${token}`);
+      command = token;
+      continue;
+    }
+    numbers.push(Number(token));
+    if (numbers.length === arity[command]) flush();
+  }
+  assert.equal(numbers.length, 0, `a command of ${d.slice(0, 30)}… is incomplete`);
+  return points;
+}
+
+test('every picture of the lab is drawn, inside the round label', () => {
+  assert.deepEqual(Object.keys(PICTURES).sort(), GOLDEN_RECORD.images.map((image) => image.id).sort());
+  for (const [id, picture] of Object.entries(PICTURES)) {
+    assert.ok(picture.strokes.length > 0, `${id} has lines`);
+    for (const d of [...picture.strokes.map((stroke) => stroke.d), ...picture.fills]) {
+      for (const [x, y] of pathPoints(d)) {
+        assert.ok(Number.isFinite(x) && Number.isFinite(y), `${id}: a point is not a number`);
+        assert.ok(Math.hypot(x - 50, y - 50) <= 50.5, `${id}: (${x}, ${y}) falls outside the label`);
+      }
+    }
+  }
+});
+
+test('the Earth has its coasts', () => {
+  assert.ok(EARTH_COASTS.length >= 10);
+  const points = EARTH_COASTS.reduce((sum, d) => sum + pathPoints(d).length, 0);
+  assert.ok(points > 300 && points < 2000, `${points} points`);
 });
 
 // ── The engraving ───────────────────────────────────────────────────────────
