@@ -49,6 +49,8 @@ export const LABELS = {
     iss: `Stazione Spaziale Internazionale`,
     sun: `Sole`,
     moon: `Luna`,
+    /** Along the faint figure of eight between the Earth and the Moon (a sketch of the route). */
+    artemis: `Artemis II`,
     jupiterWithMoons: `Giove e le lune di Galileo`,
     saturn: `Saturno`,
     voyager1: `Voyager 1`,

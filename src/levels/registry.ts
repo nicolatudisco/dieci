@@ -49,7 +49,7 @@ const ACT_ONE: Record<string, Entry> = {
   toscana: { unit: 1e4, origin: 'you', load: () => import('./toscana.ts') }, // 10 (tens of km)
   italia: { unit: 1e5, origin: 'you', load: () => import('./italia.ts') }, // 12.6 (hundreds of km)
   terra: { unit: 1e6, origin: 'earth', load: () => import('./terra.ts') }, // 15.8 (thousands of km); Earth radius 6.371
-  luna: { unit: 1e8, origin: 'earth', load: solar('luna') }, // 10; the Moon is at 3.844
+  luna: { unit: 1e8, origin: 'earth', load: () => import('./luna.ts') }, // 10; the Moon is at 3.844
   sole: { unit: AU, origin: 'sun', load: solar('sole'), enter: [9.3, 10.2] }, // 2.66 AU
   giove: { unit: AU, origin: 'sun', load: solar('giove') }, // 13.3 AU
   'pianeti-lontani': { unit: AU, origin: 'sun', load: solar('pianetiLontani') }, // 66.8 AU
