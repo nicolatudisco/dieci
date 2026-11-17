@@ -52,6 +52,8 @@ export const LABELS = {
     /** Along the faint figure of eight between the Earth and the Moon (a sketch of the route). */
     artemis: `Artemis II`,
     jupiterWithMoons: `Giove e le lune di Galileo`,
+    /** Next to the point of light of the probe Juice, on its way to Jupiter (where it really is today). */
+    juice: `sonda Juice`,
     saturn: `Saturno`,
     voyager1: `Voyager 1`,
     neptuneOrbit: `l'orbita di Nettuno`,

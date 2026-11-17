@@ -54,6 +54,8 @@ export interface BodyOptions {
   readonly polarRadius?: number;
   /** Detail of the sphere. */
   readonly segments?: number;
+  /** Turn around the polar axis, radians: which longitude faces whoever looks (0 = longitude 0). */
+  readonly turn?: number;
 }
 
 /**
@@ -76,7 +78,7 @@ export function makeBody(options: BodyOptions): Mesh {
   const segments = options.segments ?? 96;
   const mesh = new Mesh(new SphereGeometry(options.radius, segments, Math.round(segments * 0.66)), material);
   // In SphereGeometry the middle of the picture looks along +x: turn it towards +z.
-  mesh.rotation.y = -Math.PI / 2;
+  mesh.rotation.y = -Math.PI / 2 + (options.turn ?? 0);
   if (options.polarRadius !== undefined) mesh.scale.set(1, options.polarRadius / options.radius, 1);
   return mesh;
 }

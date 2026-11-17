@@ -11,6 +11,7 @@ Questo file si completa durante lo sviluppo: ogni immagine, modello, font o dato
 ## Dati astronomici
 
 - Distanza di Voyager 1 dalla Terra, un valore ogni due giorni dal 2026 al 2041 (`src/content/voyager-distance.ts`): [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/), Solar System Dynamics Group, Jet Propulsion Laboratory. Dati di pubblico dominio; credito «NASA/JPL-Caltech». Scaricati una volta con `scripts/voyager-horizons.mjs`.
+- Dove si trova la sonda Juice dell'ESA rispetto al Sole e alla Terra, un valore ogni cinque giorni dal 2026 all'arrivo a Giove nel 2031 (`src/content/juice-position.ts`): [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/), traiettoria «JUICE_merged». Credito «NASA/JPL-Caltech». Scaricati una volta con `scripts/juice-horizons.mjs`.
 
 ## Immagini e texture
 

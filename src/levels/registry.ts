@@ -51,7 +51,7 @@ const ACT_ONE: Record<string, Entry> = {
   terra: { unit: 1e6, origin: 'earth', load: () => import('./terra.ts') }, // 15.8 (thousands of km); Earth radius 6.371
   luna: { unit: 1e8, origin: 'earth', load: () => import('./luna.ts') }, // 10; the Moon is at 3.844
   sole: { unit: AU, origin: 'sun', load: () => import('./sole.ts'), enter: [9.3, 10.2] }, // 2.66 AU
-  giove: { unit: AU, origin: 'sun', load: solar('giove') }, // 13.3 AU
+  giove: { unit: AU, origin: 'sun', load: () => import('./giove.ts') }, // 13.3 AU
   'pianeti-lontani': { unit: AU, origin: 'sun', load: solar('pianetiLontani') }, // 66.8 AU
   voyager: { unit: 10 * AU, origin: 'sun', load: () => import('./voyager.ts'), enter: [13.05, 13.4] }, // 33.5 (tens of AU)
   // Seen from the bubble it would be a ball of sparks on the warm dot: it leaves before.
