@@ -46,6 +46,14 @@ export class GeoSketch extends Sketch {
     this.geo.uMaskSoft.value = soft / this.unit;
   }
 
+  /**
+   * Everything also fades out between two distances (metres) from `centre` (metres from the
+   * starting point): a round edge, so that a map melts into the globe.
+   */
+  roundMask(centre: readonly [number, number], inner: number, outer: number): void {
+    this.geo.uRound.value.set(centre[0] / this.unit, centre[1] / this.unit, inner / this.unit, outer / this.unit);
+  }
+
   /** Adds a layer; later layers are drawn later. */
   add(mesh: Mesh): Mesh {
     mesh.renderOrder = ++this.layerOrder;

@@ -48,6 +48,28 @@ const CITY_BOX = [43.71, 11.13, 43.85, 11.36];
 /** Official geometry of Virgo (LIGO/Virgo detector constants): vertex, arm azimuths east of north, 3 km arms. */
 const VIRGO = { lat: 43.6314142, lon: 10.5044967, arms: [19.4326, 289.4326], length: 3000 };
 
+/**
+ * A plausible ground track of the International Space Station: an orbit inclined 51.6° to
+ * the equator (NASA), on a northbound pass over central Italy, 60° of arc. The rotation of
+ * the Earth during the pass (about 4°) is left out: it is a picture, not an ephemeris.
+ */
+const ISS = { inclination: 51.64, through: { lat: 41.9, lon: 12.5 }, arc: 60 };
+
+function issTrack() {
+  const rad = Math.PI / 180;
+  const i = ISS.inclination * rad;
+  const u0 = Math.asin(Math.sin(ISS.through.lat * rad) / Math.sin(i));
+  const node = ISS.through.lon * rad - Math.atan2(Math.cos(i) * Math.sin(u0), Math.cos(u0));
+  const points = [];
+  for (let d = -ISS.arc / 2; d <= ISS.arc / 2; d += 0.25) {
+    const u = u0 + d * rad;
+    const lat = Math.asin(Math.sin(i) * Math.sin(u)) / rad;
+    const lon = (node + Math.atan2(Math.cos(i) * Math.sin(u), Math.cos(u))) / rad;
+    points.push({ lat, lon });
+  }
+  return [{ cls: 0, line: points }];
+}
+
 /** Natural Earth 1:10m, GeoJSON, from the official repository at a fixed version. */
 const NE = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/';
 
@@ -488,6 +510,7 @@ async function buildRegions() {
       coast: encodeLines(neLines(coast, lonLatI, 0), i),
       border: encodeLines(neLines(borders, lonLatI, 0), i),
       region: encodeLines(neLines(tuscanyOutline, lonLatI, 0), { ...i, tolerance: 400 }),
+      iss: encodeLines(issTrack(), { ...i, box: [-1e7, -1e7, 1e7, 1e7], tolerance: 50 }),
     },
     areas: {
       land: encodeAreas(neAreas(land, lonLatI, 0), i),

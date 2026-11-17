@@ -46,6 +46,7 @@ export const LABELS = {
     florence: `Firenze`,
     pisa: `Pisa`,
     virgo: `Virgo`,
+    iss: `Stazione Spaziale Internazionale`,
     sun: `Sole`,
     moon: `Luna`,
     jupiterWithMoons: `Giove e le lune di Galileo`,

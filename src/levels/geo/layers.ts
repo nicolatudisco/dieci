@@ -44,6 +44,8 @@ export interface GeoUniforms {
   uMask: IUniform<Vector4>;
   /** Width of the soft edge of the mask, local units. */
   uMaskSoft: IUniform<number>;
+  /** Round soft edge, local units: centre x, centre y, inner and outer radius (outer 0 = off). */
+  uRound: IUniform<Vector4>;
 }
 
 /** `box` in metres from the starting point; `unit` metres per local unit. */
@@ -55,6 +57,7 @@ export function geoUniforms(box: Box, soft: number, unit: number): GeoUniforms {
     uTime: { value: 0 },
     uMask: { value: new Vector4(box[0] / unit, box[1] / unit, box[2] / unit, box[3] / unit) },
     uMaskSoft: { value: soft / unit },
+    uRound: { value: new Vector4(0, 0, 0, 0) },
   };
 }
 
@@ -68,10 +71,13 @@ export function updateGeoUniforms(u: GeoUniforms, frame: LevelFrame): void {
 const MASK_GLSL = /* glsl */ `
   uniform vec4 uMask;
   uniform float uMaskSoft;
+  uniform vec4 uRound;
   float boxMask(vec2 p) {
     vec2 d = min(p - uMask.xy, uMask.zw - p);
     float edge = min(d.x, d.y);
-    return smoothstep(0.0, uMaskSoft, edge);
+    float m = smoothstep(0.0, uMaskSoft, edge);
+    if (uRound.w > 0.0) m *= 1.0 - smoothstep(uRound.z, uRound.w, length(p - uRound.xy));
+    return m;
   }`;
 
 /** Max blending: see the comment at the top. Colours must be premultiplied by alpha. */
@@ -442,8 +448,6 @@ const NIGHT_FRAGMENT = /* glsl */ `
   uniform float uGamma;
   uniform vec3 uDim;
   uniform vec3 uBright;
-  uniform vec2 uRound;   // centre of the round edge, local units
-  uniform vec2 uRadius;  // inner and outer radius of the round edge, local units (0 = off)
   varying vec2 vUv;
   varying vec2 vWorld;
   void main() {
@@ -451,7 +455,6 @@ const NIGHT_FRAGMENT = /* glsl */ `
     float b = pow(clamp((v - uFloor) / (1.0 - uFloor), 0.0, 1.0), uGamma);
     vec3 color = mix(uDim, uBright, b) * b;
     float a = boxMask(vWorld) * uOpacity * uFade;
-    if (uRadius.y > 0.0) a *= 1.0 - smoothstep(uRadius.x, uRadius.y, length(vWorld - uRound));
     gl_FragColor = vec4(color * a, max(color.r, max(color.g, color.b)) * a);
     #include <colorspace_fragment>
   }`;
@@ -469,8 +472,6 @@ export interface NightStyle {
 export interface NightLayer {
   readonly mesh: Mesh;
   readonly material: ShaderMaterial;
-  /** A round soft edge (local units), e.g. so that the map melts into the globe. */
-  setRound(centre: readonly [number, number], inner: number, outer: number): void;
   setOpacity(o: number): void;
 }
 
@@ -488,8 +489,6 @@ export function makeNight(texture: Texture, box: Box, unit: number, uniforms: Ge
         uGamma: { value: style.gamma ?? 1.35 },
         uDim: { value: new Color(style.dim ?? '#c9772e') },
         uBright: { value: new Color(style.bright ?? '#ffe7bf') },
-        uRound: { value: new Vector2() },
-        uRadius: { value: new Vector2() },
       },
       vertexShader: NIGHT_VERTEX,
       fragmentShader: NIGHT_FRAGMENT,
@@ -501,10 +500,6 @@ export function makeNight(texture: Texture, box: Box, unit: number, uniforms: Ge
   return {
     mesh,
     material,
-    setRound: (centre, inner, outer) => {
-      (material.uniforms.uRound!.value as Vector2).set(centre[0], centre[1]);
-      (material.uniforms.uRadius!.value as Vector2).set(inner, outer);
-    },
     setOpacity: (o) => {
       material.uniforms.uOpacity!.value = o;
     },
