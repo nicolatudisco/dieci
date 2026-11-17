@@ -33,7 +33,7 @@ test('views hand over without ever leaving the screen to two of them at full str
 
 test('every stop has a level that is fully visible on it', () => {
   for (const node of NODES.filter((n) => n.stop)) {
-    const def = LEVELS.find((level) => level.id === node.id);
+    const def = LEVELS.find((level) => (level.covers ?? [level.id]).includes(node.id));
     assert.ok(def, `no level for ${node.id}`);
     assert.ok(def.range[0] <= node.u && def.range[1] >= node.u, `${node.id} is not alive at its stop`);
     assert.ok(!def.fadeIn || def.fadeIn[1] <= node.u, `${node.id} is still fading in at its stop`);
@@ -41,12 +41,14 @@ test('every stop has a level that is fully visible on it', () => {
   }
 });
 
-test('two numbers of Act II are never on screen together', () => {
-  const numbers = LEVELS.filter((level) => NODES.some((n) => n.kind === 'number' && n.id === level.id));
-  assert.equal(numbers.length, 4);
-  for (let i = 0; i < numbers.length - 1; i++) {
-    const a = numbers[i];
-    const b = numbers[i + 1];
+test('two scenes of Act II are never on screen together', () => {
+  const stops = NODES.filter((n) => n.kind === 'number').map((n) => n.id);
+  const scenes = LEVELS.filter((level) => (level.covers ?? [level.id]).some((id) => stops.includes(id)));
+  // Every stop of Act II has its scene, and one only.
+  assert.deepEqual(scenes.flatMap((level) => level.covers ?? [level.id]), stops);
+  for (let i = 0; i < scenes.length - 1; i++) {
+    const a = scenes[i];
+    const b = scenes[i + 1];
     assert.ok(a && b && a.range[1] <= b.range[0], `${a?.id} and ${b?.id} overlap`);
   }
 });

@@ -104,37 +104,44 @@ function buildActOne(): LevelDef[] {
 const numbers = (name: keyof typeof import('./placeholder/numbers.ts')): Loader => () =>
   import('./placeholder/numbers.ts').then((m) => ({ default: m[name] }));
 
+/** The position of a stop of Act II on the journey axis. */
+function at(id: string): number {
+  const u = nodeById(id)?.u;
+  if (u === undefined) throw new Error(`Unknown stop "${id}"`);
+  return u;
+}
+
 /**
- * Act II: one typographic level per stop. Each one comes in while the journey approaches
- * its stop and is gone before the next one starts, so two numbers are never on screen
- * together. The last one stays until the finale takes over.
+ * Act II: scenes made of numbers, drawn in 2D over the stage (unit and origin are not
+ * used). A scene comes in while the journey approaches its first stop and is gone before
+ * the next scene starts: two of them are never on screen together.
+ *
+ * - `oltre`: digits that surface and sink towards the point that was the universe.
+ * - `zeri`: one number that grows, from the 80 zeros of the atoms to the 100 of the googol.
+ * - `googolplex`: zeros that cannot be counted; it stays until the finale takes over.
  */
 function buildActTwo(): LevelDef[] {
-  const stops = STOPS.filter((s) => s.kind === 'number');
-  const loaders: Record<string, Loader> = {
-    oltre: () => import('./beyond.ts'),
-    atomi: numbers('atomi'),
-    googol: numbers('googol'),
-    googolplex: numbers('googolplex'),
-  };
-  return stops.map((stop, k) => {
-    const u = nodeById(stop.id)?.u;
-    const load = loaders[stop.id];
-    if (u === undefined || !load) throw new Error(`No level registered for stop "${stop.id}"`);
-    const last = k === stops.length - 1;
-    const gone = last ? FINALE.u - 0.1 : u + 0.85;
+  const scene = (id: string, covers: readonly string[], order: number, load: Loader, until?: number): LevelDef => {
+    const first = at(covers[0] ?? id);
+    const last = at(covers[covers.length - 1] ?? id);
+    const gone = until ?? last + 0.85;
     return {
-      id: stop.id,
-      // DOM only: unit and origin are not used.
+      id,
+      covers,
       unit: 1,
       origin: 'you',
-      range: [u - 1.1, gone],
-      fadeIn: [u - 1.1, u - 0.8],
-      fadeOut: [last ? FINALE.u - 0.6 : u + 0.35, gone],
-      order: 100 + k,
+      range: [first - 1.1, gone],
+      fadeIn: [first - 1.1, first - 0.8],
+      fadeOut: [until ? until - 0.5 : last + 0.35, gone],
+      order,
       load,
     };
-  });
+  };
+  return [
+    scene('oltre', ['oltre'], 100, () => import('./beyond.ts')),
+    scene('zeri', ['atomi', 'googol'], 101, () => import('./zeros.ts')),
+    scene('googolplex', ['googolplex'], 102, numbers('googolplex'), FINALE.u - 0.1),
+  ];
 }
 
 export const LEVELS: readonly LevelDef[] = [...buildActOne(), ...buildActTwo()];

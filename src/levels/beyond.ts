@@ -14,7 +14,7 @@ import { STOPS } from '../content/levels.ts';
 import { nodeById } from '../engine/journey.ts';
 import type { LevelDef, LevelFactory, LevelFrame } from '../engine/level.ts';
 import { typeset } from '../ui/rich-text.ts';
-import { CanvasLevel, DISPLAY_FONT, TAU, hash, ramp } from './canvas-level.ts';
+import { CanvasLevel, DISPLAY_FONT, TAU, hash, ramp, sceneRegion } from './canvas-level.ts';
 
 /** Decades of radius between the centre and the edge of the field. */
 const PERIOD = 1.3;
@@ -50,17 +50,12 @@ class Beyond extends CanvasLevel {
     const { free } = frame;
     const cx = free.x + free.width / 2;
     const cy = free.y + free.height / 2;
-    // Where the free area ends against the interface (not against the edge of the screen)
-    // the digits fade before they get there: nothing drifts behind the counter or the caption.
-    const bounded = { left: free.x > 4, top: free.y > 4, right: free.x + free.width < width - 4, bottom: free.y + free.height < height - 4 };
-    // The part of the stage where digits can be seen: the field reaches a little past its
-    // farthest corner, and has as many digits as that room can hold.
-    const left = bounded.left ? free.x : 0;
-    const top = bounded.top ? free.y : 0;
-    const right = bounded.right ? free.x + free.width : width;
-    const bottom = bounded.bottom ? free.y + free.height : height;
-    const outer = 1.12 * Math.hypot(Math.max(cx - left, right - cx), Math.max(cy - top, bottom - cy));
-    const count = Math.round(Math.min(110, Math.max(44, ((right - left) * (bottom - top)) / 7000)));
+    // The field reaches a little past the farthest corner of the part of the stage where
+    // digits can be seen, and has as many digits as that room can hold. Nothing drifts
+    // behind the counter or the caption: there the digits fade before they arrive.
+    const region = sceneRegion(free, width, height);
+    const outer = 1.12 * Math.hypot(Math.max(cx - region.left, region.right - cx), Math.max(cy - region.top, region.bottom - cy));
+    const count = Math.round(Math.min(110, Math.max(44, ((region.right - region.left) * (region.bottom - region.top)) / 7000)));
     const drift = this.ctx?.reducedMotion ? 0 : DRIFT;
     const zoom = ZOOM * frame.e + drift * frame.time;
 
@@ -87,12 +82,7 @@ class Beyond extends CanvasLevel {
       // Each digit surfaces and dissolves at its own slow pace.
       const pace = 7 + 8 * hash(which, 4);
       const breath = 0.5 + 0.5 * Math.sin(TAU * (frame.time / pace + hash(which, 5)));
-      const reach = 24 + size * 0.6;
-      const inside =
-        (bounded.left ? ramp(0, reach, x - free.x) : 1) *
-        (bounded.right ? ramp(0, reach, free.x + free.width - x) : 1) *
-        (bounded.top ? ramp(0, reach, y - free.y) : 1) *
-        (bounded.bottom ? ramp(0, reach, free.y + free.height - y) : 1);
+      const inside = region.fade(x, y, 24 + size * 0.6);
       // Nothing under the words next to the point.
       const underCaption = x > cx - size && x < cx + 190 + size / 2 && Math.abs(y - cy) < 12 + size / 2;
       const alpha = underCaption ? 0 : envelope * inside * (0.16 + 0.84 * breath * breath) * 0.66;

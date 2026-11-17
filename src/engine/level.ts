@@ -28,6 +28,8 @@ import type { AnchorId, Vec3 } from './stage.ts';
 export interface LevelDef {
   /** Usually the id of the stop in levels.ts. */
   readonly id: string;
+  /** The stops this level is the scene of, when they are not just `id` (one scene for several stops). */
+  readonly covers?: readonly string[];
   /** Metres in one local unit. */
   readonly unit: number;
   /** Stage anchor that sits at the local origin. */

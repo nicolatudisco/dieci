@@ -8,10 +8,14 @@
  * pixels from the top-left corner of the stage. The engine mounts `dom`, fades it with the
  * level and removes it (see level.ts → Level.dom).
  */
+import type { Rect } from '../engine/framing.ts';
 import type { Level, LevelContext, LevelDef, LevelFrame } from '../engine/level.ts';
 
 /** The typeface of titles and counter, as a canvas font family. */
 export const DISPLAY_FONT = `'Fraunces Variable', 'Iowan Old Style', Georgia, serif`;
+
+/** The typeface of the running texts. */
+export const TEXT_FONT = `'Andika', system-ui, sans-serif`;
 
 export const TAU = Math.PI * 2;
 
@@ -28,6 +32,35 @@ export function hash(a: number, b = 0): number {
   h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d) >>> 0;
   h = Math.imul(h ^ (h >>> 12), 0x297a2d39) >>> 0;
   return ((h ^ (h >>> 15)) >>> 0) / 4294967296;
+}
+
+/**
+ * The part of the stage where a scene of numbers can be seen. Where the free area ends
+ * against the interface (the counter, the caption) the scene stops there, softly; where it
+ * ends against the edge of the screen, the scene simply runs off it.
+ */
+export interface Region {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  /** 1 well inside, 0 at an edge that borders the interface; `reach` pixels in between. */
+  fade(x: number, y: number, reach: number): number;
+}
+
+export function sceneRegion(free: Rect, width: number, height: number): Region {
+  const bounded = { left: free.x > 4, top: free.y > 4, right: free.x + free.width < width - 4, bottom: free.y + free.height < height - 4 };
+  return {
+    left: bounded.left ? free.x : 0,
+    top: bounded.top ? free.y : 0,
+    right: bounded.right ? free.x + free.width : width,
+    bottom: bounded.bottom ? free.y + free.height : height,
+    fade: (x, y, reach) =>
+      (bounded.left ? ramp(0, reach, x - free.x) : 1) *
+      (bounded.right ? ramp(0, reach, free.x + free.width - x) : 1) *
+      (bounded.top ? ramp(0, reach, y - free.y) : 1) *
+      (bounded.bottom ? ramp(0, reach, free.y + free.height - y) : 1),
+  };
 }
 
 export abstract class CanvasLevel implements Level {
