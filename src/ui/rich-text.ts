@@ -16,7 +16,7 @@ const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
 export function typeset(text: string): string {
   return text
     .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (run) => `^{${[...run].map((c) => SUPERSCRIPT_DIGITS.indexOf(c)).join('')}}`)
-    .replace(/(?<=\p{L})'(?=\p{L}|\s|$)/gu, '’');
+    .replace(/(?<=\p{L})'(?=\p{L}|\p{N}|\s|$)/gu, '’');
 }
 
 export function setRich(element: HTMLElement, text: string): void {

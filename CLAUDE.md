@@ -213,7 +213,7 @@ Stato:
     1. ✅ Il messaggio di Nicola in `src/content/finale.ts`, copiato com'è, e l'eccezione sulla privacy annotata in «Privacy».
     2. ✅ `oltre`: `src/levels/beyond.ts` (le cifre che affiorano e sprofondano verso il punto) e la base condivisa `src/levels/canvas-level.ts`.
     3. ✅ `atomi` e `googol`: `src/levels/zeros.ts`, una scena sola per le due tappe (livello `zeri`, con `covers` nel registro): gli zeri si scrivono uno alla volta in righe da dieci, con un numerino a fine riga che dice quanti sono; gli 80 degli atomi restano e i 20 del googol si scrivono sotto.
-    4. ⬜ `googolplex`: gli zeri sempre più veloci fino alla luce, che si raccoglie nel pallino. Poi si cancella `src/levels/placeholder/numbers.ts`.
+    4. ✅ `googolplex`: la stessa scena degli zeri prosegue (`zeros.ts` copre `atomi`, `googol` e `googolplex`): il blocco dei 100 zeri si rimpicciolisce nell'angolo e gli zeri dilagano fino a riempire tutto; fermi, il muro di zeri scorre piano; verso il finale accelerano, diventano strisce di luce e poi una luce calda che si raccoglie nel pallino. Cancellato `src/levels/placeholder/numbers.ts`.
     5. ⬜ Finale, il testo: battute, strofe e a capo rispettati, tempi, tocco, telefono, lettori di schermo.
     6. ⬜ Finale, la scena (idea A, più la stella cadente).
     7. ⬜ Epilogo e pagina «È tutto vero» rifiniti.

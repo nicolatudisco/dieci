@@ -44,6 +44,8 @@ export interface Region {
   readonly top: number;
   readonly right: number;
   readonly bottom: number;
+  /** The sides where the free area ends against the interface. */
+  readonly bounded: { readonly left: boolean; readonly top: boolean; readonly right: boolean; readonly bottom: boolean };
   /** 1 well inside, 0 at an edge that borders the interface; `reach` pixels in between. */
   fade(x: number, y: number, reach: number): number;
 }
@@ -55,6 +57,7 @@ export function sceneRegion(free: Rect, width: number, height: number): Region {
     top: bounded.top ? free.y : 0,
     right: bounded.right ? free.x + free.width : width,
     bottom: bounded.bottom ? free.y + free.height : height,
+    bounded,
     fade: (x, y, reach) =>
       (bounded.left ? ramp(0, reach, x - free.x) : 1) *
       (bounded.right ? ramp(0, reach, free.x + free.width - x) : 1) *

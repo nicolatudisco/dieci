@@ -101,9 +101,6 @@ function buildActOne(): LevelDef[] {
   });
 }
 
-const numbers = (name: keyof typeof import('./placeholder/numbers.ts')): Loader => () =>
-  import('./placeholder/numbers.ts').then((m) => ({ default: m[name] }));
-
 /** The position of a stop of Act II on the journey axis. */
 function at(id: string): number {
   const u = nodeById(id)?.u;
@@ -117,30 +114,30 @@ function at(id: string): number {
  * the next scene starts: two of them are never on screen together.
  *
  * - `oltre`: digits that surface and sink towards the point that was the universe.
- * - `zeri`: one number that grows, from the 80 zeros of the atoms to the 100 of the googol.
- * - `googolplex`: zeros that cannot be counted; it stays until the finale takes over.
+ * - `zeri`: one number that grows, from the 80 zeros of the atoms to the 100 of the googol
+ *   to the wall of zeros of the googolplex, and then turns into the light that gathers
+ *   into the warm dot just before the finale.
  */
 function buildActTwo(): LevelDef[] {
-  const scene = (id: string, covers: readonly string[], order: number, load: Loader, until?: number): LevelDef => {
+  const scene = (id: string, covers: readonly string[], order: number, load: Loader, leave?: readonly [number, number]): LevelDef => {
     const first = at(covers[0] ?? id);
     const last = at(covers[covers.length - 1] ?? id);
-    const gone = until ?? last + 0.85;
+    const fadeOut = leave ?? [last + 0.35, last + 0.85];
     return {
       id,
       covers,
       unit: 1,
       origin: 'you',
-      range: [first - 1.1, gone],
+      range: [first - 1.1, fadeOut[1]],
       fadeIn: [first - 1.1, first - 0.8],
-      fadeOut: [until ? until - 0.5 : last + 0.35, gone],
+      fadeOut,
       order,
       load,
     };
   };
   return [
     scene('oltre', ['oltre'], 100, () => import('./beyond.ts')),
-    scene('zeri', ['atomi', 'googol'], 101, () => import('./zeros.ts')),
-    scene('googolplex', ['googolplex'], 102, numbers('googolplex'), FINALE.u - 0.1),
+    scene('zeri', ['atomi', 'googol', 'googolplex'], 101, () => import('./zeros.ts'), [FINALE.u - 0.15, FINALE.u - 0.07]),
   ];
 }
 
