@@ -205,7 +205,7 @@ Stato:
     3. ✅ `partenza` e `strada` (`src/levels/partenza.ts`, `strada.ts`, `street.ts`): la via disegnata alla distanza e alla larghezza vere; la scena ruota durante il primo zoom fino all'orientamento vero (opzione B); `?giro=a` mostra l'opzione A (lei già inclinata) solo per il confronto e va tolto quando Nicola sceglie. A 10 m la vista si sposta di 2,5 m verso la via (`stage.ts`); `strada` esce prima (1,55 → 2,2).
     4. ✅ `rifredi`: strade, marciapiedi e vicoli pubblici (solo in `rifredi.json`), ferrovia, acque, verde, lampioni con il loro alone, finestre come trattini caldi lungo le facciate.
     5. ✅ `quartiere`: vista centrata 330 m a est e 200 m a sud di lei; stazione ed ex Officine Galileo con etichetta e contorno; un test controlla che lei, la stazione e tutta l'area delle Officine stiano nel chilometro.
-    6. ⬜ `firenze` (Arno, ponti, Duomo con lente). Poi screenshot di `partenza`, `rifredi`, `firenze` a Nicola.
+    6. ✅ `firenze`: vista centrata 800 m a est e 1,7 km a sud; Arno, ponti, bagliore della città, lente sul Duomo (impronta vera da OSM, la cupola dove la pianta è più larga). ⏳ Screenshot di `partenza` (opzioni A e B), `rifredi` e `firenze` mostrati a Nicola: prima di toscana e italia si aspetta il suo ok.
     7. ⬜ `toscana` (Black Marble, costa, Arno, Pisa, Virgo).
     8. ⬜ `italia` (Black Marble, Toscana, Stazione Spaziale).
     9. ⬜ Chiusura: via i segnaposto di M2, «Decisioni» e contratto, verifica completa.

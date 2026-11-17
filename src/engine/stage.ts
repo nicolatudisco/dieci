@@ -111,7 +111,9 @@ const TRACK: readonly Keyframe[] = [
   // quartiere: the view moves south-east, so that she, the station and the whole area of
   // the former Officine Galileo are inside the same kilometre (tests/geo.test.ts).
   { e: 3, at: [330, -200, 0] },
-  { e: 4, at: you },
+  // firenze: the view moves south, towards the centre of the town, so that the Arno runs
+  // through the middle of it and the Duomo is well inside; Rifredi stays in the upper half.
+  { e: 4, at: [800, -1700, 0] },
   // toscana: from Florence to the sea, so the view shifts west.
   { e: 5, at: [-35e3, -5e3, 0] },
   // italia: the middle of the peninsula is south-east of Florence.

@@ -46,7 +46,7 @@ const ACT_ONE: Record<string, Entry> = {
   strada: { unit: 1, origin: 'you', load: () => import('./strada.ts'), leave: [1.55, 2.2] }, // 10
   rifredi: { unit: 100, origin: 'you', load: () => import('./rifredi.ts') }, // 1 (hundred metres)
   quartiere: { unit: 1e3, origin: 'you', load: () => import('./quartiere.ts') }, // 1 km
-  firenze: { unit: 1e3, origin: 'you' }, // 10 km
+  firenze: { unit: 1e3, origin: 'you', load: () => import('./firenze.ts') }, // 10 km
   toscana: { unit: 1e4, origin: 'you' }, // 10 (tens of km)
   italia: { unit: 1e5, origin: 'you' }, // 12.6 (hundreds of km)
   terra: { unit: 1e6, origin: 'earth', load: solar('terra') }, // 15.8 (thousands of km); Earth radius 6.371
