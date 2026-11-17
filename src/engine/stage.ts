@@ -14,6 +14,7 @@
  *   level origin in float64 and hands each level a camera in its own small units.
  */
 import { LOCAL_GIANTS, MILKY_WAY } from '../content/cosmos.ts';
+import { WEB } from '../cosmic-web.ts';
 import { LIGHT_DAY_KM, LIGHT_YEAR_M } from '../content/data.ts';
 import { STREET } from '../content/street.ts';
 
@@ -55,7 +56,9 @@ const orionNebula = add(sun, polar(1_344 * LY, 90 + 209));
 // Andromeda in its true direction, longitude 121° (M5): down and to the left of the Milky Way.
 const andromeda = add(sun, polar(LOCAL_GIANTS.andromeda.ly * LY, 90 + LOCAL_GIANTS.andromeda.l));
 const localGroup = mix(galacticCentre, andromeda, 0.5);
-const laniakea = add(earth, polar(230e6 * LY, 200));
+// Laniakea: the centre of our basin in the cosmic web of src/cosmic-web.ts (M5), with the
+// Great Attractor at its true longitude.
+const laniakea = add(earth, [WEB.centre[0] * 1e6 * LY, WEB.centre[1] * 1e6 * LY, 0]);
 
 /**
  * Named points of the stage, in metres. A level picks one as its local origin.
