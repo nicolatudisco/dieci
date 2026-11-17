@@ -45,7 +45,7 @@ const vite = await createServer({ logLevel: 'error', server: { host: '127.0.0.1'
 let browser;
 try {
   const { STOPS } = await vite.ssrLoadModule('/src/content/levels.ts');
-  const { FINALE_IS_PLACEHOLDER } = await vite.ssrLoadModule('/src/content/finale.ts');
+  const { FINALE, FINALE_IS_PLACEHOLDER } = await vite.ssrLoadModule('/src/content/finale.ts');
   let base = givenUrl;
   if (!base) {
     await vite.listen();
@@ -119,6 +119,31 @@ try {
   const message = await text('.finale__message');
   check(message.trim().length > 0, FINALE_IS_PLACEHOLDER ? `il finale mostra il segnaposto («${message.trim()}»)` : 'il finale mostra il messaggio');
   if (FINALE_IS_PLACEHOLDER) check(message.includes('TODO'), 'il segnaposto del finale è evidente');
+  if (!FINALE_IS_PLACEHOLDER) {
+    // The message comes line by line: ▶ brings the next line and never skips to the epilogue.
+    const said = () => page.evaluate(() => document.querySelector('.finale').dataset.complete === '1');
+    const lines = await page.evaluate(() => document.querySelectorAll('.finale__message .finale__line').length);
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(600);
+    check((await whereAt()) === 'finale' && !(await said()), '▶ sul finale porta la riga dopo, non salta il messaggio');
+    await page.mouse.move(300, 400);
+    await page.mouse.wheel(0, 600);
+    await page.waitForTimeout(700);
+    check((await whereAt()) === 'finale', 'nemmeno la rotella salta il messaggio');
+    for (let presses = 0; presses < 30 && !(await said()); presses++) {
+      await page.keyboard.press('ArrowRight');
+      await page.waitForTimeout(520);
+    }
+    const shown = await page.evaluate(() => ({
+      on: document.querySelectorAll('.finale__message .finale__line.is-on').length,
+      text: document.querySelector('.finale__message').innerText,
+      next: !document.querySelector('.finale__next').disabled,
+    }));
+    const words = (value) => value.replaceAll('’', "'").split(/\s+/).filter(Boolean).join(' ');
+    check(shown.on === lines && lines > 0, `alla fine tutte le righe del messaggio sono a schermo (${shown.on} su ${lines})`);
+    check(words(shown.text) === words(FINALE.message), 'il testo a schermo è quello di finale.ts, parola per parola');
+    check(shown.next, '«Continua» compare quando il messaggio è completo');
+  }
   await page.keyboard.press('ArrowRight');
   check(await at('epilogo'), 'dal finale si arriva all’epilogo');
 

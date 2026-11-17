@@ -17,7 +17,7 @@ import { UI } from './content/ui.ts';
 import { Clock } from './engine/clock.ts';
 import { Engine } from './engine/engine.ts';
 import { Input } from './engine/input.ts';
-import { FINALE, FIRST_STOP, INTRO, NODES, neighbour } from './engine/journey.ts';
+import { FINALE, FIRST_STOP, INTRO, NODES, U_MAX, neighbour } from './engine/journey.ts';
 import { StarBackdrop } from './levels/backdrop.ts';
 import { LEVELS } from './levels/registry.ts';
 import { civilDateOf, firstLineKey, parseHash } from './personalization.ts';
@@ -27,6 +27,7 @@ import { DebugOverlay } from './ui/debug.ts';
 import { el } from './ui/dom.ts';
 import { Epilogue } from './ui/epilogue.ts';
 import { Finale } from './ui/finale.ts';
+import { finaleTimeline } from './finale-script.ts';
 import { buildGoldenRecord } from './ui/golden-record.ts';
 import { Interface } from './ui/interface.ts';
 import { Intro } from './ui/intro.ts';
@@ -116,6 +117,15 @@ function boot(): void {
       if (dir === 1) start();
       return;
     }
+    // The finale is never skipped: on the way to it ▶ goes no further, and on it ▶ brings
+    // the next line of the message until everything has been said.
+    if (dir === 1 && !finaleTimeline.complete) {
+      if (engine.motion.heading === FINALE) return;
+      if (engine.motion.atNode === FINALE) {
+        finale.advance();
+        return;
+      }
+    }
     if (!reducedMotion) {
       engine.go(dir);
       return;
@@ -171,7 +181,17 @@ function boot(): void {
     animated: !route.isStatic,
     onStart: start,
   });
-  const finale = new Finale({ name: person.name, animated: !route.isStatic, go });
+  // With time frozen the finale shows everything said; `?finale=<seconds>` freezes it at
+  // that moment of its sequence instead (for the screenshots of what happens on the way).
+  if (route.isStatic) {
+    const at = Number(params.get('finale'));
+    finaleTimeline.freeze(params.has('finale') && Number.isFinite(at) ? at : undefined);
+  }
+  const finale = new Finale({ name: person.name, timeline: finaleTimeline, go });
+  // A push forward against the finale (a swipe, the wheel) is a wish for the next line.
+  engine.motion.onCeiling = () => {
+    if (engine.motion.atNode === FINALE || Math.abs(engine.motion.u - FINALE.u) < 0.05) finale.advance();
+  };
   const epilogue = new Epilogue({
     replay,
     openSources: () => overlays.show('fonti'),
@@ -224,6 +244,9 @@ function boot(): void {
     epilogue.setOpacity(epilogueOpacity(info.u));
     if (info.atNode === FINALE) finale.arrive();
     else if (info.u <= lastStop.u + 0.1) finale.leave();
+    finale.update(info.dt);
+    // Until the message has been said, free movement stops at the finale.
+    engine.motion.ceiling = finaleTimeline.complete || info.u > FINALE.u + 0.05 ? U_MAX : FINALE.u;
     // Where the journey stands, for tests and debugging: the id of the node, or nothing while moving.
     const at = info.atNode?.id ?? '';
     if (document.documentElement.dataset.at !== at) document.documentElement.dataset.at = at;
@@ -236,6 +259,10 @@ function boot(): void {
   });
 
   new Input({ surface: stage, motion: engine.motion, go, enabled: () => overlays.current === null });
+  // A tap anywhere on the scene of the finale brings the next line, like a tap on the words.
+  stage.addEventListener('click', () => {
+    if (!overlays.current && engine.motion.atNode === FINALE) finale.advance();
+  });
 
   if (route.overlay) overlays.show(route.overlay);
 

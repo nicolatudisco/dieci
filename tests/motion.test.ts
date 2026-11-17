@@ -146,3 +146,25 @@ test('jumpTo lands at once, at rest, and forgets the trip in progress', () => {
   motion.step(0.5);
   assert.equal(motion.u, 4);
 });
+
+test('free movement stops at the ceiling, and says when it is pushed', () => {
+  const finale = 37;
+  const motion = new Motion(finale);
+  motion.ceiling = finale;
+  let pushes = 0;
+  motion.onCeiling = () => pushes++;
+  motion.nudge(0.5);
+  run(motion, 1);
+  assert.equal(motion.u, finale);
+  assert.equal(pushes, 1);
+  // Backwards it is free.
+  motion.nudge(-0.5);
+  run(motion, 0.05);
+  assert.ok(motion.u < finale);
+  // A position already past the ceiling is not pulled back.
+  const past = new Motion(38.5);
+  past.ceiling = finale;
+  past.nudge(-0.01);
+  run(past, 0.02);
+  assert.ok(past.u > 38.4);
+});

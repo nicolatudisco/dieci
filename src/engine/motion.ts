@@ -39,6 +39,14 @@ export class Motion {
   v = 0;
   mode: MotionMode = 'rest';
 
+  /**
+   * The farthest that free movement (wheel, drag, pinch, fling) can reach for now. The
+   * finale lowers it onto itself until its message has been said, so that a swipe cannot
+   * skip it; `onCeiling` hears every push against it.
+   */
+  ceiling = U_MAX;
+  onCeiling: (() => void) | null = null;
+
   private goal: number;
   private followTau = FOLLOW_TAU_WHEEL;
   private idle = 0;
@@ -120,7 +128,9 @@ export class Motion {
   nudge(du: number, tau = FOLLOW_TAU_WHEEL): void {
     if (this.u < U_START) return;
     if (this.mode !== 'follow') this.goal = this.u;
-    this.goal = clamp(this.goal + du, U_START, U_MAX);
+    const top = this.top();
+    if (du > 0 && this.goal + du > top && this.onCeiling) this.onCeiling();
+    this.goal = clamp(this.goal + du, U_START, top);
     this.followTau = tau;
     this.mode = 'follow';
     this.idle = 0;
@@ -150,7 +160,7 @@ export class Motion {
     }
     // Where friction alone would stop. If that is inside the capture zone of a stop,
     // glide straight onto it instead of stopping short and being pulled.
-    const landing = clamp(this.u + velocity * FLING_TAU, U_START, U_MAX);
+    const landing = clamp(this.u + velocity * FLING_TAU, U_START, this.top());
     const node = snapTarget(landing);
     this.v = velocity;
     if (node) {
@@ -182,8 +192,9 @@ export class Motion {
     } else if (this.mode === 'fling') {
       this.u += this.v * dt;
       this.v *= Math.exp(-dt / FLING_TAU);
-      if (this.u <= U_START || this.u >= U_MAX) {
-        this.u = clamp(this.u, U_START, U_MAX);
+      const top = this.top();
+      if (this.u <= U_START || this.u >= top) {
+        this.u = clamp(this.u, U_START, top);
         this.v = 0;
       }
       if (Math.abs(this.v) < FLING_MIN_SPEED) this.settle();
@@ -191,6 +202,11 @@ export class Motion {
 
     if (this.mode === 'fling') return;
     this.v = this.mode === 'rest' ? 0 : (this.u - before) / dt;
+  }
+
+  /** The ceiling never pulls back a position that is already past it. */
+  private top(): number {
+    return Math.min(U_MAX, Math.max(this.ceiling, this.u));
   }
 
   /** End of a free movement: snap softly onto a stop if one is close, otherwise stay. */

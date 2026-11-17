@@ -110,7 +110,8 @@ Solo nel frammento dopo `#`, che non viene inviato al server e non finisce nel r
 | `?s=<e>` | parte da quell'esponente, solo nell'Atto I, da 0 a 26,94 (es. `?s=13.7`) |
 | `?stop=<id>` | parte da quella tappa (es. `?stop=bolla`) oppure da una vista che non è una tappa: `apertura`, `finale`, `epilogo`, `fonti`, `disco` |
 | `?u=<pos>` | parte da quella posizione del viaggio (vedi «Decisioni»): serve per le transizioni dell'Atto II, che `?s=` non raggiunge (es. `?u=28`) |
-| `?static=1` | congela animazioni ed effetti legati al tempo e salta l'apertura (tranne con `?stop=apertura`); le viste a comparsa progressiva (apertura, finale) si mostrano nello stato finale, con tutte le righe visibili; il contatore di Voyager usa la data fissa `VOYAGER_1.lightDayDateUTC` |
+| `?static=1` | congela animazioni ed effetti legati al tempo e salta l'apertura (tranne con `?stop=apertura`); le viste a comparsa progressiva (apertura, finale) si mostrano nello stato finale: l'apertura con tutte le righe, il finale con il messaggio completo (le frasi-ponte se ne sono già andate); il contatore di Voyager usa la data fissa `VOYAGER_1.lightDayDateUTC` |
+| `?finale=<secondi>` | solo con `?static=1`: ferma il finale a quel secondo della sua sequenza, per gli screenshot dei momenti intermedi (es. `?stop=finale&static=1&finale=9`; con `npm run shots`: `--stops finale --extra finale=9`) |
 | `?debug=1` | sovrimpressione con fps, `e`, livelli attivi, draw call |
 
 Precedenza: `stop`, poi `u`, poi `s`. Quando il primo fotogramma allo stato richiesto è stato disegnato, imposta `document.documentElement.dataset.ready = '1'`. Lo script degli screenshot aspetta questo segnale. Oggi `--stops` accetta solo gli id di `levels.ts`: in M1 va esteso alle cinque viste che non sono tappe.
@@ -214,7 +215,7 @@ Stato:
     2. ✅ `oltre`: `src/levels/beyond.ts` (le cifre che affiorano e sprofondano verso il punto) e la base condivisa `src/levels/canvas-level.ts`.
     3. ✅ `atomi` e `googol`: `src/levels/zeros.ts`, una scena sola per le due tappe (livello `zeri`, con `covers` nel registro): gli zeri si scrivono uno alla volta in righe da dieci, con un numerino a fine riga che dice quanti sono; gli 80 degli atomi restano e i 20 del googol si scrivono sotto.
     4. ✅ `googolplex`: la stessa scena degli zeri prosegue (`zeros.ts` copre `atomi`, `googol` e `googolplex`): il blocco dei 100 zeri si rimpicciolisce nell'angolo e gli zeri dilagano fino a riempire tutto; fermi, il muro di zeri scorre piano; verso il finale accelerano, diventano strisce di luce e poi una luce calda che si raccoglie nel pallino. Cancellato `src/levels/placeholder/numbers.ts`.
-    5. ⬜ Finale, il testo: battute, strofe e a capo rispettati, tempi, tocco, telefono, lettori di schermo.
+    5. ✅ Finale, il testo: `src/finale-script.ts` (puro, con test: strofe e righe del messaggio, tempi di lettura, la linea del tempo unica `finaleTimeline`) e `src/ui/finale.ts` (frasi-ponte che lasciano il posto, righe che arrivano una alla volta e restano, «Continua» alla fine). In verticale il pallino sta sopra e le parole sotto; in orizzontale il pallino ha la sinistra dello schermo e le parole sono una colonna a destra: il messaggio intero sta senza scorrere su telefono, tablet e desktop. ▶, tocco, swipe e rotella portano la riga dopo e non saltano il finale (`Motion.ceiling`, `go` in `main.ts`); lo smoke controlla che il testo a schermo sia quello di `finale.ts`, parola per parola.
     6. ⬜ Finale, la scena (idea A, più la stella cadente).
     7. ⬜ Epilogo e pagina «È tutto vero» rifiniti.
     8. ⬜ Chiusura: «Decisioni» e contratto aggiornati, giro completo di screenshot nei 3 viewport, transizioni dell'Atto II, `npm run smoke`.
