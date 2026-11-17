@@ -56,8 +56,9 @@ const ACT_ONE: Record<string, Entry> = {
   oort: { unit: 1e3 * AU, origin: 'sun', load: () => import('./oort.ts'), leave: [16.85, 17.35] }, // 168 (thousands of AU)
   bolla: { unit: LY, origin: 'sun', load: () => import('./bolla.ts'), enter: [16.6, 17.1] }, // 33.4 light-years
   nebulose: { unit: 100 * LY, origin: 'sun', load: cosmos('nebulose') }, // 26.5 (hundreds of ly)
-  // Its nine thousand points turn into a white blob as they shrink: Andromeda's level takes over.
-  'via-lattea': { unit: 1e4 * LY, origin: 'galacticCentre', load: cosmos('viaLattea'), enter: [19.6, 20.4], leave: [21.5, 22.1] }, // 16.8 (tens of thousands of ly)
+  // The galaxy is the glow of the disc behind the nebulae already, and comes out as the view
+  // widens. It leaves while `andromeda` draws the same galaxy (MAX blending: no seam).
+  'via-lattea': { unit: 1e4 * LY, origin: 'galacticCentre', load: () => import('./via-lattea.ts'), enter: [18.3, 19.2], leave: [21.5, 22.1] }, // 16.8 (tens of thousands of ly)
   andromeda: { unit: 1e6 * LY, origin: 'localGroup', load: cosmos('andromeda'), enter: [21.5, 22.1] }, // 6.7 million ly
   // Its cloud of points turns into a bright blob as it shrinks: it leaves early.
   laniakea: { unit: 1e8 * LY, origin: 'laniakea', load: cosmos('laniakea'), enter: [23.4, 24.1], leave: [25.3, 26] }, // 6.7 (hundreds of millions of ly)
