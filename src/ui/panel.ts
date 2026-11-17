@@ -10,7 +10,9 @@
  * - In portrait the page is a sheet at the bottom that can be folded down to its title.
  *
  * Special stops can add their own content under the text through `extras`
- * (the Voyager stop adds the button that opens the Golden Record; M4 adds its live panel).
+ * (the Voyager stop adds the button that opens the Golden Record; M4 adds its live panel),
+ * and any stop can add something at the end of its «saperne di più» through `moreExtras`
+ * (the photo «Pale Blue Dot» of `pianeti-lontani`, M3).
  */
 import type { SpecialStop, Stop } from '../content/types.ts';
 import { UI } from '../content/ui.ts';
@@ -23,9 +25,13 @@ import { setRich, typeset } from './rich-text.ts';
 /** What a special stop adds under its text, if anything. It gets the stop as it is shown. */
 export type PanelExtras = Partial<Record<SpecialStop, (stop: Stop) => HTMLElement | null>>;
 
+/** What a stop adds at the end of its «Tocca per saperne di più», by stop id (a photo, a figure). */
+export type MoreExtras = Readonly<Record<string, (stop: Stop) => HTMLElement | null>>;
+
 export interface PanelOptions {
   readonly go: (dir: 1 | -1) => void;
   readonly extras?: PanelExtras;
+  readonly moreExtras?: MoreExtras;
   /** The texts of a stop as they are true today (see counter-model.ts). */
   readonly resolve?: ResolveStop;
   /** The hint shown at the first stop until the journey moves on. */
@@ -39,6 +45,8 @@ interface Disclosure {
   readonly toggle: HTMLButtonElement;
   readonly content: HTMLDivElement;
   readonly text: HTMLParagraphElement;
+  /** What comes after the text inside the expansion (see MoreExtras). */
+  readonly extra: HTMLDivElement;
 }
 
 let nextId = 0;
@@ -156,6 +164,9 @@ export class Panel {
     setRich(this.text, typeset(stop.text));
     this.fill(this.more, stop.more);
     this.fill(this.how, stop.howWeKnow);
+    const moreExtra = stop.more ? this.options.moreExtras?.[stop.id]?.(stop) : undefined;
+    this.more.extra.replaceChildren(...(moreExtra ? [moreExtra] : []));
+    this.more.extra.hidden = !moreExtra;
     const extra = stop.special ? this.options.extras?.[stop.special]?.(stop) : undefined;
     this.extra.replaceChildren(...(extra ? [extra] : []));
     this.extra.hidden = !extra;
@@ -172,12 +183,14 @@ export class Panel {
     const content = el('div', 'disclosure__content');
     content.id = id;
     const text = el('p', 'disclosure__text');
+    const extra = el('div', 'disclosure__extra');
+    extra.hidden = true;
     const clip = el('div', 'disclosure__clip');
-    clip.append(text);
+    clip.append(text, extra);
     content.append(clip);
     content.inert = true;
     root.append(toggle, content);
-    const item: Disclosure = { root, toggle, content, text };
+    const item: Disclosure = { root, toggle, content, text, extra };
     toggle.addEventListener('click', () => this.setOpen(item, !this.isOpen(item)));
     return item;
   }

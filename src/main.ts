@@ -36,6 +36,7 @@ import { FreeArea } from './ui/layout.ts';
 import { LensLayer } from './ui/lens.ts';
 import { Marker } from './ui/marker.ts';
 import { Overlays } from './ui/overlay.ts';
+import { buildPaleBlueDot } from './ui/pale-blue-dot.ts';
 import { typeset } from './ui/rich-text.ts';
 import { ScaleFrames } from './ui/scale-frames.ts';
 import { buildSources } from './ui/sources.ts';
@@ -173,6 +174,10 @@ function boot(): void {
         const line = exactRadiusLine(bubble());
         return line ? el('p', 'bubble-today', typeset(line)) : null;
       },
+    },
+    moreExtras: {
+      // The far planets: the real photo «Pale Blue Dot», at the end of «saperne di più».
+      'pianeti-lontani': () => buildPaleBlueDot(),
     },
   });
   const intro = new Intro({

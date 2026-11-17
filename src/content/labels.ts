@@ -36,6 +36,13 @@ export const LABELS = {
     atTen: `a 10 anni`,
   },
 
+  /** In the «saperne di più» of `pianeti-lontani`, with the real photo «Pale Blue Dot» (M3). */
+  paleBlueDot: {
+    caption: `La foto vera, scattata da Voyager 1 il 14 febbraio 1990. La Terra è il puntino dentro il cerchio.`,
+    credit: `NASA/JPL-Caltech, versione del 2020`,
+    alt: `Raggi di luce del Sole su un fondo scuro. Dentro uno dei raggi c'è un puntino azzurro minuscolo: la Terra.`,
+  },
+
   places: {
     // The ground (M2): only public places named in levels.ts.
     rifredi: `Rifredi`,

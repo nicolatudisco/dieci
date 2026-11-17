@@ -13,7 +13,7 @@ import type { FrameInfo } from '../engine/engine.ts';
 import { Counter } from './counter.ts';
 import type { ResolveStop } from './counter-model.ts';
 import { el } from './dom.ts';
-import { Panel, type PanelExtras } from './panel.ts';
+import { Panel, type MoreExtras, type PanelExtras } from './panel.ts';
 import { interfaceOpacity } from './view-model.ts';
 
 export interface InterfaceOptions {
@@ -21,6 +21,7 @@ export interface InterfaceOptions {
   readonly animated: boolean;
   readonly reducedMotion: boolean;
   readonly extras?: PanelExtras;
+  readonly moreExtras?: MoreExtras;
   /** The texts of a stop as they are true today (see counter-model.ts). */
   readonly resolve?: ResolveStop;
 }
@@ -44,6 +45,7 @@ export class Interface {
     this.panel = new Panel({
       go: options.go,
       extras: options.extras,
+      moreExtras: options.moreExtras,
       resolve: this.resolve,
       hint: coarse ? UI.hints.touch : UI.hints.pointer,
       animated: options.animated,
