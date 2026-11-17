@@ -38,3 +38,14 @@ export function stageFromEquatorial(raHours: number, decDeg: number, distance: n
   const [gx, gy, gz] = galacticFromEquatorial(raHours, decDeg);
   return [-gy * distance, gx * distance, gz * distance];
 }
+
+/**
+ * Where something at galactic longitude `lDeg` and `distance` is drawn, relative to the
+ * Sun, on the plane of the stage (same unit as `distance`). Like the stars of the bubble
+ * (Nicola's choice in M4) it keeps the TRUE DIRECTION along the galactic plane and the TRUE
+ * DISTANCE; what is flattened is the height above or below the plane.
+ */
+export function stageFromGalactic(lDeg: number, distance: number): readonly [number, number] {
+  const l = lDeg * RAD;
+  return [-Math.sin(l) * distance, Math.cos(l) * distance];
+}

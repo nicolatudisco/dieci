@@ -13,6 +13,7 @@
  *   camera exponent. Levels never see these numbers directly: the engine subtracts the
  *   level origin in float64 and hands each level a camera in its own small units.
  */
+import { LOCAL_GIANTS, MILKY_WAY } from '../content/cosmos.ts';
 import { LIGHT_DAY_KM, LIGHT_YEAR_M } from '../content/data.ts';
 import { STREET } from '../content/street.ts';
 
@@ -49,9 +50,10 @@ const sun = add(earth, polar(AU, 25));
 const voyager1 = add(earth, polar(LIGHT_DAY_KM * 1000, 12));
 // Screen convention from here on: the galactic centre is straight up from the Sun, and
 // galactic longitude grows counter-clockwise. The Orion Nebula is at longitude 209°.
-const galacticCentre = add(sun, polar(26_000 * LY, 90));
+const galacticCentre = add(sun, polar(MILKY_WAY.sunFromCentreLy * LY, 90));
 const orionNebula = add(sun, polar(1_344 * LY, 90 + 209));
-const andromeda = add(galacticCentre, polar(2.5e6 * LY, 25));
+// Andromeda in its true direction, longitude 121° (M5): down and to the left of the Milky Way.
+const andromeda = add(sun, polar(LOCAL_GIANTS.andromeda.ly * LY, 90 + LOCAL_GIANTS.andromeda.l));
 const localGroup = mix(galacticCentre, andromeda, 0.5);
 const laniakea = add(earth, polar(230e6 * LY, 200));
 

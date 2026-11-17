@@ -12,7 +12,7 @@ test('anchors are at their true distances', () => {
   assert.ok(Math.abs(distance(ANCHORS.voyager1, ANCHORS.earth) / 2.5902068371e13 - 1) < 1e-9);
   assert.ok(Math.abs(distance(ANCHORS.orionNebula, ANCHORS.sun) / LY - 1344) < 1e-6);
   assert.ok(Math.abs(distance(ANCHORS.galacticCentre, ANCHORS.sun) / LY - 26000) < 1e-5);
-  assert.ok(Math.abs(distance(ANCHORS.andromeda, ANCHORS.galacticCentre) / LY - 2.5e6) < 1e-3);
+  assert.ok(Math.abs(distance(ANCHORS.andromeda, ANCHORS.sun) / LY - 2.5e6) < 1e-3);
 });
 
 test('«Tu sei qui» never leaves the frame, at any scale', () => {
