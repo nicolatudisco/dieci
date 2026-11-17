@@ -55,7 +55,7 @@ const ACT_ONE: Record<string, Entry> = {
   // Seen from the bubble it would be a ball of sparks on the warm dot: it leaves before.
   oort: { unit: 1e3 * AU, origin: 'sun', load: () => import('./oort.ts'), leave: [16.85, 17.35] }, // 168 (thousands of AU)
   bolla: { unit: LY, origin: 'sun', load: () => import('./bolla.ts'), enter: [16.6, 17.1] }, // 33.4 light-years
-  nebulose: { unit: 100 * LY, origin: 'sun', load: cosmos('nebulose') }, // 26.5 (hundreds of ly)
+  nebulose: { unit: 100 * LY, origin: 'sun', load: () => import('./nebulose.ts') }, // 26.5 (hundreds of ly)
   // The galaxy is the glow of the disc behind the nebulae already, and comes out as the view
   // widens. It leaves while `andromeda` draws the same galaxy (MAX blending: no seam).
   'via-lattea': { unit: 1e4 * LY, origin: 'galacticCentre', load: () => import('./via-lattea.ts'), enter: [18.3, 19.2], leave: [21.5, 22.1] }, // 16.8 (tens of thousands of ly)
