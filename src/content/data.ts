@@ -1,7 +1,6 @@
 /**
  * Numeric data used by the scenes and by the live counters.
- * Every value has a source comment. Values marked "verify" must be
- * re-checked during the fact-check pass (/fact-check).
+ * Every value has a source comment. Fact-checked on 17 Nov 2026: see docs/fact-check.md.
  */
 
 /** Speed of light in km/s (exact, by definition of the metre). */
@@ -57,9 +56,14 @@ export interface NearbyStar {
 
 /**
  * Stars within ~11.5 light-years, for the "bolla dei 10 anni" scene.
- * Distances: OpenStax Astronomy, Appendix "The Nearest Stars, Brown Dwarfs, and White Dwarfs"
+ * Distances and J2000 coordinates checked on 17 Nov 2026 against Wikipedia, "List of nearest
+ * stars" (https://en.wikipedia.org/wiki/List_of_nearest_stars: Gaia DR3 parallaxes, RECONS
+ * coordinates) and the single star pages; all within 0.1 ly and 0.01 h / 0.01°. Ross 128
+ * corrected from 10.9 to 11.0 (Gaia DR3: 11.007). Older sources: OpenStax Astronomy
  * (https://courses.lumenlearning.com/suny-astronomy/?p=32) and Universe Today
- * (https://www.universetoday.com/25220/nearest-stars/). Coordinates are J2000, rounded. verify
+ * (https://www.universetoday.com/25220/nearest-stars/). Not listed, though within 11.5 ly:
+ * EZ Aquarii (11.1) and Struve 2398 (11.49), see docs/fact-check.md; brown dwarfs are left out
+ * on purpose.
  */
 export const NEARBY_STARS: NearbyStar[] = [
   { name: 'Proxima Centauri', ly: 4.24, raHours: 14.495, decDeg: -62.68, note: 'la stella più vicina al Sole' },
@@ -73,7 +77,7 @@ export const NEARBY_STARS: NearbyStar[] = [
   { name: 'Ross 248', ly: 10.3, raHours: 23.69, decDeg: 44.17 },
   { name: 'Epsilon Eridani', ly: 10.5, raHours: 3.549, decDeg: -9.46, note: 'una stella più giovane del Sole' },
   { name: 'Lacaille 9352', ly: 10.7, raHours: 23.09, decDeg: -35.85 },
-  { name: 'Ross 128', ly: 10.9, raHours: 11.79, decDeg: 0.8 },
+  { name: 'Ross 128', ly: 11.0, raHours: 11.79, decDeg: 0.8 },
   { name: '61 Cygni', ly: 11.4, raHours: 21.115, decDeg: 38.75, note: 'la prima stella di cui si è misurata la distanza (1838)' },
   { name: 'Procione', ly: 11.46, raHours: 7.655, decDeg: 5.22 },
 ];

@@ -3,12 +3,13 @@ import type { Stop } from './types';
 /**
  * The journey, in order. One entry per stop.
  *
- * - Texts are final and were fact-checked on 15 Nov 2026. Do not rewrite them without asking
- *   Nicola; typo fixes are fine. If a fact turns out to be wrong, propose the fix first.
+ * - Texts are final. Do not rewrite them without asking Nicola; typo fixes are fine. If a fact
+ *   turns out to be wrong, propose the fix first.
+ * - Fact-checked on 17 Nov 2026, with every source opened: see docs/fact-check.md (verdicts,
+ *   calculations and the corrections proposed to Nicola).
  * - `exponent` is log10 of the width of the view in metres (kind 'space') or log10 of the
  *   number shown (kind 'number'). Values are monotonically increasing.
  * - `visual` is a brief for the scene, written for the developer. It is never shown.
- * - Sources marked "TODO fact-check" still need a primary source link (NASA, ESA, etc.).
  */
 export const STOPS: Stop[] = [
   // ───────────────────────────── Act I: from Rifredi to the edge of the universe
@@ -22,7 +23,9 @@ export const STOPS: Stop[] = [
     more: `Guarda il contatore: 10⁰ metri. Il numerino piccolo si chiama esponente e ti dice quanti zeri mettere dopo l'1. 10⁰ = 1, perché non ci sono zeri. 10¹ = 10, 10² = 100, 10³ = 1.000. Con gli esponenti si scrivono numeri enormi in pochissimo spazio. Ti serviranno: tra poco i numeri diventeranno giganteschi.`,
     counterLine: `un po' meno della tua altezza`,
     visual: `Notte serena. Vista dall'alto, camera che guarda in giù. Una bambina stilizzata seduta sulla soglia di un grande portone chiuso, ginocchia piegate e piedi appoggiati sull'asfalto, mani sulla soglia, viso rivolto al cielo (cioè verso la camera): silhouette morbida, mai realistica, nessun tratto del viso, nessun dettaglio che la renda riconoscibile. Deve stare tutta dentro l'inquadratura di 1 metro: con le ginocchia piegate occupa circa 75 × 60 cm (con le gambe distese supererebbe il metro, quindi no). La soglia attraversa l'inquadratura dietro di lei, con il filo del portone appena oltre: generico, senza numeri civici, targhe o insegne. Asfalto scuro con grana fine; la luce calda di un lampione fuori campo le disegna un'ombra lunga. Qui nasce il «punto caldo» (vedi CLAUDE.md, «Tu sei qui») che resterà visibile a tutte le scale.`,
-    sources: [],
+    sources: [
+      { title: `OMS – Altezza delle bambine per età (a 10 anni, in media 138,6 cm)`, url: `https://cdn.who.int/media/docs/default-source/child-growth/growth-reference-5-19-years/height-for-age-(5-19-years)/sft-hfa-girls-perc-5-19years.pdf?sfvrsn=59b013d8_4` },
+    ],
   },
 
   {
@@ -34,7 +37,10 @@ export const STOPS: Stop[] = [
     more: `Ogni passo moltiplica per 10. Dopo 2 passi la scena è 100 volte più larga, dopo 3 passi 1.000 volte, dopo 6 passi un milione di volte. Moltiplicare tante volte per lo stesso numero fa crescere le cose in fretta: per arrivare al bordo di tutto l'universo che possiamo vedere bastano circa 27 passi.`,
     counterLine: `lungo come un autobus`,
     visual: `La stessa strada, larga 10 metri nell'inquadratura: asfalto, marciapiede, il grande portone chiuso visto dall'alto (il filo del muro e un pezzo di tetto), un lampione acceso con il suo cerchio di luce calda, un'auto parcheggiata, un tombino. Lei, piccola, ancora seduta sulla soglia, con il punto caldo. Le prime finestre illuminate ai bordi della scena. Tutto generico: nessun numero civico, targa o insegna. L'asse della strada è orientato come nei dati reali della tappa successiva, così il passaggio a 100 metri non ha salti.`,
-    sources: [],
+    sources: [
+      { title: `RATP Dev – A Firenze, autobus elettrici lunghi 12 metri`, url: `https://www.ratpdev.com/en/italy-autolinee-toscane-continues-to-strengthen-its-electric-bus-fleet-for-more-sustainable-mobility-in-florence/` },
+      { title: `NASA – Quanto è grande lo spazio? (92 miliardi di anni-luce da un bordo all'altro: circa 10²⁷ metri)`, url: `https://www.nasa.gov/science-research/astrophysics/how-big-is-space-we-asked-a-nasa-expert-episode-61/` },
+    ],
   },
 
   {
@@ -49,6 +55,7 @@ export const STOPS: Stop[] = [
     sources: [
       { title: `Città Metropolitana di Firenze – Torrente Terzolle`, url: `https://www.cittametropolitana.fi.it/wp-content/uploads/Torrente_Terzolle.pdf` },
       { title: `La Nazione – Rifredi, un rione a caccia di futuro`, url: `https://www.lanazione.it/firenze/cronaca/rifredi-un-rione-a-caccia-di-futuro-la-scommessa-delle-ex-fabbriche-1.8478526` },
+      { title: `IFAB – Regole del calcio: il campo è lungo da 90 a 120 metri`, url: `https://www.theifab.com/laws/latest/the-field-of-play/` },
     ],
   },
 
@@ -62,10 +69,12 @@ export const STOPS: Stop[] = [
     counterLine: `un quarto d'ora a piedi`,
     visual: `Rifredi dall'alto: binari e stazione di Firenze Rifredi come segno riconoscibile (etichetta leggera), rete di strade luminose. Un segno per l'area delle ex Officine Galileo SOLO se la posizione è verificata su OpenStreetMap o su una fonte affidabile; altrimenti nessun segno.`,
     sources: [
-      { title: `Museo Galileo – Officine Galileo: il trasferimento a Rifredi (1909)`, url: `https://exhibits.museogalileo.it/officinegalileo/section/GoodTimesBadTimes.html` },
+      { title: `Museo Galileo – Officine Galileo: nel 1909 il nuovo stabilimento di Rifredi`, url: `https://mostre.museogalileo.it/officinegalileo/sezione/AltiBassi.html` },
       { title: `Museo Galileo – Officine Galileo, telescopi per Asiago e Merate`, url: `https://brunelleschi.imss.fi.it/itineraries/place/OfficineGalileo.html` },
+      { title: `Università di Padova – Il telescopio «Galileo» di Asiago, costruito dalle Officine Galileo (1942)`, url: `https://www.unipd.it/node/84256` },
+      { title: `Museo Galileo – Officine Galileo: nel 1980 la sede si trasferisce a Campi Bisenzio`, url: `https://mostre.museogalileo.it/officinegalileo/sezione/SecondaMetaXXSecolo.html` },
+      { title: `Museo Galileo – Officine Galileo: la storia continua, fino agli strumenti per lo spazio`, url: `https://mostre.museogalileo.it/officinegalileo/sezione/StoriaContinua.html` },
       { title: `La Nazione – Leonardo a Campi Bisenzio, erede delle Officine Galileo`, url: `https://www.lanazione.it/cronaca/campi-bisenzio-leonardo-0354d158` },
-      // TODO fact-check: fonte primaria per il trasferimento della sede a Campi Bisenzio nel 1980.
     ],
   },
 
@@ -80,7 +89,11 @@ export const STOPS: Stop[] = [
     visual: `Firenze di notte dall'alto: l'Arno come nastro scuro con riflessi, i ponti, la cupola del Duomo stilizzata e riconoscibile. Rifredi a nord del centro, con un'etichetta leggera e il punto caldo.`,
     sources: [
       { title: `Opera di Santa Maria del Fiore – Lo gnomone`, url: `https://duomo.firenze.it/it/eventi/3762/lo-gnomone` },
+      { title: `Museo Galileo – Il Duomo di Firenze e lo gnomone di Toscanelli (1475)`, url: `https://brunelleschi.imss.fi.it/itinerari/luogo/DuomoSantaMariaFiore.html` },
+      { title: `Treccani – Paolo dal Pozzo Toscanelli, astronomo fiorentino`, url: `https://www.treccani.it/enciclopedia/paolo-dal-pozzo-toscanelli/` },
+      { title: `ICRA, Gerbertus – C. Sigismondi: lo gnomone del Duomo, a 90 metri, il più alto del mondo`, url: `https://www.icra.it/gerbertus/2014/Gerbertus7B.pdf` },
       { title: `MeteoWeb – Il Sole «intrappolato» nel Duomo di Firenze`, url: `https://www.meteoweb.eu/2019/06/sole-intrappolato-duomo-firenze-torna-il-suggestivo-fenomeno-gnomone/1271415/` },
+      { title: `Istat – Il Comune di Firenze: 102 km² di superficie`, url: `https://www.istat.it/wp-content/uploads/2024/06/Approfondimento_Firenze.pdf` },
     ],
   },
 
@@ -94,8 +107,11 @@ export const STOPS: Stop[] = [
     counterLine: `da Firenze al mare`,
     visual: `La valle dell'Arno di notte come vista da un satellite, da Firenze alla costa: luci delle città, il fiume, il mare scuro. Etichette leggere: Firenze, Pisa (Galileo), Cascina (Virgo: i due bracci a L, piccoli ma riconoscibili).`,
     sources: [
+      { title: `Museo Galileo – Galileo Galilei, nato a Pisa il 15 febbraio 1564`, url: `https://catalogo.museogalileo.it/biografia/GalileoGalilei.html` },
+      { title: `Treccani – Galileo Galilei e il cannocchiale (1609)`, url: `https://www.treccani.it/enciclopedia/galileo-galilei/` },
       { title: `Asimmetrie (INFN) – Virgo, bracci di 3 km e sensibilità`, url: `https://archivio.asimmetrie.it/images/15/pdf/asimmetrie-9-15.pdf` },
-      // TODO fact-check: fonte per Galileo (Pisa, 1564), es. Museo Galileo.
+      { title: `Virgo – Il rivelatore: due bracci perpendicolari lunghi 3 km`, url: `https://www.virgo-gw.eu/science/detector/` },
+      { title: `INAF – Il primo segnale di Virgo: due buchi neri che si fondono (2017)`, url: `https://www.media.inaf.it/2017/09/27/unonda-per-tre/` },
     ],
   },
 
@@ -111,7 +127,12 @@ export const STOPS: Stop[] = [
     sources: [
       { title: `INAF – Cristoforetti comandante della Stazione Spaziale (2022)`, url: `https://www.media.inaf.it/2022/09/14/cristoforetti-comandante-della-stazione-spaziale/` },
       { title: `Geopop – Samantha Cristoforetti, prima donna italiana nello spazio`, url: `https://www.geopop.it/samantha-cristoforetti-vita-e-missioni/` },
-      // TODO fact-check: fonte NASA per quota (~400 km) e periodo orbitale (~90 min) della ISS.
+      { title: `ESA – Samantha Cristoforetti, nata nel 1977, prima comandante europea della Stazione`, url: `https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Astronauts/Samantha_Cristoforetti` },
+      { title: `ASI – La Stazione Spaziale: 400 km d'altezza, un giro in 90 minuti, 16 albe e 16 tramonti`, url: `https://www.asi.it/vita-nello-spazio/litalia-in-microgravita/stazione-spaziale-internazionale/` },
+      { title: `NASA – La Stazione Spaziale in cifre: 16 giri della Terra al giorno`, url: `https://www.nasa.gov/international-space-station/space-station-facts-and-figures/` },
+      { title: `Istat – Il territorio italiano: lungo al massimo circa 1.200 km`, url: `https://www.istat.it/it/files//2014/10/01-territorio.pdf` },
+      { title: `NASA – Voyager 1, partita il 5 settembre 1977`, url: `https://science.nasa.gov/mission/voyager/voyager-1/` },
+      // Calcolo: Firenze–Napoli in linea d'aria ≈ 409 km.
     ],
   },
 
@@ -126,7 +147,9 @@ export const STOPS: Stop[] = [
     counterLine: `la Terra intera`,
     visual: `Globo con giorno e notte (terminatore), nuvole, bagliore azzurro dell'atmosfera sul bordo, luci delle città sul lato notturno. All'arrivo dall'Italia la Terra è orientata con l'Italia al centro, poi ruota lentamente.`,
     sources: [
-      // TODO fact-check: fonte NASA per il diametro (12.742 km) e per Eratostene.
+      { title: `NASA – Scheda della Terra (raggio medio 6.371 km: 12.742 km di diametro)`, url: `https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html` },
+      { title: `NOAA – L'atmosfera è sottile come la buccia di una mela (scheda per insegnanti)`, url: `https://gml.noaa.gov/education/info_activities/pdfs/TBI_earths_atmosphere.pdf` },
+      { title: `American Physical Society – Eratostene misura la Terra (circa 240 a.C.)`, url: `https://www.aps.org/publications/apsnews/200606/history.cfm` },
     ],
   },
 
@@ -143,8 +166,12 @@ export const STOPS: Stop[] = [
     sources: [
       { title: `Boeing – Artemis II crew back on Earth (aprile 2026)`, url: `https://www.boeing.com/features/2026/04/artemis-ii-crew-back-on-earth-after-historic-lunar-flyby` },
       { title: `Science News Explores – Artemis II's loop around the Moon`, url: `https://www.snexplores.org/article/artemis-orion-loop-farside-moon` },
+      { title: `NASA – Scheda della Luna (distanza media 384.400 km; si allontana di 3,8 cm all'anno)`, url: `https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html` },
+      { title: `NASA – Apollo 17, dicembre 1972: l'ultimo dei dodici astronauti sulla Luna`, url: `https://www.nasa.gov/mission/apollo-17/` },
+      { title: `NASA – Artemis II batte il record di distanza dalla Terra (6 aprile 2026)`, url: `https://www.nasa.gov/news-release/nasas-artemis-ii-crew-eclipses-record-for-farthest-human-spaceflight/` },
+      { title: `NASA – L'equipaggio di Artemis II, con la prima donna in una missione verso la Luna`, url: `https://www.nasa.gov/news-release/nasa-names-astronauts-to-next-moon-mission-first-crew-under-artemis/` },
+      { title: `NASA – Gli specchi delle missioni Apollo e il laser che misura la distanza della Luna`, url: `https://www.nasa.gov/solar-system/laser-beams-reflected-between-earth-and-moon-boost-science/` },
       // Calcolo: 384.400 km a 5 km/h = 76.880 ore ≈ 8,8 anni. Luce: 384.400 / 299.792 ≈ 1,28 s.
-      // TODO fact-check: fonte NASA per il laser ranging lunare (~3,8 cm/anno).
     ],
   },
 
@@ -158,8 +185,10 @@ export const STOPS: Stop[] = [
     counterLine: `la distanza Terra–Sole`,
     visual: `Il Sole luminoso con corona animata (shader), le orbite dei pianeti rocciosi come linee sottili, la Terra come puntino con l'etichetta «Tu sei qui».`,
     sources: [
+      { title: `NASA – Il Sole: 1,3 milioni di Terre e il 99,8% della massa del Sistema Solare`, url: `https://science.nasa.gov/sun/facts/` },
+      { title: `NASA – Scheda del Sole (distanza media 149,6 milioni di km)`, url: `https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html` },
+      { title: `NASA – Il Sistema Solare: otto pianeti, i primi quattro sono rocciosi`, url: `https://science.nasa.gov/solar-system/solar-system-facts/` },
       // Calcolo: 149,6 milioni di km a 900 km/h ≈ 19 anni. Luce: 149,6e6 / 299.792 ≈ 499 s ≈ 8 min 19 s.
-      // TODO fact-check: fonte NASA per volume (~1,3 milioni di Terre) e massa (99,8% del Sistema Solare).
     ],
   },
 
@@ -174,10 +203,13 @@ export const STOPS: Stop[] = [
     counterLine: `fino a Giove`,
     visual: `Giove a bande con la Grande Macchia Rossa; le quattro lune galileiane come puntini con il loro nome. Una minuscola sonda Juice in viaggio verso Giove.`,
     sources: [
+      { title: `NASA – Giove, il pianeta più grande: dentro ci starebbero 1.000 Terre`, url: `https://science.nasa.gov/jupiter/facts/` },
+      { title: `Museo Galileo – I satelliti di Giove, le «Stelle Medicee» (1610)`, url: `https://catalogo.museogalileo.it/approfondimento/SatellitiGiove.html` },
+      { title: `Rice University, Galileo Project – Galileo osserva le lune di Giove, notte dopo notte (gennaio 1610)`, url: `https://galileo.library.rice.edu/sci/observations/jupiter_satellites.html` },
+      { title: `ESA – Scheda di Juice (arrivo a Giove a luglio 2031; oceani sotto il ghiaccio di Ganimede, Europa e Callisto)`, url: `https://www.esa.int/Science_Exploration/Space_Science/Juice/Juice_factsheet` },
       { title: `Leonardo – JUICE e la camera JANUS (Campi Bisenzio)`, url: `https://space.leonardo.com/en/juice` },
-      { title: `ESA – Juice's journey and Jupiter system tour (arrivo luglio 2031)`, url: `https://www.esa.int/ESA_Multimedia/Videos/2022/03/Juice_s_journey_and_Jupiter_system_tour` },
       { title: `La Nazione – Leonardo a Campi Bisenzio, erede delle Officine Galileo`, url: `https://www.lanazione.it/cronaca/campi-bisenzio-leonardo-0354d158` },
-      // TODO fact-check: fonte per «Stelle Medicee» (1610) e volume di Giove (~1.300 Terre).
+      { title: `Space Science Reviews – La fotocamera JANUS (Palumbo e altri, 2025)`, url: `https://elib.dlr.de/226174/1/s11214-025-01158-6.pdf` },
     ],
   },
 
@@ -191,8 +223,10 @@ export const STOPS: Stop[] = [
     counterLine: `fino a Nettuno`,
     visual: `Orbite dei pianeti esterni, Saturno con gli anelli in primo piano mentre si passa. Nell'approfondimento si può mostrare la vera foto «Pale Blue Dot» (NASA/JPL, pubblico dominio, vedi docs/ASSETS.md).`,
     sources: [
+      { title: `NASA – Nettuno: la luce del Sole ci mette 4 ore ad arrivare`, url: `https://science.nasa.gov/neptune/neptune-facts/` },
+      { title: `NASA/JPL – «Pale Blue Dot»: la Terra, 0,12 pixel in un raggio di luce (14 febbraio 1990)`, url: `https://science.nasa.gov/photojournal/solar-system-portrait-earth-as-pale-blue-dot` },
+      { title: `NASA – Il «Pallido puntino azzurro» di Voyager 1`, url: `https://science.nasa.gov/mission/voyager/voyager-1s-pale-blue-dot` },
       // Calcolo: Nettuno a ~30 UA = 4,5 miliardi di km; luce ≈ 4,2 ore.
-      // TODO fact-check: fonte NASA per la foto Pale Blue Dot (14 febbraio 1990, ~6 miliardi di km).
     ],
   },
 
@@ -211,7 +245,11 @@ export const STOPS: Stop[] = [
       { title: `EarthSky – Voyager 1 a un giorno-luce dalla Terra il 18 novembre 2026`, url: `https://earthsky.org/space/voyager-1-1-light-day-from-earth-november-17-18-2026/` },
       { title: `IFLScience – Confermata la data del 18 novembre 2026`, url: `https://iflscience.com/its-official-voyager-1-will-cross-the-1-light-day-threshold-on-november-18-2026-82733` },
       { title: `NASA/JPL Horizons – Dov'è Voyager 1, giorno per giorno`, url: `https://ssd.jpl.nasa.gov/horizons/` },
-      // TODO fact-check: fonte NASA/JPL per trasmettitore (~22 W), memoria (~69,6 kB) e antenne DSN da 70 m.
+      { title: `NASA – Voyager 1: che cos'è un giorno-luce (18 novembre 2026)`, url: `https://science.nasa.gov/mission/voyager/voyager-1/voyager-1-what-is-a-light-day/` },
+      { title: `NASA – Dove sono adesso le due Voyager`, url: `https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/` },
+      { title: `NASA – Voyager 1 risparmia energia e torna a farsi sentire (ottobre 2026)`, url: `https://science.nasa.gov/blogs/voyager/2026/10/29/nasas-voyager-1-conserves-power-resolves-brief-communications-pause/` },
+      { title: `NASA/JPL – Come le Voyager ci hanno insegnato ad ascoltare lo spazio (la lampadina del frigorifero, le antenne da 70 metri)`, url: `https://www.jpl.nasa.gov/news/two-voyagers-taught-us-how-to-listen-to-space/` },
+      { title: `NASA – Domande frequenti sulle Voyager (i computer e la loro memoria)`, url: `https://science.nasa.gov/mission/voyager/frequently-asked-questions/` },
     ],
   },
 
@@ -228,6 +266,8 @@ export const STOPS: Stop[] = [
     sources: [
       { title: `NASA – Oort Cloud: Facts`, url: `https://science.nasa.gov/solar-system/oort-cloud/facts` },
       { title: `NASA – Solar System Perspective (300 e 30.000 anni)`, url: `https://www.nasa.gov/image-article/solar-system-perspective` },
+      { title: `NASA – La nube di Oort: nessuno l'ha mai fotografata`, url: `https://science.nasa.gov/solar-system/oort-cloud/` },
+      { title: `Wikipedia – Nube di Oort (dove la gravità del Sole cede a quella della galassia)`, url: `https://en.wikipedia.org/wiki/Oort_cloud` },
     ],
   },
 
@@ -245,7 +285,12 @@ export const STOPS: Stop[] = [
     sources: [
       { title: `OpenStax Astronomy – The Nearest Stars`, url: `https://courses.lumenlearning.com/suny-astronomy/?p=32` },
       { title: `Universe Today – Nearest Stars`, url: `https://www.universetoday.com/25220/nearest-stars/` },
-      // TODO fact-check: fonte per Bessel e 61 Cygni (1838).
+      { title: `Wikipedia – Le stelle più vicine (distanze e coordinate)`, url: `https://en.wikipedia.org/wiki/List_of_nearest_stars` },
+      { title: `NASA – Che cos'è un anno-luce (circa 9.460 miliardi di km)`, url: `https://science.nasa.gov/exoplanets/what-is-a-light-year/` },
+      { title: `NASA/Hubble – Proxima Centauri, la stella più vicina al Sole (4,2 anni-luce)`, url: `https://science.nasa.gov/asset/hubble/proper-motion-path-of-proxima-centauri/` },
+      { title: `NASA/Hubble – Sirio, la stella più luminosa del cielo notturno (8,6 anni-luce)`, url: `https://science.nasa.gov/asset/hubble/the-dog-star-sirius-and-its-tiny-companion/` },
+      { title: `NASA/Hubble – Epsilon Eridani, una stella giovane (10,5 anni-luce, circa 800 milioni di anni)`, url: `https://science.nasa.gov/asset/hubble/artists-concept-of-nearest-exoplanet-to-our-solar-system-2` },
+      { title: `INAF, Museo Astronomico di Brera – Le distanze delle stelle: Bessel e 61 Cygni (1838)`, url: `https://museoastronomico.brera.inaf.it/en/cosmic-distances` },
     ],
   },
 
@@ -259,7 +304,10 @@ export const STOPS: Stop[] = [
     counterLine: `il nostro angolo di galassia`,
     visual: `Campo di stelle con nebulose colorate (rosa, blu), a strati o volumetriche; la Nebulosa di Orione riconoscibile ed etichettata. Il Sole come punto con «Tu sei qui».`,
     sources: [
-      // TODO fact-check: fonte NASA/ESA per la distanza della Nebulosa di Orione (~1.344 anni-luce).
+      { title: `ESO – La Nebulosa di Orione, a circa 1.350 anni-luce`, url: `https://www.eso.org/public/images/eso1723a/` },
+      { title: `NASA – Messier 42: visibile a occhio nudo sotto la cintura di Orione, dove nascono stelle`, url: `https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-42/` },
+      { title: `NASA – Webb studia un disco dove nascono pianeti, nella Nebulosa di Orione`, url: `https://science.nasa.gov/missions/webb/webb-makes-first-detection-of-crucial-carbon-molecule/` },
+      { title: `NASA – Il Sole è nato 4,6 miliardi di anni fa in una nube di gas e polvere`, url: `https://science.nasa.gov/sun/facts/` },
     ],
   },
 
@@ -274,8 +322,13 @@ export const STOPS: Stop[] = [
     counterLine: `la nostra galassia`,
     visual: `Galassia a spirale barrata procedurale vista dall'alto: bracci, polveri scure, nucleo dorato. Marker «Tu sei qui» su un braccio minore, a circa metà strada tra il centro e il bordo.`,
     sources: [
+      { title: `NASA – Quanto è grande la Via Lattea (tra 100 e 400 miliardi di stelle, 100.000 anni-luce)`, url: `https://science.nasa.gov/universe/stories/quick-reads/how-big-is-our-galaxy-the-milky-way/` },
+      { title: `NASA StarChild – Il Sole gira intorno alla galassia: un giro in 230 milioni di anni`, url: `https://starchild.gsfc.nasa.gov/docs/StarChild/questions/question18.html` },
       { title: `Live Science – How long is a galactic year?`, url: `https://www.livescience.com/how-long-galactic-year.html` },
-      // TODO fact-check: fonti per numero di stelle, Sagittarius A* (~4 milioni di masse solari), Gaia (~1,8 miliardi di stelle).
+      { title: `Natural History Museum – I primi dinosauri, circa 230 milioni di anni fa`, url: `https://www.nhm.ac.uk/discover/where-did-dinosaurs-come-from.html` },
+      { title: `ESO – La prima immagine di Sagittarius A*, 4 milioni di volte la massa del Sole`, url: `https://www.eso.org/public/news/eso2208-eht-mw/` },
+      { title: `NASA – Galassie: la striscia della Via Lattea è il suo disco visto di taglio`, url: `https://science.nasa.gov/universe/galaxies/` },
+      { title: `ESA – Gaia: quasi due miliardi di stelle, e nessuna sonda può fotografare la galassia da fuori`, url: `https://www.esa.int/Science_Exploration/Space_Science/Gaia/Last_starlight_for_ground-breaking_Gaia` },
     ],
   },
 
@@ -290,6 +343,12 @@ export const STOPS: Stop[] = [
     counterLine: `il Gruppo Locale`,
     visual: `Via Lattea e Andromeda come due spirali, la Galassia del Triangolo più piccola, le Nubi di Magellano vicino alla Via Lattea; etichette leggere.`,
     sources: [
+      { title: `NASA – Messier 31: a 2,5 milioni di anni-luce, visibile a occhio nudo da un cielo buio`, url: `https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-31/` },
+      { title: `NASA – Andromeda: un disco largo più di 200.000 anni-luce`, url: `https://science.nasa.gov/missions/hubble/nasas-hubble-traces-hidden-history-of-andromeda-galaxy/` },
+      { title: `NASA – Le grandi strutture dell'universo: il Gruppo Locale ha più di 50 galassie`, url: `https://science.nasa.gov/universe/galaxies/large-scale-structures/` },
+      { title: `Smithsonian – Antenati degli esseri umani di 2,5 milioni di anni fa`, url: `https://humanorigins.si.edu/evidence/human-fossils/species/australopithecus-garhi` },
+      { title: `Physics Today – Henrietta Swan Leavitt e la regola delle stelle che pulsano (1912)`, url: `https://physicstoday.aip.org/news/henrietta-swan-leavitt` },
+      { title: `NASA – La scoperta di Hubble del 1923: l'universo va oltre la Via Lattea`, url: `https://science.nasa.gov/missions/hubble/nasa-celebrates-edwin-hubbles-discovery-of-a-new-universe/` },
       { title: `Astronomy – 5 ottobre 1923: Hubble scopre galassie oltre la Via Lattea`, url: `https://www.astronomy.com/today-in-the-history-of-astronomy/oct-5th-1923-hubble-discovers-galaxies-beyond-the-milky-way/` },
     ],
   },
@@ -304,6 +363,8 @@ export const STOPS: Stop[] = [
     counterLine: `il nostro superammasso`,
     visual: `Galassie come punti, con linee di flusso che convergono verso un unico bacino (il Grande Attrattore); il confine di Laniakea come una superficie sfumata; «Tu sei qui» in periferia.`,
     sources: [
+      { title: `Nature – Tully e colleghi (2014), il superammasso di galassie Laniakea`, url: `https://www.nature.com/articles/nature13674` },
+      { title: `Università delle Hawaii – Laniakea, «cielo immenso», in onore dei navigatori polinesiani`, url: `https://www.hawaii.edu/news/2014/09/03/uh-scientist-maps-supercluster-of-galaxies-names-it-laniakea/` },
       { title: `W. M. Keck Observatory – Laniakea, «cielo immenso»`, url: `https://keckobservatory.org/?p=4435` },
       { title: `Wikipedia – Laniakea Supercluster`, url: `https://en.wikipedia.org/wiki/Laniakea_Supercluster` },
     ],
@@ -321,6 +382,10 @@ export const STOPS: Stop[] = [
     visual: `Rete cosmica procedurale: filamenti di punti luminosi, nodi più brillanti, vuoti scuri. Una lenta deriva che dà profondità.`,
     sources: [
       { title: `ESA – Webb's first deep field («un granello di sabbia a braccio teso»)`, url: `https://www.esa.int/Science_Exploration/Space_Science/Webb/Webb_delivers_deepest_image_of_Universe_yet` },
+      { title: `NASA – Il primo campo profondo di Webb: migliaia di galassie`, url: `https://science.nasa.gov/missions/webb/nasas-webb-delivers-deepest-infrared-image-of-universe-yet/` },
+      { title: `NASA – Le grandi strutture dell'universo: filamenti di galassie e vuoti`, url: `https://science.nasa.gov/universe/galaxies/large-scale-structures/` },
+      { title: `DESI (Berkeley Lab) – Una mappa in 3D di più di 47 milioni di galassie e quasar (2026)`, url: `https://www.desi.lbl.gov/2026/04/15/desi-reaches-mapping-milestone-surpassing-expectations/` },
+      { title: `NASA – Lo spostamento verso il rosso: l'espansione stira la luce`, url: `https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-cosmological-redshift/` },
     ],
   },
 
@@ -335,6 +400,9 @@ export const STOPS: Stop[] = [
     counterLine: `tutto quello che possiamo vedere`,
     visual: `La rete cosmica racchiusa in una sfera il cui bordo brilla come una superficie di luce antica (ispirata alla radiazione cosmica di fondo, procedurale). «Noi» al centro come punto caldo.`,
     sources: [
+      { title: `NASA – Quanto è grande lo spazio? (92 miliardi di anni-luce da un bordo all'altro, centinaia di miliardi di galassie)`, url: `https://www.nasa.gov/science-research/astrophysics/how-big-is-space-we-asked-a-nasa-expert-episode-61/` },
+      { title: `ESA – Planck: l'universo ha 13,8 miliardi di anni`, url: `https://www.esa.int/Science_Exploration/Space_Science/Planck/Celebrating_the_legacy_of_ESA_s_Planck_mission` },
+      { title: `Planck Collaboration – Planck 2018, i parametri cosmologici (età: 13,787 ± 0,020 miliardi di anni)`, url: `https://arxiv.org/abs/1807.06209` },
       { title: `Wikipedia – Observable universe`, url: `https://en.wikipedia.org/wiki/Observable_universe` },
       { title: `Live Science – How many galaxies are in the universe?`, url: `https://livescience.com/space/how-many-galaxies-are-in-the-universe` },
     ],
@@ -365,6 +433,10 @@ export const STOPS: Stop[] = [
     visual: `Gli 80 zeri che si scrivono uno dopo l'altro finché riempiono lo schermo, andando a capo come serve sul telefono.`,
     sources: [
       { title: `Wikipedia – Observable universe (numero di atomi, circa 10⁸⁰)`, url: `https://en.wikipedia.org/wiki/Observable_universe` },
+      { title: `Plus Magazine (Università di Cambridge) – Gli atomi dell'universo osservabile: tra 10⁷⁸ e 10⁸²`, url: `https://plus.maths.org/content/too-big-write-not-too-big-graham` },
+      { title: `AIP Advances – M. Vopson (2021): circa 10⁸⁰ particelle di materia nell'universo osservabile`, url: `https://arxiv.org/abs/2112.04473` },
+      { title: `NASA Chandra – Il carbonio, l'ossigeno e il ferro del tuo corpo vengono dalle stelle`, url: `https://chandra.harvard.edu/chemistry/` },
+      { title: `NASA – Siamo davvero fatti di polvere di stelle?`, url: `https://science.nasa.gov/astrobiology/learning-resources/alp/are-we-really-made-of-star-stuff/` },
     ],
   },
 
@@ -379,6 +451,9 @@ export const STOPS: Stop[] = [
     visual: `Il googol scritto per intero (100 zeri) che si compone sullo schermo, leggibile anche su telefono andando a capo.`,
     sources: [
       { title: `Merriam-Webster – googol (coniato da Milton Sirotta, 9 anni)`, url: `https://www.merriam-webster.com/dictionary/Googol` },
+      { title: `Wolfram MathWorld – Googol: il nome lo inventò Milton Sirotta, 9 anni, nipote di Edward Kasner`, url: `https://mathworld.wolfram.com/Googol.html` },
+      { title: `Brin e Page (1998), Stanford – «Google» viene da googol, 10¹⁰⁰`, url: `https://snap.stanford.edu/class/cs224w-readings/Brin98Anatomy.pdf` },
+      { title: `Google – La nostra storia: il nome gioca sul numero 1 seguito da 100 zeri`, url: `https://about.google/our-story/` },
     ],
   },
 
@@ -392,6 +467,9 @@ export const STOPS: Stop[] = [
     more: `Eppure esistono numeri ancora più grandi di un googolplex, e i matematici continuano a studiarli. È questa la differenza tra le cose e i numeri: l'universo che possiamo vedere ha un bordo, i numeri no.`,
     counterLine: `un 1 seguito da un googol di zeri`,
     visual: `Gli zeri iniziano a scorrere sempre più veloci finché diventano una cascata di luce che riempie tutto: è la transizione verso il finale (finale.ts).`,
-    sources: [],
+    sources: [
+      { title: `Wolfram MathWorld – Googolplex: 10 elevato a un googol`, url: `https://mathworld.wolfram.com/Googolplex.html` },
+      { title: `Plus Magazine (Università di Cambridge) – Nell'universo non c'è spazio per scrivere un googolplex`, url: `https://plus.maths.org/content/too-big-write-not-too-big-graham` },
+    ],
   },
 ];

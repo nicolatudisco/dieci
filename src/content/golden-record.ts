@@ -54,6 +54,7 @@ export const GOLDEN_RECORD = {
   engraving: `Disco d'oro di una scienziata di 10 anni · Terra, Sistema Solare, Via Lattea · {data}`,
 
   sources: [
+    { title: `NASA – Che cosa c'è sul Disco d'oro (115 immagini, suoni, musiche, saluti in 55 lingue)`, url: `https://science.nasa.gov/mission/voyager/golden-record-contents/` },
     { title: `Wikipedia – Contents of the Voyager Golden Record`, url: `https://en.wikipedia.org/wiki/Contents_of_the_Voyager_Golden_Record` },
     { title: `NASA – Golden Record: Greetings in 55 Languages`, url: `https://science.nasa.gov/mission/voyager/golden-record-contents/greetings/` },
   ],
