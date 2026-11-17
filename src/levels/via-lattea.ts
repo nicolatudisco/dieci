@@ -60,8 +60,8 @@ export default sketch((s) => {
     // Close up, the light of the disc is the stars of `nebulose`, one by one: the smooth glow
     // stands for the stars too far to be told apart, so it is faint until the view is wide.
     const unresolved = 0.16 + 0.84 * smoothstep(19.7, 20.9, frame.e);
-    // Until `andromeda` draws the same galaxy (M5, step 4), it follows the fade of the level.
-    const strength = frame.u > MILKY_WAY_FULL_FROM && frame.u < 21.5 ? 1 : frame.fade;
+    // From here to the end of the level the galaxy stays full: `andromeda` draws its twin.
+    const strength = frame.u > MILKY_WAY_FULL_FROM ? 1 : frame.fade;
     galaxy.update(frame.pxPerUnit, strength * unresolved);
     // The stars only while the galaxy is large on screen, and not from too close.
     const radiusPx = radius * frame.pxPerUnit;

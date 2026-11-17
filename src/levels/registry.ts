@@ -59,7 +59,8 @@ const ACT_ONE: Record<string, Entry> = {
   // The galaxy is the glow of the disc behind the nebulae already, and comes out as the view
   // widens. It leaves while `andromeda` draws the same galaxy (MAX blending: no seam).
   'via-lattea': { unit: 1e4 * LY, origin: 'galacticCentre', load: () => import('./via-lattea.ts'), enter: [18.3, 19.2], leave: [21.5, 22.1] }, // 16.8 (tens of thousands of ly)
-  andromeda: { unit: 1e6 * LY, origin: 'localGroup', load: cosmos('andromeda'), enter: [21.5, 22.1] }, // 6.7 million ly
+  // Its Milky Way is drawn full from the start: the twin of `via-lattea` is underneath.
+  andromeda: { unit: 1e6 * LY, origin: 'localGroup', load: () => import('./andromeda.ts'), enter: [21.5, 22.1] }, // 6.7 million ly
   // Its cloud of points turns into a bright blob as it shrinks: it leaves early.
   laniakea: { unit: 1e8 * LY, origin: 'laniakea', load: cosmos('laniakea'), enter: [23.4, 24.1], leave: [25.3, 26] }, // 6.7 (hundreds of millions of ly)
   // Its ball of web is local: it must be gone before the whole universe is in view.

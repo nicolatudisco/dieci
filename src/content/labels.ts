@@ -71,5 +71,9 @@ export const LABELS = {
     milkyWay: `Via Lattea`,
     andromeda: `Andromeda`,
     triangulum: `Galassia del Triangolo`,
+    /** Next to the two small galaxies beside the Milky Way, while the view widens towards the Local Group (M5). */
+    magellanicClouds: `Nubi di Magellano`,
+    /** On the edge of our supercluster (M5). */
+    laniakea: `Laniakea`,
   },
 } as const;

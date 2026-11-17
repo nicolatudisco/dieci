@@ -134,9 +134,9 @@ export function milkyWayLook(radius: number): GalaxyLook {
 export function andromedaLook(radius: number): GalaxyLook {
   return {
     radius,
-    discScale: 0.27,
-    bulge: 0.075,
-    bulgeLevel: 2.1,
+    discScale: 0.33,
+    bulge: 0.07,
+    bulgeLevel: 2.0,
     bar: [0, 1, 0],
     k: Math.tan(8 * RAD),
     armPhase: 0.4,
@@ -149,10 +149,10 @@ export function andromedaLook(radius: number): GalaxyLook {
     knots: 0.45,
     irregular: 0,
     // The ring of young stars about 10 kiloparsecs (33,000 light-years) from the centre.
-    ring: [0.3, 0.05, 0.85],
+    ring: [0.3, 0.05, 1],
     hole: [0, 0, 0],
     cosInclination: Math.cos(77 * RAD),
-    level: 1.05,
+    level: 1.4,
     seed: 31,
     colors: { core: '#ffe6c4', old: '#b2acbf', young: '#9ab6ff', knot: '#ff7aa2' },
   };
@@ -393,10 +393,11 @@ const FRAGMENT = /* glsl */ `
 
     // The halo of a small galaxy, in pixels: light, not size.
     float dpx = r * uR * uPxPerUnit;
-    float glow = uGlow * (0.5 * exp(-dpx / 3.0) + 0.1 / (1.0 + dpx * dpx / 70.0));
+    float glow = uGlow * (0.5 * exp(-dpx / 3.0) + 0.1 / (1.0 + dpx * dpx / 70.0)) * (1.0 - smoothstep(14.0, 32.0, dpx));
     col += mix(uCore, uYoung, 0.35) * glow;
 
-    gl_FragColor = vec4(col * uStrength, 1.0);
+    // Light covers nothing: alpha 0, so that inside a lens the night stays behind it.
+    gl_FragColor = vec4(col * uStrength, 0.0);
     #include <colorspace_fragment>
   }`;
 
