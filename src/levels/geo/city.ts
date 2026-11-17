@@ -48,6 +48,9 @@ export function cityGlow(e: number): number {
   return smoothstep(2.6, 3.8, e) * (1 - 0.5 * smoothstep(4.6, 5.6, e));
 }
 
+/** Side of the tiles of the city layers, metres: a tile out of view is not drawn. */
+const CELL = 1500;
+
 export interface CityOptions {
   /** How much streets thinner than their drawn line are dimmed (0..1). */
   readonly thinDim: number;
@@ -86,20 +89,20 @@ export async function drawCity(s: GeoSketch, data: GeoFile, options: CityOptions
   await breathe();
 
   const riverLines = data.lines.river ?? [];
-  const rivers = makeLines(riverLines, u, { minPx: 1.4 }, s.geo);
+  const rivers = makeLines(riverLines, u, { minPx: 1.4, cell: CELL }, s.geo);
   for (let c = 0; c < 3; c++) setClass(rivers.palette, c, '#13305c');
   s.add(rivers.mesh);
-  const shine = makeLines(riverLines, u, { minPx: 0.7, widthScale: 0.18 }, s.geo);
+  const shine = makeLines(riverLines, u, { minPx: 0.7, widthScale: 0.18, cell: CELL }, s.geo);
   for (let c = 0; c < 3; c++) setClass(shine.palette, c, RIVER_SHINE, 0.7);
   s.add(shine.mesh);
 
   const railLines = data.lines.rail ?? [];
-  const bed = makeLines(railLines, u, { minPx: 1, widthScale: 2.4 }, s.geo);
+  const bed = makeLines(railLines, u, { minPx: 1, widthScale: 2.4, cell: CELL }, s.geo);
   setClass(bed.palette, RAIL.main, '#232838');
   setClass(bed.palette, RAIL.service, '#1d2130');
   setClass(bed.palette, RAIL.tram, '#1d2130');
   s.add(bed.mesh);
-  const steel = makeLines(railLines, u, { minPx: 0.7, widthScale: 0.3, thinDim: 0.3 }, s.geo);
+  const steel = makeLines(railLines, u, { minPx: 0.7, widthScale: 0.3, thinDim: 0.3, cell: CELL }, s.geo);
   setClass(steel.palette, RAIL.main, '#6a7594', 0.9);
   setClass(steel.palette, RAIL.service, '#525b75', 0.75);
   setClass(steel.palette, RAIL.tram, '#525b75', 0.75);
@@ -108,22 +111,22 @@ export async function drawCity(s: GeoSketch, data: GeoFile, options: CityOptions
 
   const roads = data.lines.road ?? [];
   // The glow first: soft and wide, it piles up where the streets are dense.
-  const glow = options.glow ? makeLines(roads, u, { minPx: 9, widthScale: 4, soft: 1, opacity: 0.05 }, s.geo) : null;
+  const glow = options.glow ? makeLines(roads, u, { minPx: 9, widthScale: 4, soft: 1, opacity: 0.05, cell: CELL }, s.geo) : null;
   if (glow) {
     for (let cls = 0; cls < 16; cls++) setClass(glow.palette, cls, '#ff9d45', cls % 8 <= 2 ? 1 : 0.6);
     s.add(glow.mesh);
   }
-  const roadLayer = makeLines(roads, u, { minPx: options.minPx, thinDim: options.thinDim }, s.geo);
+  const roadLayer = makeLines(roads, u, { minPx: options.minPx, thinDim: options.thinDim, cell: CELL }, s.geo);
   s.add(roadLayer.mesh);
-  const lamplight = makeLines(roads, u, { minPx: 1, widthScale: 0.14, thinDim: 0.55 }, s.geo);
+  const lamplight = makeLines(roads, u, { minPx: 1, widthScale: 0.14, thinDim: 0.55, cell: CELL }, s.geo);
   s.add(lamplight.mesh);
 
   s.every((frame: LevelFrame) => {
     paintRoads(roadLayer.palette, frame.e);
     paintRoads(plazas.palette, frame.e);
     paintLamplight(lamplight.palette, frame.e);
-    glow?.setOpacity(0.05 * cityGlow(frame.e));
-    glow?.setShare(frame.quality);
+    // When the device struggles the glow is dimmed, never thinned: that would drop whole districts.
+    glow?.setOpacity(0.05 * cityGlow(frame.e) * (0.4 + 0.6 * frame.quality));
   });
   return { roads, roadLayer };
 }
@@ -141,9 +144,27 @@ function nearLights(rifredi: GeoFile): { windows: CityLight[]; lamps: CityLight[
   if (!lights) {
     const blocked = [...(rifredi.areas.water ?? []), ...(rifredi.areas.green ?? []), ...(rifredi.areas.railyard ?? [])];
     lights = cityLights(rifredi.lines.road ?? [], blocked, { radius: LIGHTS_RADIUS });
+    // In a fixed random order: when the device struggles, a share is dropped here and
+    // there, never a whole street.
+    shuffle(lights.windows);
+    shuffle(lights.lamps);
     lightsCache.set(rifredi, lights);
   }
   return lights;
+}
+
+function shuffle<T>(list: T[]): void {
+  let seed = 977;
+  const next = (): number => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(next() * (i + 1));
+    const t = list[i] as T;
+    list[i] = list[j] as T;
+    list[j] = t;
+  }
 }
 
 /** Lit windows: sharp dots near by, a glitter farther away, gone when the whole town is in view. */

@@ -16,6 +16,8 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
+  Group,
+  Sphere,
   CustomBlending,
   AdditiveBlending,
   InstancedBufferAttribute,
@@ -30,6 +32,7 @@ import {
   Vector4,
   type ColorRepresentation,
   type IUniform,
+  type Object3D,
   type Texture,
 } from 'three';
 import type { LevelFrame } from '../../engine/level.ts';
@@ -206,10 +209,18 @@ export interface LineStyle {
   readonly defaultWidth?: number;
   /** Keep only some classes. */
   readonly filter?: (line: GeoLine) => boolean;
+  /**
+   * Split the layer in square tiles of this side (metres), each with its own bounds, so that
+   * the tiles outside the view are not drawn at all. For maps much larger than the view.
+   */
+  readonly cell?: number;
 }
 
 export interface LineLayer {
-  readonly mesh: Mesh;
+  /** What to add to the scene: one mesh, or a group of tiles. */
+  readonly mesh: Object3D;
+  /** The meshes themselves (one per tile). */
+  readonly meshes: readonly Mesh[];
   readonly palette: Palette;
   readonly material: ShaderMaterial;
   /** Changes the minimum width (in CSS pixels) at run time. */
@@ -240,17 +251,73 @@ interface SegmentStyle {
   readonly opacity: number;
 }
 
-/** One instanced quad per segment: thousands of streets (or lights) in one draw call. */
-function segmentMesh(seg: Segments, style: SegmentStyle, uniforms: GeoUniforms): LineLayer {
+/** The unit quad of every segment: x 0 at A and 1 at B, y the side. */
+const QUAD = new Float32Array([0, -1, 0, 1, -1, 0, 1, 1, 0, 0, 1, 0]);
+
+function segmentGeometry(seg: Segments): InstancedBufferGeometry {
   const geometry = new InstancedBufferGeometry();
-  // x: 0 at A, 1 at B; y: side.
-  geometry.setAttribute('position', new BufferAttribute(new Float32Array([0, -1, 0, 1, -1, 0, 1, 1, 0, 0, 1, 0]), 3));
+  geometry.setAttribute('position', new BufferAttribute(QUAD, 3));
   geometry.setIndex([0, 1, 2, 0, 2, 3]);
   geometry.setAttribute('aA', new InstancedBufferAttribute(seg.a, 2));
   geometry.setAttribute('aB', new InstancedBufferAttribute(seg.b, 2));
   geometry.setAttribute('aHalf', new InstancedBufferAttribute(seg.half, 1));
   geometry.setAttribute('aClass', new InstancedBufferAttribute(seg.cls, 1));
   geometry.instanceCount = seg.count;
+  return geometry;
+}
+
+/** The segments in square tiles of side `cell` (local units), by their middle point. */
+function tiles(seg: Segments, cell: number): Segments[] {
+  const buckets = new Map<string, number[]>();
+  for (let k = 0; k < seg.count; k++) {
+    const mx = ((seg.a[2 * k] ?? 0) + (seg.b[2 * k] ?? 0)) / 2;
+    const my = ((seg.a[2 * k + 1] ?? 0) + (seg.b[2 * k + 1] ?? 0)) / 2;
+    const key = `${Math.floor(mx / cell)},${Math.floor(my / cell)}`;
+    const list = buckets.get(key);
+    if (list) list.push(k);
+    else buckets.set(key, [k]);
+  }
+  return [...buckets.values()].map((list) => {
+    const out = segments(list.length);
+    list.forEach((k, i) => {
+      out.a[2 * i] = seg.a[2 * k] ?? 0;
+      out.a[2 * i + 1] = seg.a[2 * k + 1] ?? 0;
+      out.b[2 * i] = seg.b[2 * k] ?? 0;
+      out.b[2 * i + 1] = seg.b[2 * k + 1] ?? 0;
+      out.half[i] = seg.half[k] ?? 0;
+      out.cls[i] = seg.cls[k] ?? 0;
+    });
+    return out;
+  });
+}
+
+/** Bounds of a tile, wide enough for the widest line and its minimum width. */
+function tileBounds(seg: Segments): Sphere {
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -Infinity;
+  let y1 = -Infinity;
+  let half = 0;
+  for (let k = 0; k < seg.count; k++) {
+    for (const [x, y] of [
+      [seg.a[2 * k] ?? 0, seg.a[2 * k + 1] ?? 0],
+      [seg.b[2 * k] ?? 0, seg.b[2 * k + 1] ?? 0],
+    ] as const) {
+      x0 = Math.min(x0, x);
+      y0 = Math.min(y0, y);
+      x1 = Math.max(x1, x);
+      y1 = Math.max(y1, y);
+    }
+    half = Math.max(half, seg.half[k] ?? 0);
+  }
+  const r = Math.hypot(x1 - x0, y1 - y0) / 2;
+  // A line never thinner than its minimum in pixels can be wider than its true width: a
+  // generous margin keeps a tile from being dropped while a piece of it is still in view.
+  return new Sphere(new Vector3((x0 + x1) / 2, (y0 + y1) / 2, 0), r * 1.15 + half * 4);
+}
+
+/** One instanced quad per segment: thousands of streets (or lights) in one draw call per tile. */
+function segmentMesh(seg: Segments, style: SegmentStyle, uniforms: GeoUniforms, cell?: number): LineLayer {
 
   const palette = makePalette();
   const material = new ShaderMaterial({
@@ -273,10 +340,24 @@ function segmentMesh(seg: Segments, style: SegmentStyle, uniforms: GeoUniforms):
     material.depthTest = false;
     material.depthWrite = false;
   } else maxBlend(material);
-  const mesh = new Mesh(geometry, material);
-  mesh.frustumCulled = false;
+  const parts = cell ? tiles(seg, cell) : [seg];
+  const meshes = parts.map((part) => {
+    const mesh = new Mesh(segmentGeometry(part), material);
+    if (cell) {
+      mesh.geometry.boundingSphere = tileBounds(part);
+      mesh.frustumCulled = true;
+    } else mesh.frustumCulled = false;
+    return mesh;
+  });
+  let root: Object3D;
+  if (meshes.length === 1 && meshes[0]) root = meshes[0];
+  else {
+    root = new Group();
+    for (const m of meshes) root.add(m);
+  }
   return {
-    mesh,
+    mesh: root,
+    meshes,
     palette,
     material,
     setMinPx: (px) => {
@@ -286,7 +367,10 @@ function segmentMesh(seg: Segments, style: SegmentStyle, uniforms: GeoUniforms):
       material.uniforms.uOpacity!.value = o;
     },
     setShare: (share) => {
-      geometry.instanceCount = Math.max(1, Math.floor(seg.count * share));
+      parts.forEach((part, i) => {
+        const g = meshes[i]?.geometry as InstancedBufferGeometry | undefined;
+        if (g) g.instanceCount = Math.max(1, Math.floor(part.count * share));
+      });
     },
   };
 }
@@ -313,7 +397,12 @@ export function makeLines(lines: readonly GeoLine[], unit: number, style: LineSt
     }
   }
   const soft = style.soft ?? 0;
-  return segmentMesh(seg, { minPx: style.minPx, thinDim: style.thinDim ?? 0, soft, caps: soft === 0, additive: soft > 0, opacity: style.opacity ?? 1 }, uniforms);
+  return segmentMesh(
+    seg,
+    { minPx: style.minPx, thinDim: style.thinDim ?? 0, soft, caps: soft === 0, additive: soft > 0, opacity: style.opacity ?? 1 },
+    uniforms,
+    style.cell ? style.cell / unit : undefined,
+  );
 }
 
 /** A light on the ground: where (metres), how large (radius in metres) and which class of the palette. */

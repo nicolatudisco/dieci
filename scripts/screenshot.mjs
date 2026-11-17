@@ -194,7 +194,7 @@ function buildTargets(a, stops) {
 
 async function launchBrowser() {
   const flags = args.gpu
-    ? ['--ignore-gpu-blocklist']
+    ? ['--ignore-gpu-blocklist', '--enable-gpu'] // headless Chrome stays on SwiftShader without --enable-gpu
     : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
   const attempts = [];
   if (process.env.CHROME_PATH) attempts.push({ executablePath: process.env.CHROME_PATH });

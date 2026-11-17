@@ -450,7 +450,7 @@ Rifatti con uno script Node (anno giuliano; 1 UA = 149.597.870,7 km; luce 299.79
 
 ## Incerti e da ricontrollare
 
-- **M2, le Officine Galileo «qui».** Il testo di `quartiere` dice che la fabbrica era «qui», dentro la vista di 1 km attorno al punto di partenza. Va controllato in M2 con le coordinate del punto di partenza (che restano fuori dal repo), prima di disegnare un segno sull'area delle ex Officine.
+- **M2, le Officine Galileo «qui».** Il testo di `quartiere` dice che la fabbrica era «qui», dentro la vista di 1 km attorno al punto di partenza. Va controllato in M2 con le coordinate del punto di partenza (che restano fuori dal repo), prima di disegnare un segno sull'area delle ex Officine. **Risolto in M2**: su OpenStreetMap l'area è l'«Ex Meccanotessile di Rifredi», con il nome alternativo «Ex Officine Galileo» (la stampa locale conferma che lì c'era la sede delle Officine); dista dal punto di partenza tra circa 750 e 980 m e sta tutta nella vista di 1 km di `quartiere`, centrata a sud-est (`tests/geo.test.ts`). Il testo non cambia.
 - **Merate** (D6): quale strumento le Officine Galileo abbiano fatto per Merate resta aperto. Forse il telescopio Ruths (1968, «costruito in Italia»), non confermato.
 - **La pagina dell'Opera del Duomo** sullo gnomone non si apre (403). Un frammento di ricerca attribuisce alla rivista dell'Opera cifre diverse (1467, 86 m, «il più alto d'Europa ancora in uso»): non è stato possibile leggerlo. 1475, 90 m e 4 cm si appoggiano a Museo Galileo, Sigismondi e MeteoWeb.
 - **Rifredi**: la forma più antica del nome («Riofreddo», 1201) è citata da Wikipedia senza fonte.

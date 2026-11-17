@@ -59,7 +59,8 @@ function walker(points: Float64Array): { length: number; at: (s: number) => [num
 
 /** Moves the segments of a line layer: piece k from a[k] to b[k], in metres. */
 function moveSegments(layer: LineLayer, unit: number, ends: readonly (readonly [number, number])[]): void {
-  const geometry = layer.mesh.geometry;
+  const geometry = layer.meshes[0]?.geometry;
+  if (!geometry) return;
   const a = geometry.getAttribute('aA') as InstancedBufferAttribute;
   const b = geometry.getAttribute('aB') as InstancedBufferAttribute;
   for (let k = 0; k + 1 < ends.length && k < a.count; k++) {

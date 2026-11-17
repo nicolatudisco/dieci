@@ -13,9 +13,8 @@ import { AU, LY, type AnchorId } from '../engine/stage.ts';
 
 type Loader = LevelDef['load'];
 
-const generic: Loader = () => import('./placeholder/generic.ts');
-// Curated placeholders, one module per later milestone (M3, M5). The stops of M4
-// (`voyager`, `oort`, `bolla`) have their real scenes.
+// Curated placeholders, one module per later milestone (M3, M5). The stops of M2 (the
+// ground) and of M4 (`voyager`, `oort`, `bolla`) have their real scenes.
 const solar = (name: keyof typeof import('./placeholder/solar.ts')): Loader => () =>
   import('./placeholder/solar.ts').then((m) => ({ default: m[name] }));
 const cosmos = (name: keyof typeof import('./placeholder/cosmos.ts')): Loader => () =>
@@ -25,7 +24,7 @@ interface Entry {
   /** Metres in one local unit. */
   unit: number;
   origin: AnchorId;
-  load?: Loader;
+  load: Loader;
   /** Where the level starts to appear and where it is fully there (default: see below). */
   enter?: readonly [number, number];
   /** Where the level starts to fade and where it is gone (default: see below). */
@@ -97,7 +96,7 @@ function buildActOne(): LevelDef[] {
       fadeOut: [fading, gone],
       // Back to front: the level of a wider stop is always behind the one of a closer stop.
       order: -e,
-      load: entry.load ?? generic,
+      load: entry.load,
     };
   });
 }

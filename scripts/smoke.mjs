@@ -5,8 +5,9 @@
  * pages on top, the keyboard, the wheel.
  *
  * Usage, from the project root:
- *   npm run smoke                 software rendering (slow, the same on every computer)
- *   npm run smoke -- --gpu        real GPU
+ *   npm run smoke                 the real GPU (where there is none, Chrome falls back to software)
+ *   npm run smoke -- --software   software rendering (SwiftShader): the maps of the ground run at a
+ *                                 few frames per second there, too slow for the timings of the test
  *   npm run smoke -- --headed     show the browser window
  *   npm run smoke -- --url http://localhost:5173   use a dev server that is already running
  *
@@ -53,7 +54,9 @@ try {
   }
   base = base.replace(/\/?$/, '/');
 
-  const flags = args.has('--gpu') ? ['--ignore-gpu-blocklist'] : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
+  // The real GPU by default: the test checks the journey, not the speed of a software renderer.
+  // Headless Chrome stays on SwiftShader without --enable-gpu. (--gpu is still accepted.)
+  const flags = args.has('--software') ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : ['--ignore-gpu-blocklist', '--enable-gpu'];
   browser = await launch(flags);
   const context = await browser.newContext({ viewport: { width: 1180, height: 820 } });
   const page = await context.newPage();

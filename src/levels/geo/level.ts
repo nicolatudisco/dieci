@@ -5,7 +5,7 @@
  * Loading happens in `init()`, which the level manager awaits before the level ever enters
  * the frame (and starts well ahead of it): nothing is fetched or built while it is visible.
  */
-import type { Mesh, Texture } from 'three';
+import type { Object3D, Texture } from 'three';
 import type { LevelContext, LevelDef, LevelFactory, LevelFrame } from '../../engine/level.ts';
 import { Sketch } from '../placeholder/sketch.ts';
 import type { Box } from './format.ts';
@@ -54,11 +54,14 @@ export class GeoSketch extends Sketch {
     this.geo.uRound.value.set(centre[0] / this.unit, centre[1] / this.unit, inner / this.unit, outer / this.unit);
   }
 
-  /** Adds a layer; later layers are drawn later. */
-  add(mesh: Mesh): Mesh {
-    mesh.renderOrder = ++this.layerOrder;
-    this.scene.add(mesh);
-    return mesh;
+  /** Adds a layer (a mesh or a group of tiles); later layers are drawn later. */
+  add(layer: Object3D): Object3D {
+    const order = ++this.layerOrder;
+    layer.traverse((o) => {
+      o.renderOrder = order;
+    });
+    this.scene.add(layer);
+    return layer;
   }
 
   /** A texture that must be freed with the level. */
