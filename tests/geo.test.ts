@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
+import { centreAt } from '../src/engine/stage.ts';
 import { decodeGeo, decodePoints, insideRing, ringBox, type GeoFileRaw } from '../src/levels/geo/format.ts';
 
 const read = (name: string): GeoFileRaw => JSON.parse(fs.readFileSync(new URL(`../public/data/${name}`, import.meta.url), 'utf8')) as GeoFileRaw;
@@ -53,3 +54,14 @@ test('geodata: the former Officine Galileo and the station are where the texts s
   assert.ok(duomo && Math.hypot(...duomo) > 2500 && Math.hypot(...duomo) < 3700);
 });
 
+test('quartiere: she, the station and the whole former Officine Galileo are inside the view of 1 km', () => {
+  const city = decodeGeo(read('city.json'));
+  const [cx, cy] = centreAt(3);
+  const inside = (x: number, y: number) => Math.abs(x - cx) < 460 && Math.abs(y - cy) < 460;
+  assert.ok(inside(0, 0), '«Tu sei qui»');
+  const station = city.points.station;
+  assert.ok(station && inside(...station), 'the station');
+  const ring = city.areas.officine?.[0]?.rings[0];
+  assert.ok(ring);
+  for (let i = 0; i < ring.length; i += 2) assert.ok(inside(ring[i] ?? 0, ring[i + 1] ?? 0), `vertex ${i / 2}`);
+});

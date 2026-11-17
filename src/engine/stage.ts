@@ -108,6 +108,9 @@ const TRACK: readonly Keyframe[] = [
   { e: 0, at: [0, -0.16, 0] },
   { e: 1, at: towardsStreet },
   { e: 2, at: you },
+  // quartiere: the view moves south-east, so that she, the station and the whole area of
+  // the former Officine Galileo are inside the same kilometre (tests/geo.test.ts).
+  { e: 3, at: [330, -200, 0] },
   { e: 4, at: you },
   // toscana: from Florence to the sea, so the view shifts west.
   { e: 5, at: [-35e3, -5e3, 0] },

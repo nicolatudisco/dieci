@@ -37,6 +37,9 @@ export const LABELS = {
   },
 
   places: {
+    // The ground (M2): only public places named in levels.ts.
+    station: `Stazione di Rifredi`,
+    officineGalileo: `ex Officine Galileo`,
     sun: `Sole`,
     moon: `Luna`,
     jupiterWithMoons: `Giove e le lune di Galileo`,
