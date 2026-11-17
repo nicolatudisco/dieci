@@ -58,7 +58,7 @@ export default asyncSketch(async (s) => {
     inside.update(0.5 * small * frame.fade * wide, 1.25, room, frame.pixelRatio);
     around.update(0.42 * small * frame.fade * wide, 1.45, Math.min(1, room * 1.3), frame.pixelRatio);
     const flowing = smoothstep(24.15, 24.55, e) * (1 - smoothstep(25.1, 25.4, e)) * frame.fade;
-    flows.update(frame.isStatic ? 0 : frame.time, flowing, 0.12, 0.045);
+    flows.update(frame.isStatic || s.ctx.reducedMotion ? 0 : frame.time, flowing, 0.12, 0.045);
     // The edge outlives the level's own fade: it is still there, small, inside the web.
     const edge = smoothstep(24, 24.4, e) * (1 - smoothstep(25.65, 25.95, e)) * (frame.u < s.exponent ? frame.fade : 1);
     fill.update(edge);

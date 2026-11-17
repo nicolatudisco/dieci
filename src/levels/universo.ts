@@ -232,7 +232,9 @@ export default asyncSketch(async (s) => {
     const e = frame.e;
     // The picture takes over from the galaxies of `rete-cosmica` as they become finer than pixels.
     const grain = smoothstep(25.75, 26.35, e);
-    webMaterial.uniforms.uLevel!.value = 0.05 * grain;
+    // Still magnified, the picture would be loud behind the counter: softer until the edge comes in.
+    const settle = 0.6 + 0.4 * smoothstep(26.3, 26.8, e);
+    webMaterial.uniforms.uLevel!.value = 0.05 * grain * settle;
     webMaterial.uniforms.uFade!.value = frame.fade;
     web.visible = grain * frame.fade > 0.003;
     // The shell, and its point of light once it is only a few pixels wide.

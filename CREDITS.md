@@ -12,6 +12,10 @@ Questo file si completa durante lo sviluppo: ogni immagine, modello, font o dato
 
 - Distanza di Voyager 1 dalla Terra, un valore ogni due giorni dal 2026 al 2041 (`src/content/voyager-distance.ts`): [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/), Solar System Dynamics Group, Jet Propulsion Laboratory. Dati di pubblico dominio; credito «NASA/JPL-Caltech». Scaricati una volta con `scripts/voyager-horizons.mjs`.
 - Dove si trova la sonda Juice dell'ESA rispetto al Sole e alla Terra, un valore ogni cinque giorni dal 2026 all'arrivo a Giove nel 2031 (`src/content/juice-position.ts`): [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/), traiettoria «JUICE_merged». Credito «NASA/JPL-Caltech». Scaricati una volta con `scripts/juice-horizons.mjs`.
+- Le nubi di gas e polvere attorno al Sole (`src/content/cosmos.ts`): distanze delle nubi molecolari da Zucker e colleghi, [«A compendium of distances to molecular clouds»](https://arxiv.org/abs/2001.00591) (A&A 633, A51, 2020, con i dati del satellite Gaia), arrotondate; le altre dalle pagine dei singoli oggetti su Wikipedia.
+- Le galassie del Gruppo Locale (`src/content/cosmos.ts`): il catalogo [«Nearby Dwarf Galaxies»](https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/community/nearby/) di Alan McConnachie (AJ 144, 4, 2012), aggiornato a gennaio 2021, del National Research Council Canada; i diametri delle galassie più grandi da Wikipedia, [«List of Local Group galaxies»](https://en.wikipedia.org/wiki/List_of_Local_Group_galaxies).
+- La forma della Via Lattea disegnata dal sito: la barra da Wegg, Gerhard e Portail ([MNRAS 450, 4050, 2015](https://arxiv.org/abs/1504.01401)), l'apertura dei bracci da Reid e colleghi ([ApJ 885, 131, 2019](https://arxiv.org/abs/1910.03357)).
+- La rete cosmica è calcolata dal sito, con l'approssimazione di Zel'dovich: un esempio di come si forma, non una mappa del cielo vero. Laniakea vi è disegnata come la definiscono Tully e colleghi ([Nature 513, 71, 2014](https://www.nature.com/articles/nature13674)): la regione le cui galassie scivolano tutte verso lo stesso punto.
 
 ## Immagini e texture
 
