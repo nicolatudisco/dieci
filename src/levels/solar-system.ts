@@ -26,7 +26,7 @@ export const PLANETS: readonly Planet[] = [
   { id: 'mars', name: 'Marte', au: 1.524, angle: 40, color: '#e8a583' },
   { id: 'jupiter', name: 'Giove', au: 5.2, angle: 140, color: '#e9d3ad' },
   { id: 'saturn', name: 'Saturno', au: 9.57, angle: 18, color: '#e6d49c' },
-  { id: 'uranus', name: 'Urano', au: 19.2, angle: 285, color: '#b5e3ea' },
+  { id: 'uranus', name: 'Urano', au: 19.2, angle: 235, color: '#b5e3ea' },
   { id: 'neptune', name: 'Nettuno', au: 30.1, angle: 165, color: '#8fa9ff' },
 ];
 

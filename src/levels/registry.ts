@@ -13,10 +13,8 @@ import { AU, LY, type AnchorId } from '../engine/stage.ts';
 
 type Loader = LevelDef['load'];
 
-// Curated placeholders, one module per later milestone (M3, M5). The stops of M2 (the
-// ground) and of M4 (`voyager`, `oort`, `bolla`) have their real scenes.
-const solar = (name: keyof typeof import('./placeholder/solar.ts')): Loader => () =>
-  import('./placeholder/solar.ts').then((m) => ({ default: m[name] }));
+// Curated placeholders of the milestone still to come (M5). The stops of M2 (the ground),
+// M3 (the Earth and the Solar System) and M4 (`voyager`, `oort`, `bolla`) have their real scenes.
 const cosmos = (name: keyof typeof import('./placeholder/cosmos.ts')): Loader => () =>
   import('./placeholder/cosmos.ts').then((m) => ({ default: m[name] }));
 
@@ -52,7 +50,7 @@ const ACT_ONE: Record<string, Entry> = {
   luna: { unit: 1e8, origin: 'earth', load: () => import('./luna.ts') }, // 10; the Moon is at 3.844
   sole: { unit: AU, origin: 'sun', load: () => import('./sole.ts'), enter: [9.3, 10.2] }, // 2.66 AU
   giove: { unit: AU, origin: 'sun', load: () => import('./giove.ts') }, // 13.3 AU
-  'pianeti-lontani': { unit: AU, origin: 'sun', load: solar('pianetiLontani') }, // 66.8 AU
+  'pianeti-lontani': { unit: AU, origin: 'sun', load: () => import('./pianeti-lontani.ts') }, // 66.8 AU
   voyager: { unit: 10 * AU, origin: 'sun', load: () => import('./voyager.ts'), enter: [13.05, 13.4] }, // 33.5 (tens of AU)
   // Seen from the bubble it would be a ball of sparks on the warm dot: it leaves before.
   oort: { unit: 1e3 * AU, origin: 'sun', load: () => import('./oort.ts'), leave: [16.85, 17.35] }, // 168 (thousands of AU)

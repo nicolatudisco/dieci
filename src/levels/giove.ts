@@ -18,20 +18,13 @@ import { Scene } from 'three';
 import { LABELS } from '../content/labels.ts';
 import { juicePlace } from '../juice.ts';
 import { asyncSketch } from './async-sketch.ts';
-import { makeBody } from './planet-lens.ts';
+import { lightFor, makeBody } from './planet-lens.ts';
 import { drawOrbit, placePlanet } from './sole.ts';
 import { PLANETS, planet } from './solar-system.ts';
 import { drawSun } from './sun.ts';
 import { rgb } from './placeholder/bodies.ts';
 import { acquire, loadColorTexture } from './textures.ts';
 import { AU, type Vec3 } from '../engine/stage.ts';
-
-/** From the planet towards the Sun on screen, and towards whoever looks: Jupiter almost full. */
-function lightFor(angleDegrees: number, towardsViewer: number): Vec3 {
-  const a = ((angleDegrees + 180) * Math.PI) / 180;
-  const v = (towardsViewer * Math.PI) / 180;
-  return [Math.cos(a) * Math.cos(v), Math.sin(a) * Math.cos(v), Math.sin(v)];
-}
 
 /** Polar radius of Jupiter over its equatorial radius (66,854 / 71,492 km). */
 const JUPITER_FLATTENING = 0.935;
@@ -60,7 +53,7 @@ export default asyncSketch(async (s) => {
   const at = placePlanet(s, jupiter);
   s.dot(at, 7, rgb(jupiter.color));
 
-  // The lens.
+  // The lens: lit from the side of the Sun and a good deal from the front (almost full).
   const light = lightFor(jupiter.angle, 40);
   const scene = new Scene();
   // Turned so that the Great Red Spot faces us, a little towards the lit side.
