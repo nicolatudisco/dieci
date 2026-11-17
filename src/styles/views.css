@@ -357,6 +357,20 @@
 }
 
 /* ── Act II: the scenes made of numbers ───────────────────────────────────── */
+/* `oltre`: next to the point, what it is. Same voice as the notes of the scenes. */
+.beyond__caption {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--muted);
+  text-shadow:
+    0 0 12px var(--night),
+    0 0 4px var(--night);
+  will-change: transform, opacity;
+}
+
 .numbers {
   font-family: var(--font-display);
   font-variation-settings:

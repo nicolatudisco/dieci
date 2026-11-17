@@ -112,7 +112,7 @@ const numbers = (name: keyof typeof import('./placeholder/numbers.ts')): Loader 
 function buildActTwo(): LevelDef[] {
   const stops = STOPS.filter((s) => s.kind === 'number');
   const loaders: Record<string, Loader> = {
-    oltre: numbers('oltre'),
+    oltre: () => import('./beyond.ts'),
     atomi: numbers('atomi'),
     googol: numbers('googol'),
     googolplex: numbers('googolplex'),
