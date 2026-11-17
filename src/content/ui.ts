@@ -36,8 +36,8 @@ export const UI = {
   controls: {
     forward: `Più lontano`,
     back: `Più vicino`,
-    forwardAria: `Allontanati: moltiplica la scala per 10`,
-    backAria: `Avvicinati: dividi la scala per 10`,
+    forwardAria: `Allontanati: vai alla tappa successiva`,
+    backAria: `Avvicinati: torna alla tappa precedente`,
     soundOn: `Suono acceso`,
     soundOff: `Suono spento`,
     menu: `Menu`,

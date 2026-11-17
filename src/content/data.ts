@@ -59,11 +59,11 @@ export interface NearbyStar {
  * Distances and J2000 coordinates checked on 17 Nov 2026 against Wikipedia, "List of nearest
  * stars" (https://en.wikipedia.org/wiki/List_of_nearest_stars: Gaia DR3 parallaxes, RECONS
  * coordinates) and the single star pages; all within 0.1 ly and 0.01 h / 0.01°. Ross 128
- * corrected from 10.9 to 11.0 (Gaia DR3: 11.007). Older sources: OpenStax Astronomy
- * (https://courses.lumenlearning.com/suny-astronomy/?p=32) and Universe Today
- * (https://www.universetoday.com/25220/nearest-stars/). Not listed, though within 11.5 ly:
- * EZ Aquarii (11.1) and Struve 2398 (11.49), see docs/fact-check.md; brown dwarfs are left out
- * on purpose.
+ * corrected from 10.9 to 11.0 (Gaia DR3: 11.007); EZ Aquarii (Gaia DR3 / Torres 2010: 11.11)
+ * and Struve 2398 (Gaia DR3: 11.49) added, so that the list is complete up to 11.5 ly. Brown
+ * dwarfs (Luhman 16, WISE 0855−0714) are left out on purpose: they are not stars. Older
+ * sources: OpenStax Astronomy (https://courses.lumenlearning.com/suny-astronomy/?p=32) and
+ * Universe Today (https://www.universetoday.com/25220/nearest-stars/).
  */
 export const NEARBY_STARS: NearbyStar[] = [
   { name: 'Proxima Centauri', ly: 4.24, raHours: 14.495, decDeg: -62.68, note: 'la stella più vicina al Sole' },
@@ -78,8 +78,10 @@ export const NEARBY_STARS: NearbyStar[] = [
   { name: 'Epsilon Eridani', ly: 10.5, raHours: 3.549, decDeg: -9.46, note: 'una stella più giovane del Sole' },
   { name: 'Lacaille 9352', ly: 10.7, raHours: 23.09, decDeg: -35.85 },
   { name: 'Ross 128', ly: 11.0, raHours: 11.79, decDeg: 0.8 },
+  { name: 'EZ Aquarii', ly: 11.1, raHours: 22.643, decDeg: -15.3 },
   { name: '61 Cygni', ly: 11.4, raHours: 21.115, decDeg: 38.75, note: 'la prima stella di cui si è misurata la distanza (1838)' },
   { name: 'Procione', ly: 11.46, raHours: 7.655, decDeg: 5.22 },
+  { name: 'Struve 2398', ly: 11.49, raHours: 18.713, decDeg: 59.63 },
 ];
 
 /** Age of the universe, billions of years. Planck: 13.787 ± 0.020. */

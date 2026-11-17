@@ -9,7 +9,7 @@
 export const GOLDEN_RECORD = {
   title: `Il Disco d'oro`,
 
-  intro: `Nel 1977, sulle due sonde Voyager, gli scienziati hanno messo un disco d'oro: un messaggio per chiunque, un giorno, dovesse trovarle. Un gruppo guidato dall'astronomo Carl Sagan ci ha messo 115 immagini della Terra, suoni della natura, musiche di tutto il mondo e saluti in 55 lingue. C'è anche l'italiano: una voce dice «Tanti auguri e saluti». In un certo senso, Voyager sta portando degli auguri anche a te.`,
+  intro: `Nel 1977, sulle due sonde Voyager, gli scienziati hanno messo un disco d'oro: un messaggio per chiunque, un giorno, dovesse trovarle. Un gruppo guidato dall'astronomo Carl Sagan ci ha messo 115 immagini, quasi tutte della Terra, suoni della natura, musiche di tutto il mondo e saluti in 55 lingue. C'è anche l'italiano: una voce dice «Tanti auguri e saluti». In un certo senso, Voyager sta portando degli auguri anche a te.`,
 
   yourTurn: `Adesso tocca a te. Cosa metteresti nel tuo disco d'oro, per far conoscere la Terra a qualcuno che non l'ha mai vista?`,
 

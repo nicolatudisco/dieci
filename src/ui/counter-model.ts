@@ -20,7 +20,7 @@ export interface CounterState {
   readonly order: number;
   /** The width of the view in friendly units; null when the counter only counts. */
   readonly width: string | null;
-  /** The line of the nearest stop, e.g. «lungo come un autobus». */
+  /** The line of the nearest stop, e.g. «quasi quanto un autobus». */
   readonly line: string;
 }
 

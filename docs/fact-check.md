@@ -9,14 +9,16 @@
 ## In breve
 
 - **206 verifiche**: 167 affermazioni dei testi, 25 dati di `data.ts` (di cui 16 righe per le stelle della bolla), 14 numeri nel codice delle scene. In più, tutti i link delle fonti già presenti sono stati aperti.
-- **Esito:** 196 ✅ corrette e 7 ⚠️ imprecise, tutte nei testi. Due cose erano sbagliate, ed entrambe sono già corrette: ❌ la distanza di Ross 128 in `data.ts` e ❌ un link ESA rotto tra le fonti di `giove`. In più la tabella delle stelle della bolla è incompleta: mancano 2 stelle.
+- **Esito:** 196 ✅ corrette e 7 ⚠️ imprecise, tutte nei testi; le 7 sono state corrette dopo l'ok di Nicola. Due cose erano sbagliate, ed entrambe sono corrette: ❌ la distanza di Ross 128 in `data.ts` e ❌ un link ESA rotto tra le fonti di `giove`. In più alla tabella delle stelle della bolla mancavano 2 stelle, ora aggiunte.
 - **Nessun errore grave**: niente di quello che il sito racconta è falso. Le imprecisioni sono sfumature: un nome che forse non era dei Romani, una memoria che è di sei computer e non di uno, «i primi antenati» che erano antichi ma non i primi.
-- **Testi visibili: nessuno è stato cambiato.** Le correzioni proposte sono raccolte qui sotto e aspettano l'ok di Nicola.
+- **Testi visibili:** le correzioni proposte sono raccolte qui sotto. Il 17 novembre 2026 Nicola ha approvato P1–P5 e D1–D3, che sono state applicate; D4–D6 restano come sono.
 - **Corretti direttamente** (dati numerici e fonti): la distanza di Ross 128 in `data.ts`, il link ESA rotto, tutti i 13 `TODO fact-check`. Sono state aggiunte fonti a 24 tappe (7 non ne avevano nessuna) e al Disco d'oro. Resta senza fonti solo `oltre`, che non contiene fatti da verificare.
 
-## Correzioni proposte a Nicola (testi visibili, non applicate)
+## Correzioni ai testi visibili
 
-### Consigliate
+Proposte durante il controllo e decise da Nicola il 17 novembre 2026. «Testo attuale» è il testo com'era prima della correzione.
+
+### Consigliate (tutte applicate)
 
 | # | Dove | Testo attuale | Testo proposto | Motivo | Fonte |
 |---|---|---|---|---|---|
@@ -26,23 +28,32 @@
 | P4 | `andromeda.more` | quando sulla Terra vivevano i primi antenati degli esseri umani | quando sulla Terra vivevano antichi antenati degli esseri umani | Gli antenati della nostra linea risalgono a 6–7 milioni di anni fa. Quelli di 2,5 milioni di anni fa (i primi *Homo*, *Australopithecus garhi*) erano antichi, ma non i primi. | [Smithsonian, Human Origins](https://humanorigins.si.edu/education/introduction-human-evolution); [Smithsonian, *Au. garhi*](https://humanorigins.si.edu/evidence/human-fossils/species/australopithecus-garhi) |
 | P5 | `golden-record.ts`, `intro` | ci ha messo 115 immagini della Terra, suoni della natura, | ci ha messo 115 immagini, quasi tutte della Terra, suoni della natura, | Una decina delle 115 immagini mostra altro: il Sole, Mercurio, Marte, Giove, schemi del Sistema Solare, definizioni di matematica e di fisica. | [NASA, Golden Record Contents](https://science.nasa.gov/mission/voyager/golden-record-contents/) |
 
-### Da decidere
+### Da decidere (D1–D3 applicate, D4–D6 lasciate come sono)
 
 | # | Dove | Testo attuale | Proposta | Motivo | Fonte |
 |---|---|---|---|---|---|
-| D1 | `data.ts`, `NEARBY_STARS` | 14 stelle fino a 11,5 anni-luce | aggiungere `EZ Aquarii` (11,1 a.l., RA 22,643 h, Dec −15,30°) e `Struve 2398` (11,49 a.l., RA 18,713 h, Dec 59,63°) | La tabella dice di arrivare a 11,5 anni-luce ma ne mancano due sistemi di nane rosse, presenti anche nelle sue stesse fonti. Non è un errore (nessuna stella accesa è sbagliata), ma dopo gli 11 anni la bolla sarebbe incompleta. Non le ho aggiunte perché nella scena compaiono i nomi: sono testo visibile nuovo. | [Wikipedia, List of nearest stars](https://en.wikipedia.org/wiki/List_of_nearest_stars); [EZ Aquarii](https://en.wikipedia.org/wiki/EZ_Aquarii); [Struve 2398](https://en.wikipedia.org/wiki/Struve_2398) |
-| D2 | `strada.counterLine` | lungo come un autobus | quasi quanto un autobus | Un autobus urbano a Firenze è lungo 12 metri. Il testo della tappa («più o meno la lunghezza di un autobus») va bene così; la riga sotto il contatore è un po' generosa. | [RATP Dev, autobus da 12 m a Firenze](https://www.ratpdev.com/en/italy-autolinee-toscane-continues-to-strengthen-its-electric-bus-fleet-for-more-sustainable-mobility-in-florence/) |
-| D3 | `ui.ts`, `controls.forwardAria` e `backAria` (li sentono solo i lettori di schermo) | Allontanati: moltiplica la scala per 10 / Avvicinati: dividi la scala per 10 | Allontanati: vai alla tappa successiva / Avvicinati: torna alla tappa precedente | ▶ porta alla tappa dopo: da Voyager alla nube di Oort la scala si moltiplica per circa 500, e nell'Atto II non c'è più una scala. A schermo il contatore scatta a ogni potenza di 10, quindi i testi visibili restano veri. | `src/engine/journey.ts`, esponenti di `levels.ts` |
-| D4 | `oort.more` | più in là, la gravità delle altre stelle diventa più forte di quella del Sole | (lasciare così) oppure: più in là, la gravità della galassia, cioè di tutte le altre stelle, diventa più forte di quella del Sole | Il bordo è dove la gravità del Sole cede alla «marea» della galassia. «Le altre stelle» è una semplificazione accettabile. Consiglio di lasciarla. | [Wikipedia, Oort cloud](https://en.wikipedia.org/wiki/Oort_cloud) |
-| D5 | `firenze.more` | È lo gnomone più alto del mondo. | (lasciare così) oppure: È lo gnomone più alto mai costruito in una chiesa. | L'astronomo C. Sigismondi e MeteoWeb scrivono «il più alto del mondo»; il Museo Galileo, più prudente, «il più alto mai realizzato in una chiesa». La pagina dell'Opera del Duomo non si è aperta. Consiglio di lasciarla. | [Sigismondi, Gerbertus 7](https://www.icra.it/gerbertus/2014/Gerbertus7B.pdf); [Museo Galileo](https://brunelleschi.imss.fi.it/itinerari/luogo/DuomoSantaMariaFiore.html) |
-| D6 | `quartiere.more` | grandi telescopi per gli osservatori astronomici di Asiago e di Merate | (lasciare così) oppure: perfino il grande telescopio dell'osservatorio astronomico di Asiago | Il Museo Galileo nomina entrambi gli osservatori. Per Asiago c'è lo strumento preciso (il telescopio «Galileo», 122 cm, 1942); per Merate nessuna fonte nomina un telescopio delle Officine Galileo. Consiglio di lasciarla: la fonte è autorevole. | [Museo Galileo, Officine Galileo](https://brunelleschi.imss.fi.it/itineraries/place/OfficineGalileo.html); [Università di Padova](https://www.unipd.it/node/84256) |
+| D1 | `data.ts`, `NEARBY_STARS` | 14 stelle fino a 11,5 anni-luce | aggiungere `EZ Aquarii` (11,1 a.l., RA 22,643 h, Dec −15,30°) e `Struve 2398` (11,49 a.l., RA 18,713 h, Dec 59,63°) | La tabella dice di arrivare a 11,5 anni-luce ma ne mancavano due sistemi di nane rosse, presenti anche nelle sue stesse fonti. Non era un errore (nessuna stella accesa era sbagliata), ma dopo gli 11 anni la bolla sarebbe stata incompleta. Serviva l'ok di Nicola perché nella scena compaiono i nomi. **Applicata.** | [Wikipedia, List of nearest stars](https://en.wikipedia.org/wiki/List_of_nearest_stars); [EZ Aquarii](https://en.wikipedia.org/wiki/EZ_Aquarii); [Struve 2398](https://en.wikipedia.org/wiki/Struve_2398) |
+| D2 | `strada.counterLine` | lungo come un autobus | quasi quanto un autobus | Un autobus urbano a Firenze è lungo 12 metri. Il testo della tappa («più o meno la lunghezza di un autobus») va bene così; la riga sotto il contatore è un po' generosa. **Applicata.** | [RATP Dev, autobus da 12 m a Firenze](https://www.ratpdev.com/en/italy-autolinee-toscane-continues-to-strengthen-its-electric-bus-fleet-for-more-sustainable-mobility-in-florence/) |
+| D3 | `ui.ts`, `controls.forwardAria` e `backAria` (li sentono solo i lettori di schermo) | Allontanati: moltiplica la scala per 10 / Avvicinati: dividi la scala per 10 | Allontanati: vai alla tappa successiva / Avvicinati: torna alla tappa precedente | ▶ porta alla tappa dopo: da Voyager alla nube di Oort la scala si moltiplica per circa 500, e nell'Atto II non c'è più una scala. A schermo il contatore scatta a ogni potenza di 10, quindi i testi visibili restano veri. **Applicata.** | `src/engine/journey.ts`, esponenti di `levels.ts` |
+| D4 | `oort.more` | più in là, la gravità delle altre stelle diventa più forte di quella del Sole | (lasciare così) oppure: più in là, la gravità della galassia, cioè di tutte le altre stelle, diventa più forte di quella del Sole | Il bordo è dove la gravità del Sole cede alla «marea» della galassia. «Le altre stelle» è una semplificazione accettabile. Consiglio di lasciarla. **Lasciata.** | [Wikipedia, Oort cloud](https://en.wikipedia.org/wiki/Oort_cloud) |
+| D5 | `firenze.more` | È lo gnomone più alto del mondo. | (lasciare così) oppure: È lo gnomone più alto mai costruito in una chiesa. | L'astronomo C. Sigismondi e MeteoWeb scrivono «il più alto del mondo»; il Museo Galileo, più prudente, «il più alto mai realizzato in una chiesa». La pagina dell'Opera del Duomo non si è aperta. Consiglio di lasciarla. **Lasciata.** | [Sigismondi, Gerbertus 7](https://www.icra.it/gerbertus/2014/Gerbertus7B.pdf); [Museo Galileo](https://brunelleschi.imss.fi.it/itinerari/luogo/DuomoSantaMariaFiore.html) |
+| D6 | `quartiere.more` | grandi telescopi per gli osservatori astronomici di Asiago e di Merate | (lasciare così) oppure: perfino il grande telescopio dell'osservatorio astronomico di Asiago | Il Museo Galileo nomina entrambi gli osservatori. Per Asiago c'è lo strumento preciso (il telescopio «Galileo», 122 cm, 1942); per Merate nessuna fonte nomina un telescopio delle Officine Galileo. Consiglio di lasciarla: la fonte è autorevole. **Lasciata.** |
+
+Su richiesta di Nicola è cambiato anche `giove.more`: «tu avrai circa 15 anni» → «tu avrai quasi 15 anni». [Museo Galileo, Officine Galileo](https://brunelleschi.imss.fi.it/itineraries/place/OfficineGalileo.html); [Università di Padova](https://www.unipd.it/node/84256) |
 
 ## Modifiche già fatte
 
-Autorizzate da Nicola: dati numerici di `data.ts` e fonti.
+Testi visibili, dopo l'ok di Nicola:
+
+- `levels.ts`: P1 (`partenza`), P2 (`rifredi`), P3 (`voyager`), P4 (`andromeda`), D2 (`strada`), e «quasi 15 anni» in `giove`.
+- `golden-record.ts`: P5.
+- `ui.ts`: D3 (`controls.forwardAria` e `backAria`).
+- `data.ts`: D1, EZ Aquarii e Struve 2398 aggiunte a `NEARBY_STARS`. Sono nane rosse, quindi la scena le disegna come le altre nane rosse. Non sono tra le stelle con la nota (`FEATURED`), e nessun testo le nomina.
+
+Già autorizzati dall'inizio: dati numerici di `data.ts` e fonti.
 
 - **`data.ts`, Ross 128**: da `ly: 10.9` a `ly: 11.0` (Gaia DR3: 11,007 anni-luce, parallasse 296,31 mas). Cambia solo la scena: la stella si accende quando la bolla arriva a 11,0 anni-luce invece che a 10,9. Nessun testo la nomina. I test della bolla passano.
-- **`data.ts`, commenti**: tolto il segno `verify`; il commento di `NEARBY_STARS` cita le fonti controllate e le due stelle mancanti.
+- **`data.ts`, commenti**: tolto il segno `verify`; il commento di `NEARBY_STARS` cita le fonti controllate.
 - **`levels.ts`, fonti**: risolti tutti i 13 `TODO fact-check`; aggiunte fonti a `partenza`, `strada`, `rifredi`, `quartiere`, `firenze`, `toscana`, `italia`, `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`, `voyager`, `oort`, `bolla`, `nebulose`, `via-lattea`, `andromeda`, `laniakea`, `rete-cosmica`, `universo`, `atomi`, `googol`, `googolplex`. Ogni fonte aggiunta è una pagina aperta che sostiene l'affermazione.
 - **`giove`**: sostituito il link ESA «Juice's journey and Jupiter system tour», che ora rimanda alla home page dell'ESA, con la [scheda di Juice](https://www.esa.int/Science_Exploration/Space_Science/Juice/Juice_factsheet).
 - **`quartiere`**: la pagina del Museo Galileo sul 1909 ora è nella versione italiana (stesso contenuto); aggiunta la fonte primaria per il 1980 (Museo Galileo).
@@ -59,7 +70,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | # | Affermazione | Esito | Fonte | Nota |
 |---|---|---|---|---|
 | 1 | 10⁰ = 1, 10¹ = 10, 10² = 100, 10³ = 1.000; l'esponente dice quanti zeri | ✅ | matematica | |
-| 2 | «un po' meno della tua altezza» (1 m) | ⚠️ | [OMS](https://cdn.who.int/media/docs/default-source/child-growth/growth-reference-5-19-years/height-for-age-(5-19-years)/sft-hfa-girls-perc-5-19years.pdf?sfvrsn=59b013d8_4) | Mediana a 10 anni: 138,6 cm. Vedi P1. |
+| 2 | «un po' meno della tua altezza» (1 m) | ⚠️ → ✅ | [OMS](https://cdn.who.int/media/docs/default-source/child-growth/growth-reference-5-19-years/height-for-age-(5-19-years)/sft-hfa-girls-perc-5-19years.pdf?sfvrsn=59b013d8_4) | Mediana a 10 anni: 138,6 cm. Corretto: P1. |
 | 3 | «A ogni passo … la scena diventerà 10 volte più grande» | ✅ | `CLAUDE.md`, «Navigazione» | ▶ a volte attraversa più potenze, ma il contatore scatta a ognuna: «×10 a ogni passo» resta vero. |
 
 ### `strada` (10¹ m)
@@ -67,7 +78,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | # | Affermazione | Esito | Fonte | Nota |
 |---|---|---|---|---|
 | 4 | 10 m «più o meno la lunghezza di un autobus» | ✅ | [RATP Dev](https://www.ratpdev.com/en/italy-autolinee-toscane-continues-to-strengthen-its-electric-bus-fleet-for-more-sustainable-mobility-in-florence/) | Autobus urbani da 10 a 12 m; a Firenze 12 m. |
-| 5 | «lungo come un autobus» (contatore) | ⚠️ | come sopra | Lieve. Vedi D2. |
+| 5 | «lungo come un autobus» (contatore) | ⚠️ → ✅ | come sopra | Lieve. Corretto: D2. |
 | 6 | dopo 2 passi 100 volte, dopo 3 passi 1.000, dopo 6 un milione | ✅ | matematica | |
 | 7 | «per arrivare al bordo … bastano circa 27 passi» | ✅ | [NASA, How big is space?](https://www.nasa.gov/science-research/astrophysics/how-big-is-space-we-asked-a-nasa-expert-episode-61/) | 93 miliardi di anni-luce = 8,8 × 10²⁶ m, log₁₀ = 26,94 (calcolo). |
 
@@ -78,7 +89,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | 8 | 100 m «più o meno un campo da calcio» | ✅ | [IFAB, regola 1](https://www.theifab.com/laws/latest/the-field-of-play/) | Da 90 a 120 m; nelle partite internazionali da 100 a 110. |
 | 9 | il nome viene dal Terzolle, «rio freddo» per le acque gelide | ✅ | [Città Metropolitana](https://www.cittametropolitana.fi.it/wp-content/uploads/Torrente_Terzolle.pdf); [La Nazione](https://www.lanazione.it/firenze/cronaca/rifredi-un-rione-a-caccia-di-futuro-la-scommessa-delle-ex-fabbriche-1.8478526) | «era detto Rio freddo, per le gelide acque che scendono da Cercina». |
 | 10 | nasce a Cercina, passa da Careggi e Rifredi, finisce nel Mugnone e poi nell'Arno | ✅ | Città Metropolitana | Confluisce nel Mugnone al Ponte di San Donato. |
-| 11 | «I Romani lo chiamavano Rivus Frigidus» | ⚠️ | Città Metropolitana; [Wikipedia, Rifredi](https://it.wikipedia.org/wiki/Rifredi) | Nessuna attestazione romana. Vedi P2. |
+| 11 | «I Romani lo chiamavano Rivus Frigidus» | ⚠️ → ✅ | Città Metropolitana; [Wikipedia, Rifredi](https://it.wikipedia.org/wiki/Rifredi) | Nessuna attestazione romana. Corretto: P2. |
 | 12 | «da quel nome è nato Rifredi» | ✅ | Città Metropolitana; La Nazione | |
 
 ### `quartiere` (10³ m)
@@ -176,7 +187,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | 66 | il pianeta più grande; più di 1.000 Terre | ✅ | [NASA](https://science.nasa.gov/jupiter/facts/) | Volume: 1.321 Terre. |
 | 67 | nel 1610 Galileo scoprì quattro lune, le «Stelle Medicee», per i Medici | ✅ | [Museo Galileo](https://catalogo.museogalileo.it/approfondimento/SatellitiGiove.html) | |
 | 68 | Io, Europa, Ganimede, Callisto; oceani sotto il ghiaccio di alcune | ✅ | [ESA, scheda di Juice](https://www.esa.int/Science_Exploration/Space_Science/Juice/Juice_factsheet) | Ganimede, Europa e Callisto; Io no. |
-| 69 | Juice arriverà nel 2031; «tu avrai circa 15 anni» | ✅ | ESA | Luglio 2031. |
+| 69 | Juice arriverà nel 2031; «tu avrai quasi 15 anni» | ✅ | ESA | Luglio 2031. |
 | 70 | JANUS costruita a Campi Bisenzio, nella fabbrica nata dalle Officine Galileo | ✅ | [Leonardo](https://space.leonardo.com/en/juice); Museo Galileo | Leonardo guida un consorzio (con DLR, IAA-CSIC e Open University) e costruisce le parti principali. Il testo usa le parole di Leonardo. |
 | 71 | vede una pallina da tennis a 1 km | ✅ | Leonardo; [Palumbo e altri, 2025](https://elib.dlr.de/226174/1/s11214-025-01158-6.pdf) | Un pixel copre 15 µrad, cioè 1,5 cm a 1 km: la pallina è larga 4–5 pixel. |
 | 72 | Galileo per molte notti: i puntini si spostavano, a volte sparivano | ✅ | [Rice, Galileo Project](https://galileo.library.rice.edu/sci/observations/jupiter_satellites.html) | Dal 7 al 15 gennaio 1610. |
@@ -203,7 +214,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | 83 | un giorno-luce è circa 26 miliardi di km | ✅ | come sopra; calcolo | 25.902.068.371 km. |
 | 84 | un giorno per arrivare, un altro per la risposta | ✅ | NASA | |
 | 85 | il trasmettitore è potente quanto la lampadina di un frigorifero | ✅ | [NASA/JPL](https://www.jpl.nasa.gov/news/two-voyagers-taught-us-how-to-listen-to-space/) | Proprio il paragone del JPL. |
-| 86 | «il suo computer ha circa 70 kilobyte di memoria» | ⚠️ | [NASA, FAQ](https://science.nasa.gov/mission/voyager/frequently-asked-questions/) | Sono sei computer; 69,63 kB in tutto. Vedi P3. |
+| 86 | «il suo computer ha circa 70 kilobyte di memoria» | ⚠️ → ✅ | [NASA, FAQ](https://science.nasa.gov/mission/voyager/frequently-asked-questions/) | Sono sei computer; 69,63 kB in tutto. Corretto: P3. |
 | 87 | meno di una sola foto fatta con un telefono | ✅ | | Una foto pesa qualche megabyte. |
 | 88 | antenne larghe 70 m in California, Spagna e Australia | ✅ | NASA/JPL | Goldstone, Madrid, Canberra. |
 | 89 | il segnale arriva miliardi di miliardi di volte più debole | ✅ | NASA/JPL; calcolo | Rapporto tra 10²⁰ e 10²³: il testo semmai è prudente. |
@@ -267,7 +278,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | 122 | Andromeda a 2,5 milioni di anni-luce | ✅ | [NASA, M31](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-31/) | |
 | 123 | più grande della nostra galassia | ✅ | [NASA](https://science.nasa.gov/missions/hubble/nasas-hubble-traces-hidden-history-of-andromeda-galaxy/) | Disco largo più di 200.000 anni-luce, mille miliardi di stelle. La massa è simile, ma il testo parla di grandezza. |
 | 124 | con decine di galassie più piccole forma il Gruppo Locale | ✅ | [NASA](https://science.nasa.gov/universe/galaxies/large-scale-structures/) | Più di 50. |
-| 125 | «quando sulla Terra vivevano i primi antenati degli esseri umani» | ⚠️ | [Smithsonian](https://humanorigins.si.edu/evidence/human-fossils/species/australopithecus-garhi) | Vedi P4. |
+| 125 | «quando sulla Terra vivevano i primi antenati degli esseri umani» | ⚠️ → ✅ | [Smithsonian](https://humanorigins.si.edu/evidence/human-fossils/species/australopithecus-garhi) | Corretto: P4. |
 | 126 | guardare lontano è guardare indietro nel tempo | ✅ | NASA | |
 | 127 | da un posto molto buio si vede a occhio nudo | ✅ | NASA, M31 | |
 | 128 | fino a circa 100 anni fa nessuno sapeva che esistessero altre galassie | ✅ | [NASA](https://science.nasa.gov/missions/hubble/nasa-celebrates-edwin-hubbles-discovery-of-a-new-universe/) | Qualcuno lo sospettava, ma nessuno lo sapeva. |
@@ -325,7 +336,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 |---|---|---|---|---|
 | 156 | nel 1977, un disco d'oro su tutte e due le Voyager | ✅ | [NASA](https://science.nasa.gov/mission/voyager/golden-record-contents/) | |
 | 157 | un gruppo guidato da Carl Sagan | ✅ | NASA | «committee chaired by Carl Sagan». |
-| 158 | «115 immagini della Terra» | ⚠️ | NASA | Il numero è giusto; una decina non mostra la Terra. Vedi P5. |
+| 158 | «115 immagini della Terra» | ⚠️ → ✅ | NASA | Il numero è giusto; una decina non mostra la Terra. Corretto: P5. |
 | 159 | suoni della natura, musiche di tutto il mondo, saluti in 55 lingue | ✅ | NASA | |
 | 160 | la voce italiana dice «Tanti auguri e saluti» | ✅ | [Wikipedia](https://en.wikipedia.org/wiki/Contents_of_the_Voyager_Golden_Record); [NASA](https://science.nasa.gov/mission/voyager/golden-record-contents/greetings/) | La NASA dà solo la traduzione inglese, «Many greetings and wishes». |
 
@@ -336,7 +347,7 @@ Legenda: ✅ corretto, ⚠️ impreciso, ❌ sbagliato. «Calcolo» rimanda alla
 | 161 | `voyager.sincePageOpenedCloser`: la Terra a circa 30 km/s contro i 17 di Voyager; da fine gennaio a fine aprile si avvicina | ✅ | [NASA](https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html); JPL Horizons (M4) | 29,8 km/s. Ricalcolato: succede per circa 45° attorno all'inizio di marzo, cioè da circa il 20 gennaio a circa il 22 aprile. |
 | 162 | `voyager.milestoneBefore` e `milestoneAfter`: un giorno-luce, «la prima volta nella storia» | ✅ | NASA | Dopo il 18 novembre la distanza non torna più sotto un giorno-luce (verificato in M4). |
 | 163 | `bubble.variants`: Epsilon Eridani e 61 Cygni raggiunti | ✅ | come la tappa `bolla` | Dipendono dagli stessi dati della scena. |
-| 164 | `controls.forwardAria` e `backAria`: «moltiplica / dividi la scala per 10» | ⚠️ | esponenti di `levels.ts` | Solo per i lettori di schermo. Vedi D3. |
+| 164 | `controls.forwardAria` e `backAria`: «moltiplica / dividi la scala per 10» | ⚠️ → ✅ | esponenti di `levels.ts` | Solo per i lettori di schermo. Corretto: D3. |
 | 165 | `hints.touch`: «Scorri verso l'alto … per allontanarti» | ✅ | `src/engine/input.ts` | Trascinare verso l'alto allontana. |
 | 166 | `sourcesPage.intro`: «Ogni numero di questo viaggio è stato controllato» | ✅ | questo rapporto | |
 | 167 | `LABELS.places`: Sole, Luna, Giove e le lune di Galileo, Saturno, Voyager 1, l'orbita di Nettuno, nube di Oort, «un blocco di ghiaccio», Nebulosa di Orione, Via Lattea, Andromeda, Galassia del Triangolo | ✅ | NASA (nube di Oort: «icy bodies») | |
@@ -374,12 +385,12 @@ Riferimento: [Wikipedia, List of nearest stars](https://en.wikipedia.org/wiki/Li
 | Epsilon Eridani | 10,5 | 10,475 | ✅ |
 | Lacaille 9352 | 10,7 | 10,724 | ✅ |
 | Ross 128 | ~~10,9~~ **11,0** | 11,007 | ❌ → corretto |
+| EZ Aquarii | **11,1** (aggiunta) | 11,11 | mancava → aggiunta (D1) |
 | 61 Cygni | 11,4 | 11,404 | ✅ |
 | Procione | 11,46 | 11,463 | ✅ |
-| EZ Aquarii | — | 11,11 | manca, vedi D1 |
-| Struve 2398 | — | 11,49 | manca, vedi D1 |
+| Struve 2398 | **11,49** (aggiunta) | 11,49 | mancava → aggiunta (D1) |
 
-Mancano solo nane brune (Luhman 16 a 6,5 anni-luce, WISE 0855−0714 a 7,4), e va bene così: non sono stelle. Le compagne (Sirio B, Procione B, 61 Cygni B) sono nei sistemi già elencati.
+Ora la tabella è completa fino a 11,5 anni-luce. Restano fuori solo le nane brune (Luhman 16 a 6,5 anni-luce, WISE 0855−0714 a 7,4), e va bene così: non sono stelle. Le compagne (Sirio B, Procione B, 61 Cygni B) sono nei sistemi già elencati.
 
 La nota di 61 Cygni («la prima stella di cui si è misurata la distanza (1838)») è giusta. Henderson aveva osservato Alfa Centauri nel 1832–33, ma pubblicò nel 1839. Il valore di Struve per Vega era provvisorio.
 
