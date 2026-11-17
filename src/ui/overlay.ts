@@ -3,8 +3,9 @@
  * journey back exactly where it was when they close. One host for all of them: it takes
  * the focus, makes everything underneath inert, and closes with its button or with Esc.
  */
+import { UI } from '../content/ui.ts';
 import type { OverlayId } from '../engine/journey.ts';
-import { el } from './dom.ts';
+import { button, el, icon } from './dom.ts';
 
 export interface OverlayPage {
   /** The page: an element whose first heading has the id given to the builder. */
@@ -23,6 +24,8 @@ export class Overlays {
   private readonly pages = new Map<OverlayId, OverlayPage>();
   private open: OverlayId | null = null;
   private returnFocus: Element | null = null;
+  /** Always within reach at the top, however long the page is. */
+  private readonly bar = el('div', 'overlay__bar');
 
   /** `underneath` lists what must become inert while a page is open. */
   constructor(builders: Record<OverlayId, OverlayBuilder>, underneath: () => readonly HTMLElement[]) {
@@ -31,6 +34,10 @@ export class Overlays {
     this.element.hidden = true;
     this.element.setAttribute('role', 'dialog');
     this.element.setAttribute('aria-modal', 'true');
+    const close = button('ghost overlay__close', UI.panel.close);
+    close.append(icon('close'));
+    close.addEventListener('click', () => this.close());
+    this.bar.append(close);
     window.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.open) {
         event.preventDefault();
@@ -53,7 +60,7 @@ export class Overlays {
     }
     this.returnFocus = document.activeElement;
     this.open = id;
-    this.element.replaceChildren(page.element);
+    this.element.replaceChildren(this.bar, page.element);
     this.element.setAttribute('aria-labelledby', titleId);
     this.element.hidden = false;
     this.element.scrollTop = 0;

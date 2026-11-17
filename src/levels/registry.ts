@@ -7,7 +7,7 @@
  * the engine aligns the level with its neighbours through the stage, not through them.
  */
 import { STOPS } from '../content/levels.ts';
-import { FINALE, nodeById } from '../engine/journey.ts';
+import { EPILOGUE, FINALE, nodeById } from '../engine/journey.ts';
 import type { LevelDef } from '../engine/level.ts';
 import { AU, LY, type AnchorId } from '../engine/stage.ts';
 
@@ -143,9 +143,9 @@ function buildActTwo(): LevelDef[] {
 
 /**
  * The scene of the finale: drawn in 2D over the stage like Act II, around the warm dot. It
- * comes in while the light of the googolplex gathers into the dot and leaves with the view
- * of the finale (ui/view-model.ts → finaleOpacity). The unit only keeps the numbers small:
- * the one thing it places is the lens, on the origin.
+ * comes in while the light of the googolplex gathers into the dot and stays, quieter,
+ * behind the epilogue: the light does not go out when the words leave. The unit only keeps
+ * the numbers small: the one thing it places is the lens, on the origin.
  */
 function buildFinale(): LevelDef {
   const u = FINALE.u;
@@ -153,9 +153,8 @@ function buildFinale(): LevelDef {
     id: 'finale',
     unit: 1e40,
     origin: 'you',
-    range: [u - 0.5, u + 0.72],
+    range: [u - 0.5, EPILOGUE.u + 0.01],
     fadeIn: [u - 0.45, u - 0.1],
-    fadeOut: [u + 0.15, u + 0.68],
     order: 110,
     load: () => import('./finale.ts'),
   };

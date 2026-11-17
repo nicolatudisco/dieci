@@ -300,7 +300,18 @@ html[data-static] .finale__next {
   flex-direction: column;
   align-items: stretch;
   gap: 0.875rem;
-  width: min(100%, 22rem);
+  width: min(100%, 25rem);
+}
+
+/* The light of the finale is still there behind them: the choices are solid enough to read. */
+.epilogue .choice {
+  background: rgb(14 18 38 / 0.82);
+}
+
+@media (hover: hover) {
+  .epilogue .choice:hover {
+    background: rgb(34 42 78 / 0.9);
+  }
 }
 
 /* On a phone the longer choices take two lines: let them breathe. */
@@ -322,6 +333,28 @@ html[data-static] .finale__next {
 
 .overlay[hidden] {
   display: none;
+}
+
+/* The way out, always at the top right however far the page has been scrolled. */
+.overlay__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  height: 0;
+  padding: 0 calc(var(--safe-right) + 0.875rem) 0 0;
+}
+
+.overlay__close {
+  flex: none;
+  margin-top: calc(var(--safe-top) + 0.875rem);
+  background: rgb(14 18 38 / 0.88);
+}
+
+.overlay__close .icon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .sheet {
@@ -357,17 +390,49 @@ html[data-static] .finale__next {
   text-underline-offset: 0.18em;
 }
 
+/* The page of the sources: one group for each stop, in the order of the journey. On a
+   wide screen they run in two columns. */
+.sources {
+  max-width: 68rem;
+}
+
+.sources > .sheet__title,
+.sources > .sheet__intro {
+  max-width: 40rem;
+  /* Room for the way out at the top right. */
+  padding-right: 3.5rem;
+}
+
+.sources__groups {
+  columns: 2 22rem;
+  column-gap: clamp(2rem, 5vw, 4.5rem);
+}
+
 .sources__group {
-  margin-top: 1.75rem;
+  margin: 0 0 1.75rem;
+  break-inside: avoid;
 }
 
 .sources__group h2,
 .sources__credits > h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
   margin: 0 0 0.375rem;
   font-family: var(--font-display);
   font-size: 1.375rem;
   font-weight: 500;
   font-variation-settings: 'opsz' 36;
+}
+
+/* The power of ten of the stop, as on the counter. */
+.sources__power {
+  flex: none;
+  min-width: 2.7em;
+  font-size: 0.82em;
+  font-weight: 460;
+  font-variant-numeric: lining-nums;
+  color: var(--cool);
 }
 
 .sources__group h3 {
@@ -378,17 +443,19 @@ html[data-static] .finale__next {
 
 .sources__list {
   margin: 0;
-  padding-left: 1.1em;
+  padding: 0 0 0 0.9rem;
+  border-left: 1px solid var(--hairline);
+  list-style: none;
 }
 
 .sources__list li {
-  margin: 0.3rem 0;
+  margin: 0.4rem 0;
   font-size: var(--text-small);
   line-height: 1.45;
 }
 
 .sources__credits {
-  margin-top: 3rem;
+  margin-top: 1.5rem;
   padding-top: 2rem;
   border-top: 1px solid var(--hairline);
 }
@@ -398,10 +465,15 @@ html[data-static] .finale__next {
   font-size: var(--text-small);
 }
 
+.sources__credits .sources__group {
+  max-width: 40rem;
+}
+
 /* The Golden Record: the disc (drawn in ui/record-disc.ts), then the story. On a wide
    screen in landscape the two sit side by side and fit without scrolling. */
 .record {
-  padding-top: calc(var(--safe-top) + 2.25rem);
+  /* Room for the way out at the top right, clear of the disc. */
+  padding-top: calc(var(--safe-top) + 4rem);
 }
 
 .record__disc {

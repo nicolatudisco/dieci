@@ -7,7 +7,8 @@ import { GOLDEN_RECORD } from '../content/golden-record.ts';
 import { STOPS } from '../content/levels.ts';
 import type { Source } from '../content/types.ts';
 import { UI } from '../content/ui.ts';
-import type { ResolveStop } from './counter-model.ts';
+import { nodeById } from '../engine/journey.ts';
+import { counterAt, type ResolveStop } from './counter-model.ts';
 import { button, el, icon } from './dom.ts';
 import type { OverlayPage } from './overlay.ts';
 import { setRich, typeset } from './rich-text.ts';
@@ -98,17 +99,24 @@ export function buildSources(titleId: string, close: () => void, resolve: Resolv
   setRich(intro, typeset(UI.sourcesPage.intro));
   page.append(title, intro);
 
+  // The stops in the order of the journey, each with the power of ten of its counter.
+  const groups = el('div', 'sources__groups');
   for (const stop of STOPS) {
     if (stop.sources.length === 0) continue;
     const group = el('section', 'sources__group');
     const heading = el('h2');
-    setRich(heading, typeset(resolve(stop).title));
+    const power = el('span', 'sources__power');
+    setRich(power, `10^{${counterAt(nodeById(stop.id)?.u ?? 0).exponent}}`);
+    const title = el('span');
+    setRich(title, typeset(resolve(stop).title));
+    heading.append(power, title);
     group.append(heading, sourceList(stop.sources));
-    page.append(group);
+    groups.append(group);
   }
   const record = el('section', 'sources__group');
-  record.append(el('h2', undefined, GOLDEN_RECORD.title), sourceList(GOLDEN_RECORD.sources));
-  page.append(record);
+  record.append(el('h2', undefined, typeset(GOLDEN_RECORD.title)), sourceList(GOLDEN_RECORD.sources));
+  groups.append(record);
+  page.append(groups);
 
   const sections = creditSections(credits);
   if (sections.length > 0) {

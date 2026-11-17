@@ -18,11 +18,14 @@
  *    goes past the last one and off the screen. Larger than everything: it is the answer
  *    to the first bridge sentence. The circles stay golden.
  *
+ * Going on to the epilogue the scene stays, quieter and without the lens: the light does not
+ * go out when the words leave.
+ *
  * With time frozen the picture is the last one. With reduced motion nothing runs: the
  * circles and the lights fade in, the shooting star is a still streak that comes and goes.
  */
 import { LABELS } from '../content/labels.ts';
-import { E_MAX } from '../engine/journey.ts';
+import { E_MAX, FINALE } from '../engine/journey.ts';
 import type { LensSpec, LevelFrame, LevelFactory } from '../engine/level.ts';
 import { finaleTimeline } from '../finale-script.ts';
 import { CanvasLevel, DISPLAY_FONT, TAU, hash, ramp } from './canvas-level.ts';
@@ -189,7 +192,8 @@ class FinaleScene extends CanvasLevel {
 
     // Nothing of this scene is drawn over the glass of the lens (the interface draws its edge).
     const glass = boxOf('.lenses .lens__ring');
-    const open = ramp(0.9, 2.4, t - cues.dot);
+    const away = this.away(frame.u);
+    const open = ramp(0.9, 2.4, t - cues.dot) * (1 - ramp(0.1, 0.6, away));
     if (glass && open > 0.01) {
       g.globalCompositeOperation = 'destination-out';
       g.globalAlpha = open;
@@ -199,6 +203,18 @@ class FinaleScene extends CanvasLevel {
       g.globalAlpha = 1;
       g.globalCompositeOperation = 'source-over';
     }
+    // Behind the epilogue the whole scene is quieter.
+    if (away > 0) {
+      g.globalCompositeOperation = 'destination-in';
+      g.fillStyle = `rgba(0, 0, 0, ${(1 - 0.5 * away).toFixed(3)})`;
+      g.fillRect(0, 0, width, height);
+      g.globalCompositeOperation = 'source-over';
+    }
+  }
+
+  /** 0 on the finale, 1 when the journey has gone on to the epilogue. */
+  private away(u: number): number {
+    return ramp(FINALE.u + 0.15, FINALE.u + 0.7, u);
   }
 
   /** The 10ⁿ of each circle: where each one is written, and how far it has slipped away. */
@@ -288,8 +304,8 @@ class FinaleScene extends CanvasLevel {
   private stars(g: CanvasRenderingContext2D, frame: LevelFrame, width: number, height: number, cx: number, cy: number, time: number): void {
     const since = this.timeline.t - this.timeline.script.cues.stars;
     if (since <= 0) return;
-    // Fainter behind the words, which must stay easy to read.
-    const words = boxOf('.finale__message');
+    // Fainter behind the words, which must stay easy to read (while the words are there).
+    const words = this.away(frame.u) < 0.5 ? boxOf('.finale__message') : null;
     const count = Math.round(Math.min(560, (width * height) / 2300) * (0.45 + 0.55 * frame.quality));
     g.fillStyle = STAR;
     for (let i = 0; i < count; i++) {
@@ -348,7 +364,7 @@ class FinaleScene extends CanvasLevel {
 
   /** The lens of the site, on the warm dot: inside, her on the doorstep. */
   lenses(frame: LevelFrame): readonly LensSpec[] {
-    const shown = ramp(0.9, 2.4, this.timeline.t - this.timeline.script.cues.dot);
+    const shown = ramp(0.9, 2.4, this.timeline.t - this.timeline.script.cues.dot) * (1 - ramp(0.1, 0.6, this.away(frame.u)));
     if (shown < 0.01) return [];
     this.doorstep.update(1, frame.pixelRatio, frame.time);
     // Beside the dot where the screen is upright (the words are underneath), above it otherwise.
