@@ -206,7 +206,7 @@ Stato:
     4. ✅ `rifredi`: strade, marciapiedi e vicoli pubblici (solo in `rifredi.json`), ferrovia, acque, verde, lampioni con il loro alone, finestre come trattini caldi lungo le facciate.
     5. ✅ `quartiere`: vista centrata 330 m a est e 200 m a sud di lei; stazione ed ex Officine Galileo con etichetta e contorno; un test controlla che lei, la stazione e tutta l'area delle Officine stiano nel chilometro.
     6. ✅ `firenze`: vista centrata 800 m a est e 1,7 km a sud; Arno, ponti, bagliore della città, lente sul Duomo (impronta vera da OSM, la cupola dove la pianta è più larga). Screenshot di `partenza`, `rifredi` e `firenze` visti e approvati da Nicola.
-    7. ⬜ `toscana` (Black Marble, costa, Arno, Pisa, Virgo).
+    7. ✅ `toscana`: luci NASA Black Marble (ritaglio a 2048 px, sorgente appena sfumata perché i suoi pixel sono quadrati grossolani), che compaiono solo da 10^4,45 (prima, ingrandite, coprirebbero le strade di `firenze`); terra, mare e costa di Natural Earth; l'Arno intero da OSM; autostrade appena accennate; i bracci di Virgo in scala vera; etichette Firenze, Pisa, Virgo.
     8. ⬜ `italia` (Black Marble, Toscana, Stazione Spaziale).
     9. ⬜ Chiusura: via i segnaposto di M2, «Decisioni» e contratto, verifica completa.
 - **M3, Terra e Sistema Solare**: `terra`, `luna`, `sole`, `giove`, `pianeti-lontani`.

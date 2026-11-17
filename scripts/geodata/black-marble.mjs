@@ -25,14 +25,14 @@ const PICTURES = {
   // Centred where the view of `italia` is centred (stage.ts), 3,200 km across.
   italia: { box: [-1500e3, -1810e3, 1700e3, 1390e3], size: 4096 },
   // Centred where the view of `toscana` is centred, 420 km across.
-  toscana: { box: [-245e3, -215e3, 175e3, 205e3], size: 1024 },
+  toscana: { box: [-245e3, -215e3, 175e3, 205e3], size: 2048 },
 };
 
 const origin = readOrigin();
 const proj = makeProjection(origin);
 
 /** A grey raster on a regular lon/lat grid. */
-async function loadGrid(file, { lon0, lat0, degPerPx, crop }) {
+async function loadGrid(file, { lon0, lat0, degPerPx, crop, blur = 0 }) {
   const image = sharp(file, { limitInputPixels: false });
   const meta = await image.metadata();
   const left = crop ? Math.max(0, Math.floor((crop.lon0 - lon0) / degPerPx)) : 0;
@@ -41,7 +41,10 @@ async function loadGrid(file, { lon0, lat0, degPerPx, crop }) {
   const bottom = crop ? Math.min(meta.height, Math.ceil((lat0 - crop.lat0) / degPerPx)) : meta.height;
   const width = right - left;
   const height = bottom - top;
-  const data = await image.extract({ left, top, width, height }).greyscale().raw().toBuffer();
+  // A slight blur: the source pixels are coarse squares, and lights seen from space are soft.
+  let pipeline = image.extract({ left, top, width, height }).greyscale();
+  if (blur > 0) pipeline = pipeline.blur(blur);
+  const data = await pipeline.raw().toBuffer();
   const channels = data.length / (width * height);
   return {
     /** Bilinear sample at lon/lat, or -1 outside the grid. */
@@ -65,6 +68,7 @@ const fine = await loadGrid(await cachedDownload(`${BASE}BlackMarble_2016_C1_gra
   lat0: 90,
   degPerPx: 90 / 21600,
   crop: { lon0: 0, lon1: 30, lat0: 28, lat1: 56 },
+  blur: 1.1,
 });
 const coarse = await loadGrid(await cachedDownload(`${BASE}BlackMarble_2016_3km_gray.jpg`, 'BlackMarble_2016_3km_gray.jpg'), {
   lon0: -180,
