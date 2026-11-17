@@ -19,6 +19,7 @@ import {
   type DotsData,
   type LineOptions,
   type ShapeOptions,
+  type SharedUniforms,
 } from './primitives.ts';
 
 /** The colour of thin lines (orbits, edges): the cool accent of the interface. */
@@ -79,6 +80,14 @@ export class Sketch implements Level {
   get ctx(): LevelContext {
     if (!this.context) throw new Error('Sketch.ctx is available from init() onwards');
     return this.context;
+  }
+
+  /**
+   * The uniforms every material of the level shares (uFade, uPixelRatio, uTime), kept up to
+   * date every frame: a custom material spreads them into its own uniforms.
+   */
+  get uniforms(): SharedUniforms {
+    return this.shared;
   }
 
   /** A point of the stage (metres) in the units of this level. */

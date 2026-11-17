@@ -1,11 +1,10 @@
 /**
- * The bodies that more than one placeholder draws: the Earth and the Sun. They are always
+ * The bodies that more than one placeholder draws: the Earth and the Sun (now in ../sun.ts). They are always
  * on their stage anchor and at their true size, so two neighbouring levels draw them in
  * exactly the same place and the hand-over between them cannot be seen.
  */
 import { Color } from 'three';
-import { ANCHORS, AU, EARTH_RADIUS, type Vec3 } from '../../engine/stage.ts';
-import { SUN_RADIUS_AU } from '../solar-system.ts';
+import { ANCHORS, EARTH_RADIUS, type Vec3 } from '../../engine/stage.ts';
 import type { Sketch } from './sketch.ts';
 
 /** Unit vector from the Earth to the Sun on screen: where the daylight comes from. */
@@ -33,12 +32,5 @@ export function drawEarth(s: Sketch): Vec3 {
   return at;
 }
 
-/** The Sun: its true disc, a little corona, and a point of light that never gets smaller. */
-export function drawSun(s: Sketch): Vec3 {
-  const at = s.local(ANCHORS.sun);
-  const r = s.units(SUN_RADIUS_AU * AU);
-  s.shape({ kind: 'ellipse', half: [r * 3, r * 3], color: '#ffd9a0', opacity: 0.45, soft: r * 4, additive: true }, at);
-  s.shape({ kind: 'ellipse', half: [r, r], color: '#fff6e0' }, at);
-  s.dot(at, 24, [1, 0.94, 0.8], 0.9);
-  return at;
-}
+/** The Sun lives in ../sun.ts (M3): every level that draws it shares the same one. */
+export { drawSun } from '../sun.ts';
