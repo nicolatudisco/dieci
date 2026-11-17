@@ -66,3 +66,20 @@ test('the stage anchor of Laniakea is the centre of our basin', () => {
   near((ANCHORS.laniakea[0] - ANCHORS.earth[0]) / (1e6 * LY), WEB.centre[0], 1e-6);
   near((ANCHORS.laniakea[1] - ANCHORS.earth[1]) / (1e6 * LY), WEB.centre[1], 1e-6);
 });
+
+test('what the scenes draw: about 100,000 galaxies in Laniakea, a picture of the whole web', async () => {
+  const { buildWebData } = await import('../src/cosmic-web.ts');
+  const data = buildWebData();
+  const count = data.laniakea.density.length;
+  assert.ok(count > 85_000 && count < 120_000, `galaxies in Laniakea: ${count}`);
+  for (const set of [data.laniakea, data.around, data.web]) {
+    for (const d of set.density) assert.ok(d > 0 && Number.isFinite(d));
+    for (const p of set.positions) assert.ok(Number.isFinite(p));
+  }
+  // No galaxy of the web on top of the Local Group.
+  for (let i = 0; i < data.web.positions.length; i += 2) assert.ok(Math.hypot(data.web.positions[i]!, data.web.positions[i + 1]!) >= 6);
+  let sum = 0;
+  for (const v of data.texture.data) sum += v;
+  const mean = sum / data.texture.data.length;
+  assert.ok(mean > 20 && mean < 120, `mean of the picture: ${mean}`);
+});

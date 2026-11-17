@@ -13,11 +13,6 @@ import { AU, LY, type AnchorId } from '../engine/stage.ts';
 
 type Loader = LevelDef['load'];
 
-// Curated placeholders of the milestone still to come (M5). The stops of M2 (the ground),
-// M3 (the Earth and the Solar System) and M4 (`voyager`, `oort`, `bolla`) have their real scenes.
-const cosmos = (name: keyof typeof import('./placeholder/cosmos.ts')): Loader => () =>
-  import('./placeholder/cosmos.ts').then((m) => ({ default: m[name] }));
-
 interface Entry {
   /** Metres in one local unit. */
   unit: number;
@@ -64,9 +59,11 @@ const ACT_ONE: Record<string, Entry> = {
   // Its galaxies dim as the view widens; its edge stays a little longer, inside the web.
   laniakea: { unit: 1e8 * LY, origin: 'laniakea', load: () => import('./laniakea.ts'), enter: [23.4, 24.1], leave: [25.3, 26] }, // 6.7 (hundreds of millions of ly)
   // The same web as Laniakea's, more coarsely: it comes in once Laniakea has been seen.
-  'rete-cosmica': { unit: 1e9 * LY, origin: 'earth', load: () => import('./rete-cosmica.ts'), enter: [24.95, 25.4], leave: [26.2, 26.75] }, // 4.2 billion ly
+  // It covers one tile of the web around us: it hands over to the picture of `universo` before
+  // the tile is small enough to be seen as a patch.
+  'rete-cosmica': { unit: 1e9 * LY, origin: 'earth', load: () => import('./rete-cosmica.ts'), enter: [24.95, 25.4], leave: [25.95, 26.45] }, // 4.2 billion ly
   // Stays alive while the camera keeps pulling back in Act II, until it is a point.
-  universo: { unit: 1e10 * LY, origin: 'earth', load: cosmos('universo'), leave: [28.3, 29.2] }, // 9.2
+  universo: { unit: 1e10 * LY, origin: 'earth', load: () => import('./universo.ts'), leave: [28.3, 29.2] }, // 9.2
 };
 
 /** Where a level appears and disappears, relative to its own stop and the one before. */

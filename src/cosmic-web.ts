@@ -607,8 +607,10 @@ export function buildWebData(options: WebOptions = WEB_OPTIONS): WebData {
   // Galaxies form where matter is densest: a bit of matter becomes a galaxy with a chance
   // that grows with its density, so the voids empty and the walls thin into filaments.
   const chance = (d: number): number => Math.min(1, (d / options.bias) ** 1.4);
+  // The smooth interpolation can dip below zero between a void and a knot: density is never negative.
+  const densityAt = (qx: number, qy: number): number => Math.max(0.05, sample(field, field.density, qx / cell, qy / cell));
   const galaxy = (qx: number, qy: number, positions: number[], density: number[]): void => {
-    const d = sample(field, field.density, qx / cell, qy / cell);
+    const d = densityAt(qx, qy);
     if (random() > chance(d)) return;
     const [x, y] = slid(field, qx, qy);
     const [sx, sy] = toStage(lan.frame, x, y, true);
@@ -659,7 +661,7 @@ export function buildWebData(options: WebOptions = WEB_OPTIONS): WebData {
       const qy = (j - 0.5 + random()) * cell;
       const [x, y] = slid(field, qx, qy);
       const [sx, sy] = toStage(lan.frame, x, y, true);
-      const d = sample(field, field.density, qx / cell, qy / cell);
+      const d = densityAt(qx, qy);
       const weight = chance(d);
       if (Math.hypot(sx, sy) >= options.hole && random() < weight) {
         webP.push(sx, sy);
