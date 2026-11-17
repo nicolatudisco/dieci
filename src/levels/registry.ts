@@ -41,8 +41,9 @@ interface Entry {
  * Oort cloud, a second Milky Way over the first.
  */
 const ACT_ONE: Record<string, Entry> = {
-  partenza: { unit: 1, origin: 'you', load: () => import('./placeholder/partenza.ts') }, // 1 m
-  strada: { unit: 1, origin: 'you' }, // 10
+  partenza: { unit: 1, origin: 'you', load: () => import('./partenza.ts') }, // 1 m
+  // It leaves early: at 100 m the real map of `rifredi` is already underneath.
+  strada: { unit: 1, origin: 'you', load: () => import('./strada.ts'), leave: [1.55, 2.2] }, // 10
   rifredi: { unit: 100, origin: 'you' }, // 1 (hundred metres)
   quartiere: { unit: 1e3, origin: 'you' }, // 1 km
   firenze: { unit: 1e3, origin: 'you' }, // 10 km

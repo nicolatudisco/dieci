@@ -14,6 +14,7 @@
  *   level origin in float64 and hands each level a camera in its own small units.
  */
 import { LIGHT_DAY_KM, LIGHT_YEAR_M } from '../content/data.ts';
+import { STREET } from '../content/street.ts';
 
 export type Vec3 = readonly [number, number, number];
 
@@ -91,12 +92,22 @@ interface Keyframe {
  * A milestone may retune the keyframes of its own stops; neighbours stay continuous
  * because the track is one function shared by every level.
  */
+/**
+ * strada: the view moves 2.5 m from her towards the real street (src/content/street.ts),
+ * so that the pavement, the kerb and the parked cars come into the frame.
+ */
+const towardsStreet: Vec3 = (() => {
+  const d = Math.hypot(STREET.centre[0], STREET.centre[1]) || 1;
+  return [(2.5 * STREET.centre[0]) / d, (2.5 * STREET.centre[1]) / d, 0];
+})();
+
 const TRACK: readonly Keyframe[] = [
   { e: -0.35, at: you },
   // partenza: she must fit whole inside the metre, so the frame is centred on her body
   // (the warm dot is on her chest, a little above the middle).
   { e: 0, at: [0, -0.16, 0] },
-  { e: 1, at: you },
+  { e: 1, at: towardsStreet },
+  { e: 2, at: you },
   { e: 4, at: you },
   // toscana: from Florence to the sea, so the view shifts west.
   { e: 5, at: [-35e3, -5e3, 0] },

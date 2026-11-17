@@ -14,7 +14,7 @@
  * Nothing here is real geography: no house number, plate or sign.
  */
 import { Color, Mesh, PlaneGeometry, Scene, ShaderMaterial, Vector2 } from 'three';
-import { disposeTree, makeShape, sharedUniforms, type ShapeOptions } from './placeholder/primitives.ts';
+import { disposeTree, makeShape, sharedUniforms, type ShapeOptions, type SharedUniforms } from './placeholder/primitives.ts';
 
 // Night palette. Clothes and skin are tones of the same blue: a silhouette, not a portrait.
 const TOP = '#33406d';
@@ -26,18 +26,20 @@ const SKIN = '#6f799f';
 const FACE = '#7c87b0';
 const HAIR = '#0f1424';
 const STONE = '#1d2334';
-const STONE_EDGE = '#59607c';
+export const STONE_EDGE = '#59607c';
 const DOOR = '#121727';
-const WALL_LINE = '#343b57';
-const BUILDING = '#06080d';
-const LAMP = '#f2b673';
+export const WALL_LINE = '#343b57';
+export const BUILDING = '#06080d';
+export const LAMP = '#f2b673';
+/** The ground around her: the asphalt of the pavement. */
+export const ASPHALT = '#10131d';
 
 /** The front edge of the threshold and the line of the wall, in metres from her chest. */
-const STEP_EDGE_Y = -0.21;
-const WALL_Y = 0.26;
+export const STEP_EDGE_Y = -0.21;
+export const WALL_Y = 0.26;
 
 /** Direction towards the street lamp, far to the left and a little towards the street. */
-const LIGHT: readonly [number, number] = [-0.98, -0.2];
+export const LIGHT: readonly [number, number] = [-0.98, -0.2];
 /** Everything on the ground fades out between these distances from her (metres). */
 const GROUND_MASK: readonly [number, number] = [2.3, 3.3];
 
@@ -46,6 +48,7 @@ const GROUND_FRAGMENT = /* glsl */ `
   uniform vec3 uLamp;
   uniform vec2 uMask;
   uniform float uFade;
+  uniform float uLampOn;
   varying vec2 vP;
 
   float hash(vec2 p) {
@@ -69,7 +72,7 @@ const GROUND_FRAGMENT = /* glsl */ `
     float wide = noise(vP * 3.1 + 7.0) - 0.5;
     float grain = fine * 0.55 + mid * 0.4 + wide * 0.3;
     // The lamp is far to the left: its light thins out towards the right.
-    float lamp = smoothstep(3.2, -3.4, vP.x + vP.y * 0.25);
+    float lamp = smoothstep(3.2, -3.4, vP.x + vP.y * 0.25) * uLampOn;
     vec3 color = uAsphalt * (1.0 + grain * 1.6) + uLamp * lamp * lamp * (0.02 + grain * 0.022);
     float alpha = 1.0 - smoothstep(uMask.x, uMask.y, length(vP));
     gl_FragColor = vec4(color, alpha * uFade);
@@ -82,6 +85,30 @@ const GROUND_VERTEX = /* glsl */ `
     vP = position.xy;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }`;
+
+/**
+ * The asphalt around her, with its fine grain and the warm light of the lamp from the
+ * left. `size` is the side of the square in metres; `mask` the distances from her where it
+ * fades out; `lamp` 0 leaves out the light of the lamp. The level `strada` lays a larger one,
+ * without that light (it draws its own lamp), under the picture of `partenza`.
+ */
+export function makeGround(fade: SharedUniforms['uFade'], size: number, mask: readonly [number, number], lamp = 1): Mesh {
+  const material = new ShaderMaterial({
+    uniforms: {
+      uFade: fade,
+      uLampOn: { value: lamp },
+      uAsphalt: { value: new Color(ASPHALT) },
+      uLamp: { value: new Color(LAMP) },
+      uMask: { value: new Vector2(mask[0], mask[1]) },
+    },
+    vertexShader: GROUND_VERTEX,
+    fragmentShader: GROUND_FRAGMENT,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+  });
+  return new Mesh(new PlaneGeometry(size, size), material);
+}
 
 export interface DoorstepOptions {
   /** The warm dot on her chest, drawn in the picture (the finale: «in quel pallino ci sei te»). */
@@ -116,20 +143,7 @@ export class Doorstep {
   }
 
   private addGround(): void {
-    const material = new ShaderMaterial({
-      uniforms: {
-        uFade: this.shared.uFade,
-        uAsphalt: { value: new Color('#10131d') },
-        uLamp: { value: new Color(LAMP) },
-        uMask: { value: new Vector2(GROUND_MASK[0], GROUND_MASK[1]) },
-      },
-      vertexShader: GROUND_VERTEX,
-      fragmentShader: GROUND_FRAGMENT,
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-    });
-    const ground = new Mesh(new PlaneGeometry(7, 7), material);
+    const ground = makeGround(this.shared.uFade, 7, GROUND_MASK);
     ground.renderOrder = ++this.order;
     this.scene.add(ground);
   }
