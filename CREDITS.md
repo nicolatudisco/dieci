@@ -4,7 +4,9 @@ Questo file si completa durante lo sviluppo: ogni immagine, modello, font o dato
 
 ## Dati geografici
 
-_(da completare in M2; per OpenStreetMap il credito è «© OpenStreetMap contributors», licenza ODbL)_
+- Strade, ferrovie, fiumi, parchi, l'Arno, il Duomo e l'area delle ex Officine Galileo (`public/data/rifredi.json`, `city.json`, parte di `toscana.json`): © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), dati disponibili con licenza [ODbL](https://opendatacommons.org/licenses/odbl/). Scaricati una volta con gli script di `scripts/geodata/`.
+- Coste, confini, laghi e la regione Toscana (`public/data/toscana.json`, `italia.json`): [Natural Earth](https://www.naturalearthdata.com), scala 1:10m, pubblico dominio.
+- Luci notturne della Toscana e dell'Italia (`public/data/night-toscana.webp`, `night-italia.webp`): [NASA Black Marble 2016](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/), immagini del NASA Earth Observatory di Joshua Stevens, con i dati Suomi NPP VIIRS di Miguel Román, NASA Goddard Space Flight Center. Uso libero; credito «NASA Earth Observatory».
 
 ## Dati astronomici
 
