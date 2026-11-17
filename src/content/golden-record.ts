@@ -41,6 +41,8 @@ export const GOLDEN_RECORD = {
     placeholder: `Ciao! Qui sulla Terra…`,
     maxLength: 140,
     counter: `{n} caratteri su 140`,
+    /** With exactly one character: «1 caratteri» would be wrong. */
+    counterOne: `1 carattere su 140`,
   },
 
   actions: {
@@ -52,6 +54,19 @@ export const GOLDEN_RECORD = {
 
   /** Text engraved around the generated disc. {data} = today's date in Italian format. */
   engraving: `Disco d'oro di una scienziata di 10 anni · Terra, Sistema Solare, Via Lattea · {data}`,
+
+  /**
+   * Pieces of `engraving` that follow the link, so that the disc never says something false
+   * (see CLAUDE.md, «Testi legati alla data»). Each one replaces a piece of `engraving`;
+   * tests/golden-record-lab.test.ts checks that those pieces are still there.
+   */
+  engravingVariants: {
+    /** With #nome=, instead of «di una scienziata». */
+    named: `di {nome}, una scienziata`,
+    /** With #nata=, instead of «10 anni»: before her tenth birthday, and from then on. */
+    ageBefore: `quasi 10 anni`,
+    ageYears: `{anni} anni`,
+  },
 
   sources: [
     { title: `NASA – Che cosa c'è sul Disco d'oro (115 immagini, suoni, musiche, saluti in 55 lingue)`, url: `https://science.nasa.gov/mission/voyager/golden-record-contents/` },
