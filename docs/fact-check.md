@@ -513,6 +513,8 @@ Rifatti con uno script Node (anno giuliano; 1 UA = 149.597.870,7 km; luce 299.79
 | P-M8-1 | `CREDITS.md`, «Il tuo Disco d'oro» (si legge nella pagina «È tutto vero») | La melodia di «Tanti auguri» è «Happy Birthday to You» di Mildred e Patty Hill (1893), di pubblico dominio. | La melodia di «Tanti auguri» è quella di «Good Morning to All» di Mildred e Patty Hill (1893), di pubblico dominio da decenni. | La canzone del 1893 aveva un altro titolo e altre parole; la melodia è la stessa (riga 21) |
 | D-M8-1 | La forma della Via Lattea (`galaxy.ts`) | Il Sole disegnato a metà tra Sagittario (21.500) e Perseo (30.500) | (lasciare così) oppure ritoccare la forma perché Perseo stia a circa 32.000 anni-luce dal centro e il Sole più vicino a Sagittario | La galassia disegnata ha quattro bracci simmetrici con la stessa apertura: spostare solo Perseo vuol dire rifarne la forma. Il testo della tappa non dà questi numeri e «Come lo sappiamo?» dice già che è una ricostruzione. Consiglio di lasciarla |
 
+**Decisioni di Nicola (18 novembre 2026):** P-M8-1 e D-M8-1 restano come sono: la riga dei crediti non cambia e la Via Lattea mantiene la sua forma.
+
 ### Pagine che non si sono aperte
 
 Il sito dell'Opera del Duomo (403), alcune pagine di ego-gw.it (al loro posto virgo-gw.eu), SIMBAD (al suo posto NED e il calcolo delle coordinate), NCBI (captcha), una pagina di Visible Earth per il Blue Marble di novembre (rimanda a una pagina generica), l'articolo di Nature su Laniakea (al suo posto il testo completo su arXiv), l'articolo di Cha et al. (1999) sulla distanza della Vela (sostituita con quella della pulsar).
