@@ -249,9 +249,19 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* As wide as its words, up to a limit: the engine keeps room for its measured size. */
+  width: max-content;
+  max-width: 15.5em;
   text-align: center;
   line-height: 1.25;
   text-shadow: 0 0 10px var(--night), 0 0 3px var(--night);
+}
+
+.lens__caption--probe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
 }
 
 .lens__name {

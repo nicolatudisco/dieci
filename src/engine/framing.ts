@@ -132,22 +132,45 @@ export function projectLocal(f: Framing, view: LevelView, p: Vec3): ScreenPoint 
   return project(f, (p[0] - view.target[0]) * k, (p[1] - view.target[1]) * k, (p[2] - view.target[2]) * k);
 }
 
+/** Under the lens (the usual place) or over it, where the text of a lens goes. */
+export type CaptionSide = 'below' | 'above';
+
 export interface LensCircle {
   /** Centre and radius of the lens, in CSS pixels. */
   readonly x: number;
   readonly y: number;
   readonly radius: number;
-  /** The direction that was chosen, in degrees: pass it back as `previous` on the next frame. */
+  /** The direction that was chosen, in degrees. */
   readonly angle: number;
+  /** Where its text goes. */
+  readonly caption: CaptionSide;
+  /** Which of the distances from the object was chosen (0 is the nearest). */
+  readonly reach: number;
 }
 
-/** Room kept under a lens for its two lines of text, in CSS pixels. */
-export const LENS_CAPTION_ROOM = 52;
-/** Half the width of the text under a lens, beyond its radius. */
-export const LENS_CAPTION_OVERHANG = 40;
+/** The size of the text of a lens (its name and «ingrandito, non in scala»), in CSS pixels. */
+export interface CaptionSize {
+  readonly width: number;
+  readonly height: number;
+}
+
+/** Until the interface has measured the real text: two lines, a short name. */
+export const DEFAULT_CAPTION: CaptionSize = { width: 170, height: 44 };
+
+/** Gap between the edge of a lens and its text. */
+export const LENS_CAPTION_GAP = 6;
+
+/**
+ * Something a lens should not cover, and how much it matters: the warm dot and its words
+ * weigh much more than a label of the scene.
+ */
+export interface Keep {
+  readonly rect: Rect;
+  readonly weight: number;
+}
 
 /** Directions tried around the preferred one, in degrees. */
-const LENS_TURNS = [0, 40, -40, 80, -80, 125, -125, 180];
+const LENS_TURNS = [0, 30, -30, 60, -60, 90, -90, 125, -125, 155, -155, 180];
 
 /** Area shared by two rectangles, in square pixels. */
 export function overlap(a: Rect, b: Rect): number {
@@ -156,64 +179,118 @@ export function overlap(a: Rect, b: Rect): number {
   return w > 0 && h > 0 ? w * h : 0;
 }
 
+/** Where the text of a lens is, centred under it or over it. */
+export function lensCaptionBox(lens: { x: number; y: number; radius: number; caption: CaptionSide }, size: CaptionSize): Rect {
+  const top = lens.caption === 'below' ? lens.y + lens.radius + LENS_CAPTION_GAP : lens.y - lens.radius - LENS_CAPTION_GAP - size.height;
+  return { x: lens.x - size.width / 2, y: top, width: size.width, height: size.height };
+}
+
+/** The square around the circle of a lens. */
+export function lensCircleBox(lens: { x: number; y: number; radius: number }): Rect {
+  return { x: lens.x - lens.radius, y: lens.y - lens.radius, width: 2 * lens.radius, height: 2 * lens.radius };
+}
+
+/** The words of a label without the markup of its superscripts (`10^{7} m` → `107 m`). */
+function plainText(text: string): string {
+  return text.replace(/\^\{([^}]*)\}/g, '$1');
+}
+
+/**
+ * Roughly where a label of the scene is on the screen (see `.label` in base.css): its
+ * point, its side, and a width from the number of its letters. Generous on purpose.
+ */
+export function labelBox(label: { x: number; y: number; text: string; kind?: string; align?: string }): Rect {
+  const px = label.kind === 'title' ? 22 : label.kind === 'note' ? 13 : 15;
+  const width = plainText(label.text).length * px * (label.kind === 'figure' ? 0.62 : 0.56) + 8;
+  const height = px * 1.4;
+  switch (label.align) {
+    case 'below':
+      return { x: label.x - width / 2, y: label.y + 10, width, height };
+    case 'left':
+      return { x: label.x - 12 - width, y: label.y - height / 2, width, height };
+    case 'right':
+      return { x: label.x + 12, y: label.y - height / 2, width, height };
+    case 'center':
+      return { x: label.x - width / 2, y: label.y - height / 2, width, height };
+    default:
+      return { x: label.x - width / 2, y: label.y - 10 - height, width, height };
+  }
+}
+
 /**
  * Where a lens sits: beside the true position of its object (`anchor`, in CSS pixels),
- * always whole inside the free area, with its text under it.
+ * always whole inside the free area with its text, which goes under it or, when that is
+ * better, over it.
  *
- * It goes in the direction `preferred` (degrees, 0 = right, 90 = up) unless there it would
- * be pushed back by the edge of the free area, cover its own object, or cover one of the
- * boxes in `avoid` (the warm dot and its words): then it turns to the best direction nearby.
- * `previous` is the direction used on the frame before: the lens leaves it only for a
+ * It goes in the direction `preferred` (degrees, 0 = right, 90 = up), at the nearest of two
+ * distances, unless there it would be pushed back by the edge of the free area, cover its
+ * own object, or cover what is in `avoid` (the warm dot and its words, the labels of the
+ * scene, other lenses): then it turns, moves out or puts its text over itself, whatever
+ * costs least. `previous` is the choice of the frame before: the lens leaves it only for a
  * clearly better one, so it does not hop back and forth while the scene zooms.
  */
 export function placeLens(
   f: Framing,
   anchor: { x: number; y: number },
   preferred: number,
-  avoid: readonly Rect[] = [],
-  previous?: number,
+  avoid: readonly (Rect | Keep)[] = [],
+  previous?: number | Pick<LensCircle, 'angle' | 'caption' | 'reach'>,
+  caption: CaptionSize = DEFAULT_CAPTION,
 ): LensCircle {
-  const radius = Math.min(96, Math.max(38, f.largoPx * 0.14));
-  const reach = radius * 1.55 + 14;
-  const pad = 10;
+  // On a small screen the lens may be a little smaller, to find room.
+  const radius = Math.min(96, Math.max(f.largoPx < 340 ? 32 : 38, f.largoPx * 0.14));
+  const reaches = [radius * 1.55 + 14, radius * 2.25 + 20];
+  const pad = 8;
   const { free } = f;
-  // The text under the lens is wider than the lens: it must stay inside too.
-  const minX = free.x + radius + LENS_CAPTION_OVERHANG + pad;
-  const maxX = Math.max(minX, free.x + free.width - radius - LENS_CAPTION_OVERHANG - pad);
-  const minY = free.y + radius + pad;
-  const maxY = Math.max(minY, free.y + free.height - radius - pad - LENS_CAPTION_ROOM);
+  const keeps: Keep[] = avoid.map((item) => ('rect' in item ? item : { rect: item, weight: 1 }));
+  // The text may be wider than the lens: it must stay inside the free area too.
+  const half = Math.max(radius, caption.width / 2);
+  const minX = free.x + half + pad;
+  const maxX = Math.max(minX, free.x + free.width - half - pad);
+  const room = caption.height + LENS_CAPTION_GAP;
+  // Around the object it points at: never covered, by the lens or by its text.
+  const own: Rect = { x: anchor.x - 6, y: anchor.y - 6, width: 12, height: 12 };
 
-  const attempt = (degrees: number): { circle: LensCircle; cost: number } => {
+  const attempt = (degrees: number, reach: number, side: CaptionSide): { circle: LensCircle; cost: number } => {
     const a = (degrees * Math.PI) / 180;
-    const wantX = anchor.x + Math.cos(a) * reach;
-    const wantY = anchor.y - Math.sin(a) * reach;
+    const distance = reaches[reach] ?? reaches[0] ?? 0;
+    const wantX = anchor.x + Math.cos(a) * distance;
+    const wantY = anchor.y - Math.sin(a) * distance;
+    const minY = free.y + pad + radius + (side === 'above' ? room : 0);
+    const maxY = Math.max(minY, free.y + free.height - pad - radius - (side === 'below' ? room : 0));
     const x = Math.min(Math.max(wantX, minX), maxX);
     const y = Math.min(Math.max(wantY, minY), maxY);
-    const box: Rect = {
-      x: x - radius - LENS_CAPTION_OVERHANG,
-      y: y - radius,
-      width: 2 * (radius + LENS_CAPTION_OVERHANG),
-      height: 2 * radius + LENS_CAPTION_ROOM,
-    };
-    let cost = Math.hypot(x - wantX, y - wantY) * 60;
-    for (const rect of avoid) cost += overlap(box, rect) * 6;
+    const circle: LensCircle = { x, y, radius, angle: degrees, caption: side, reach };
+    const ring = lensCircleBox(circle);
+    const text = lensCaptionBox(circle, caption);
+    let cost = Math.hypot(x - wantX, y - wantY) * 60 + reach * 700 + (side === 'above' ? 500 : 0);
+    for (const keep of keeps) cost += (overlap(ring, keep.rect) + overlap(text, keep.rect)) * 6 * keep.weight;
     // Covering the very object it points at is the worst outcome.
     const gap = Math.hypot(x - anchor.x, y - anchor.y) - radius;
     if (gap < 10) cost += (10 - gap) * 2000;
-    return { circle: { x, y, radius, angle: degrees }, cost };
+    cost += overlap(text, own) * 400;
+    return { circle, cost };
   };
 
-  let best = attempt(preferred);
-  for (const turn of LENS_TURNS.slice(1)) {
-    const candidate = attempt(preferred + turn);
-    // Turning away from the preferred direction has a small price of its own.
-    candidate.cost += Math.abs(turn) * 4;
-    if (candidate.cost < best.cost) best = candidate;
+  let best = attempt(preferred, 0, 'below');
+  for (const turn of LENS_TURNS) {
+    for (const reach of [0, 1]) {
+      for (const side of ['below', 'above'] as const) {
+        const candidate = attempt(preferred + turn, reach, side);
+        // Turning away from the preferred direction has a small price of its own.
+        candidate.cost += Math.abs(turn) * 4;
+        if (candidate.cost < best.cost) best = candidate;
+      }
+    }
   }
-  if (previous !== undefined && previous !== best.circle.angle) {
-    const stay = attempt(previous);
-    stay.cost += Math.abs(previous - preferred) * 4;
-    if (stay.cost <= best.cost * 1.35 + 400) best = stay;
+  if (previous !== undefined) {
+    const before = typeof previous === 'number' ? { angle: previous, caption: 'below' as const, reach: 0 } : previous;
+    const same = before.angle === best.circle.angle && before.caption === best.circle.caption && before.reach === best.circle.reach;
+    if (!same) {
+      const stay = attempt(before.angle, before.reach, before.caption);
+      stay.cost += Math.abs(before.angle - preferred) * 4;
+      if (stay.cost <= best.cost * 1.35 + 400) best = stay;
+    }
   }
   return best.circle;
 }

@@ -149,6 +149,8 @@ function boot(): void {
   const frames = new ScaleFrames();
   const labels = new LabelLayer();
   const lenses = new LensLayer();
+  // The placement of a lens keeps room for its real text, as the interface measures it.
+  engine.measureLensCaptions((label) => lenses.measure(label));
   const markerLayer = document.createElement('div');
   markerLayer.className = 'marker-layer';
   const marker = new Marker(LABELS.youAreHere);

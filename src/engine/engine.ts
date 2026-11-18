@@ -12,17 +12,23 @@ import { Color, PerspectiveCamera, WebGLRenderer } from 'three';
 import type { CivilDate } from '../personalization.ts';
 import type { Clock } from './clock.ts';
 import {
+  DEFAULT_CAPTION,
   DEFAULT_DEPTH,
-  LENS_CAPTION_OVERHANG,
-  LENS_CAPTION_ROOM,
   applyFraming,
+  labelBox,
+  lensCaptionBox,
+  lensCircleBox,
   levelView,
   makeFraming,
   overlap,
   placeLens,
   projectLocal,
   projectStage,
+  type CaptionSide,
+  type CaptionSize,
   type Framing,
+  type Keep,
+  type LensCircle,
   type Rect,
 } from './framing.ts';
 import { cameraExponent, exponentAt, neighbour, type JourneyNode } from './journey.ts';
@@ -63,6 +69,10 @@ export interface PlacedLens {
   readonly anchorY: number;
   readonly label: string;
   readonly opacity: number;
+  /** Where its text goes, and how big it is (measured by the interface). */
+  readonly caption: CaptionSide;
+  readonly captionWidth: number;
+  readonly captionHeight: number;
 }
 
 export interface FrameInfo {
@@ -116,7 +126,9 @@ export class Engine {
   private readonly adaptive = new AdaptiveQuality();
   private readonly lensPass = new LensPass();
   /** Direction each lens was placed in on the last frame (see `placeLens`). */
-  private readonly lensAngles = new Map<string, number>();
+  private readonly lensChoices = new Map<string, Pick<LensCircle, 'angle' | 'caption' | 'reach'>>();
+  /** The size of the text of a lens, measured by the interface (`measureLensCaptions`). */
+  private captionSize: (label: string) => CaptionSize = () => DEFAULT_CAPTION;
   private readonly domLayer = document.createElement('div');
   /** DOM of the levels that are mounted now, with the frame on which each was last drawn. */
   private readonly mounted = new Map<HTMLElement, number>();
@@ -173,6 +185,11 @@ export class Engine {
   }
 
   /** Registers a function called at the end of every frame. */
+  /** The interface measures the text of the lenses: their placement keeps room for the real thing. */
+  measureLensCaptions(size: (label: string) => CaptionSize): void {
+    this.captionSize = size;
+  }
+
   onFrame(listener: (info: FrameInfo) => void): void {
     this.listeners.push(listener);
   }
@@ -333,9 +350,12 @@ export class Engine {
     const active = this.manager.frame(u, clock.time, ahead?.u ?? u);
     const labels: PlacedLabel[] = [];
     const lenses: { spec: LensSpec; place: PlacedLens }[] = [];
-    // What a lens must not cover: the warm dot and the words next to it.
+    // Lenses are placed once every label is known: they must not cover them.
+    const pending: { spec: LensSpec; key: string; anchor: { x: number; y: number }; opacity: number }[] = [];
     const you = projectStage(framing, ANCHORS.you);
-    const keepClear: Rect[] = [{ x: you.x - 120, y: you.y - 18, width: 240, height: 36 }];
+    // The warm dot and the words «Tu sei qui» on its right.
+    const words: Rect = { x: you.x + 8, y: you.y - 14, width: 116, height: 28 };
+    const dot: Rect = { x: you.x - 16, y: you.y - 16, width: 32, height: 32 };
 
     renderer.setRenderTarget(null);
     this.prime();
@@ -420,14 +440,39 @@ export class Engine {
         const { free } = framing;
         const inside = anchor.x > free.x && anchor.x < free.x + free.width && anchor.y > free.y && anchor.y < free.y + free.height;
         if (!anchor.visible || !inside) continue;
-        const key = `${def.id}/${spec.id}`;
-        const circle = placeLens(framing, anchor, spec.angle ?? 45, keepClear, this.lensAngles.get(key));
-        this.lensAngles.set(key, circle.angle);
-        lenses.push({
-          spec,
-          place: { key, x: circle.x, y: circle.y, radius: circle.radius, anchorX: anchor.x, anchorY: anchor.y, label: spec.label ?? '', opacity },
-        });
+        pending.push({ spec, key: `${def.id}/${spec.id}`, anchor, opacity });
       }
+    }
+
+    // What a lens must not cover: above all the warm dot and its words, then the labels of
+    // the scene (a running number too) and the lenses placed before it.
+    const keep: Keep[] = [
+      { rect: dot, weight: 60 },
+      { rect: words, weight: 12 },
+      ...labels.filter((label) => label.opacity > 0.2).map((label) => ({ rect: labelBox(label), weight: 3 })),
+    ];
+    for (const { spec, key, anchor, opacity } of pending) {
+      const label = spec.label ?? '';
+      const size = this.captionSize(label);
+      const circle = placeLens(framing, anchor, spec.angle ?? 45, keep, this.lensChoices.get(key), size);
+      this.lensChoices.set(key, { angle: circle.angle, caption: circle.caption, reach: circle.reach });
+      keep.push({ rect: lensCircleBox(circle), weight: 3 }, { rect: lensCaptionBox(circle, size), weight: 3 });
+      lenses.push({
+        spec,
+        place: {
+          key,
+          x: circle.x,
+          y: circle.y,
+          radius: circle.radius,
+          anchorX: anchor.x,
+          anchorY: anchor.y,
+          label,
+          opacity,
+          caption: circle.caption,
+          captionWidth: size.width,
+          captionHeight: size.height,
+        },
+      });
     }
 
     for (const [dom, seen] of this.mounted) {
@@ -438,15 +483,10 @@ export class Engine {
 
     // Lenses lie over every level.
     for (const { spec, place } of lenses) this.lensPass.render(renderer, spec, place, this.width, this.height);
-    const words: Rect = { x: you.x + 8, y: you.y - 14, width: 116, height: 28 };
+    // The words «Tu sei qui» step aside when a lens or its text lies over them anyway.
     const markerLabelClear = lenses.every(({ place }) => {
-      const box: Rect = {
-        x: place.x - place.radius - LENS_CAPTION_OVERHANG,
-        y: place.y - place.radius,
-        width: 2 * (place.radius + LENS_CAPTION_OVERHANG),
-        height: 2 * place.radius + LENS_CAPTION_ROOM,
-      };
-      return place.opacity < 0.2 || overlap(box, words) === 0;
+      const size = { width: place.captionWidth, height: place.captionHeight };
+      return place.opacity < 0.2 || overlap(lensCircleBox(place), words) + overlap(lensCaptionBox(place, size), words) === 0;
     });
 
     const info: FrameInfo = {
