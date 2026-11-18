@@ -34,7 +34,13 @@ export function audio(): AudioOut | null {
         // Not allowed here: the default is fine.
       }
     }
-    const context = new Context();
+    // Larger buffers: a moment more of delay, and no crackling when the tablet is busy drawing.
+    let context: AudioContext;
+    try {
+      context = new Context({ latencyHint: 'playback' });
+    } catch {
+      context = new Context();
+    }
     const compressor = context.createDynamicsCompressor();
     compressor.threshold.value = -12;
     compressor.knee.value = 10;

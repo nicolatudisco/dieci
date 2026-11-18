@@ -37,7 +37,7 @@ Le immagini del globo sono riproiettate una volta con `scripts/geodata/globe.mjs
 
 ## Suoni del viaggio
 
-- Il sottofondo del viaggio («Il cielo che respira»), i rintocchi a ogni potenza di 10, l'accordo della bolla e il carillon del finale li suona il browser con la Web Audio API (`src/audio/`): nessuna registrazione, nessun file audio. Il carillon suona la stessa melodia di «Tanti auguri» del Disco d'oro, di pubblico dominio.
+- Il sottofondo del viaggio («Il cielo che respira»), i rintocchi a ogni potenza di 10, l'accordo della bolla e quello che si apre nel finale li suona il browser con la Web Audio API (`src/audio/`), compreso il riverbero che dà lo spazio: nessuna registrazione, nessun file audio.
 
 ## Modelli 3D
 
