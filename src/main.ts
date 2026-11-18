@@ -11,6 +11,8 @@ import './styles/base.css';
 import './styles/ui.css';
 import './styles/views.css';
 import './styles/lab.css';
+import { Soundscape } from './audio/ambient.ts';
+import { SoundToggle } from './audio/toggle.ts';
 import { bubbleAt, bubbleStop, exactRadiusLine } from './bubble.ts';
 import { FINALE_IS_PLACEHOLDER } from './content/finale.ts';
 import { LABELS } from './content/labels.ts';
@@ -183,11 +185,15 @@ function boot(): void {
       'pianeti-lontani': () => buildPaleBlueDot(),
     },
   });
+  // «Il cielo che respira»: off until she turns it on (audio/ambient.ts, audio/toggle.ts).
+  const soundscape = new Soundscape({ bubbleSeconds: () => bubble().radius, finaleWave: finaleTimeline.script.cues.wave });
+  const sound = new SoundToggle({ enabled: !route.isStatic, onChange: (on) => soundscape.setEnabled(on, engine.motion.u) });
   const intro = new Intro({
     name: person.name,
     firstLine: firstLineKey(person.birth, civilDateOf(clock.now())),
     animated: !route.isStatic,
     onStart: start,
+    extra: sound.big,
   });
   // With time frozen the finale shows everything said; `?finale=<seconds>` freezes it at
   // that moment of its sequence instead (for the screenshots of what happens on the way).
@@ -234,6 +240,7 @@ function boot(): void {
     intro.element,
     finale.element,
     epilogue.element,
+    sound.small,
     curtain.element,
     overlays.element,
   );
@@ -244,6 +251,8 @@ function boot(): void {
   const cells: Record<ScreenOwner, HTMLElement> = { intro: intro.star, journey: ui.scene, finale: finale.star, epilogue: epilogue.star };
   let owner = screenOwner(route.u);
   free.follow(cells[owner], true);
+  // In the opening the big switch is there; along the journey the small one.
+  sound.showSmall(owner !== 'intro');
 
   const lastStop = [...NODES].reverse().find((node) => node.stop) ?? FINALE;
 
@@ -252,6 +261,7 @@ function boot(): void {
     if (next !== owner) {
       owner = next;
       free.follow(cells[owner]);
+      sound.showSmall(owner !== 'intro');
     }
     ui.update(info);
     free.freeze(ui.panel.reading);
@@ -261,6 +271,7 @@ function boot(): void {
     if (info.atNode === FINALE) finale.arrive();
     else if (info.u <= lastStop.u + 0.1) finale.leave();
     finale.update(info.dt);
+    soundscape.update({ u: info.u, atNode: info.atNode?.id ?? null, finaleTime: finaleTimeline.t, covered: overlays.current !== null });
     // Until the message has been said, free movement stops at the finale.
     engine.motion.ceiling = finaleTimeline.complete || info.u > FINALE.u + 0.05 ? U_MAX : FINALE.u;
     // Where the journey stands, for tests and debugging: the id of the node, or nothing while moving.

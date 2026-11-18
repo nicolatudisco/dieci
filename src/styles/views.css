@@ -143,9 +143,39 @@
   color: var(--warm);
 }
 
-.intro__start {
+.intro__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
   align-self: start;
   margin-top: 1.75rem;
+}
+
+.view .intro__actions.reveal:not(.is-on) * {
+  pointer-events: none;
+}
+
+/* The switch of the sound in the opening: the loudspeaker, and the sentence next to it. */
+.sound-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.sound-choice__hint {
+  margin: 0;
+  max-width: 16em;
+  font-size: var(--text-small);
+  text-align: left;
+  color: var(--muted);
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sound-choice.is-on .sound-choice__hint {
+  color: var(--ink);
 }
 
 /* ── Finale ───────────────────────────────────────────────────────────────── */

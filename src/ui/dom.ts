@@ -19,11 +19,14 @@ const ICONS = {
   close: 'M6 6l12 12M18 6L6 18',
   // A rounded square: stop the sound.
   stop: 'M8 6h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z',
+  // A loudspeaker with its waves, and silent.
+  soundOn: 'M3.5 9.5h3.5L11.5 5.5v13L7 14.5H3.5zM15.2 9.2a4 4 0 0 1 0 5.6M18 6.5a7.6 7.6 0 0 1 0 11',
+  soundOff: 'M3.5 9.5h3.5L11.5 5.5v13L7 14.5H3.5zM15.5 9.5l5 5M20.5 9.5l-5 5',
 } as const;
 
 export type IconName = keyof typeof ICONS;
 
-const STROKED: ReadonlySet<IconName> = new Set(['plus', 'chevron', 'close']);
+const STROKED: ReadonlySet<IconName> = new Set(['plus', 'chevron', 'close', 'soundOn', 'soundOff']);
 
 export function icon(name: IconName): SVGSVGElement {
   const svg = document.createElementNS(SVG, 'svg');

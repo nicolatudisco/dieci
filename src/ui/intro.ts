@@ -17,6 +17,8 @@ export interface IntroOptions {
   readonly firstLine: FirstLineKey;
   readonly animated: boolean;
   readonly onStart: () => void;
+  /** Under «Inizia il viaggio», and arriving with it: the switch of the sound. */
+  readonly extra?: HTMLElement;
 }
 
 export class Intro {
@@ -48,12 +50,18 @@ export class Intro {
     });
     // Reached with the keyboard before its turn: everything comes in, nothing stays invisible.
     this.start.addEventListener('focus', () => this.reveal.finish());
-    items.push(this.start);
+    const actions = el('div', 'intro__actions');
+    actions.append(this.start);
+    if (options.extra) {
+      actions.append(options.extra);
+      options.extra.addEventListener('focusin', () => this.reveal.finish());
+    }
+    items.push(actions);
     this.reveal = new Reveal(items, { animated: options.animated, first: 900, step: 2300 });
 
     // A tap anywhere brings in the lines that are still to come.
     this.element.addEventListener('click', () => this.reveal.finish());
-    this.element.append(this.star, text, this.start);
+    this.element.append(this.star, text, actions);
   }
 
   /** Starts the lines (again, after «Rifai il viaggio»). */

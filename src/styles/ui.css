@@ -799,3 +799,32 @@
   color: var(--warm);
   text-wrap: balance;
 }
+
+/* ── The switch of the sound, along the journey (audio/toggle.ts) ────────── */
+.sound-toggle {
+  position: absolute;
+  top: calc(var(--safe-top) + 0.75rem);
+  right: calc(var(--safe-right) + 0.75rem);
+  width: 3rem;
+  min-height: 3rem;
+  height: 3rem;
+  background: rgb(14 18 38 / 0.72);
+  color: var(--muted);
+  pointer-events: auto;
+}
+
+.sound-toggle[hidden] {
+  display: none;
+}
+
+.ghost.sound-toggle .icon,
+.ghost.sound-choice__button .icon {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.sound-toggle.is-on,
+.sound-choice__button.is-on {
+  color: var(--cool-bright);
+  border-color: rgb(185 198 247 / 0.7);
+}

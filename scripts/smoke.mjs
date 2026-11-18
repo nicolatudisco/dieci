@@ -93,6 +93,12 @@ try {
   check((await whereAt()) === 'apertura', 'la pagina si apre sull’apertura');
   check((await page.locator('.intro__line').count()) >= 3, 'le righe dell’apertura ci sono');
   await page.mouse.click(60, 60);
+  // The sound: off at the start; turned on here, it plays along the whole journey below.
+  const soundOff = await page.getAttribute('.sound-choice__button', 'aria-label');
+  check(soundOff === UI.controls.soundOff && (await page.isHidden('.sound-toggle')), `nell’apertura il suono è spento («${soundOff}») e c’è «${UI.intro.soundHint}»`);
+  await page.click('.sound-choice__button');
+  const soundOn = await page.evaluate(() => ({ label: document.querySelector('.sound-choice__button').getAttribute('aria-label'), kept: localStorage.getItem('dieci.suono') }));
+  check(soundOn.label === UI.controls.soundOn && soundOn.kept === '1', 'un tocco accende il suono, e la scelta si ricorda');
   await page.click('.intro__start');
   check(await at('partenza', 12000), '«Inizia il viaggio» porta alla prima tappa');
 
@@ -250,6 +256,12 @@ try {
   await page.click('.record__buttons .choice');
   await page.waitForTimeout(200);
   check((await page.evaluate(() => document.querySelector('.overlay').hidden)) && (await whereAt()) === 'voyager', '«Torna al viaggio» riporta alla tappa Voyager');
+
+  console.log('\nSuono');
+  check(await page.isVisible('.sound-toggle'), 'lungo il viaggio il pulsante del suono è in alto a destra');
+  await page.click('.sound-toggle');
+  check((await page.getAttribute('.sound-toggle', 'aria-label')) === UI.controls.soundOff, 'un tocco lo spegne');
+  await page.evaluate(() => localStorage.removeItem('dieci.suono'));
 
   console.log('\nConsole');
   check(errors.length === 0, errors.length === 0 ? 'nessun errore in console' : `errori in console: ${errors.slice(0, 3).join(' | ')}`);
