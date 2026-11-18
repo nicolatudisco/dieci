@@ -22,10 +22,10 @@ export type ChimeStyle = 'glass' | 'breath' | 'none';
 export const CHIME_STYLE: ChimeStyle = 'glass';
 
 /** How loud each part is: low. It is a breath under the journey, not music to listen to. */
-const PAD = 0.12;
-const CHIME = 0.02;
-const BUBBLE = 0.075;
-const BLOOM = 0.12;
+const PAD = 0.16;
+const CHIME = 0.024;
+const BUBBLE = 0.09;
+const BLOOM = 0.14;
 /** While the Golden Record is open its own sounds must be heard: the journey almost stops. */
 const DUCKED = 0.1;
 /** The large space: how long its echo lasts, in seconds. */
@@ -220,7 +220,7 @@ export function setColour(graph: Graph, u: number, at: number, ease = 1): void {
   }
   // Farther out, more of the sound is in the large space and less of it is near.
   graph.padSpace.gain.setTargetAtTime(0.25 + 0.75 * space, at, ease * 2);
-  graph.padNear.gain.setTargetAtTime(0.75 - 0.5 * space, at, ease * 2);
+  graph.padNear.gain.setTargetAtTime(0.85 - 0.45 * space, at, ease * 2);
 }
 
 /** The chime of a power of ten, in the style chosen. */

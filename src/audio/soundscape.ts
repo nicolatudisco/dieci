@@ -44,15 +44,15 @@ export const SOUNDS: Readonly<Record<Region, RegionSound>> = {
   // The single star in the dark: one note, far away.
   opening: { voices: [v(12, 'sine', 0.5, 0), v(19, 'sine', 0.18, 0.3)], cutoff: 900, level: 0.75, space: 0.85 },
   // Rifredi, Florence, Italy, the Earth: close and warm, low, a major chord.
-  home: { voices: [v(0, 'triangle', 0.45, -0.25), v(7, 'triangle', 0.3, 0.25), v(12, 'sine', 0.28, -0.1), v(16, 'sine', 0.2, 0.35)], cutoff: 850, level: 1, space: 0.35 },
+  home: { voices: [v(0, 'triangle', 0.45, -0.25), v(7, 'triangle', 0.3, 0.25), v(12, 'sine', 0.28, -0.1), v(16, 'sine', 0.2, 0.35), v(19, 'sine', 0.16, -0.4)], cutoff: 1100, level: 1, space: 0.35 },
   // The Moon to Voyager: open fifths and fourths, a little brighter.
-  planets: { voices: [v(0, 'sine', 0.42, -0.35), v(7, 'triangle', 0.3, 0.35), v(14, 'sine', 0.26, -0.2), v(19, 'sine', 0.2, 0.45)], cutoff: 1300, level: 0.95, space: 0.6 },
+  planets: { voices: [v(0, 'sine', 0.42, -0.35), v(7, 'triangle', 0.3, 0.35), v(14, 'sine', 0.26, -0.2), v(19, 'sine', 0.2, 0.45), v(24, 'sine', 0.12, -0.5)], cutoff: 1600, level: 0.95, space: 0.6 },
   // The Oort cloud to the edge of the universe: wide, deep, spread across the octaves.
-  stars: { voices: [v(-5, 'sine', 0.42, -0.5), v(2, 'triangle', 0.26, 0.5), v(9, 'sine', 0.24, -0.3), v(16, 'sine', 0.2, 0.6), v(23, 'sine', 0.12, -0.6)], cutoff: 1700, level: 0.9, space: 0.9 },
+  stars: { voices: [v(-5, 'sine', 0.42, -0.5), v(2, 'triangle', 0.26, 0.5), v(9, 'sine', 0.24, -0.3), v(16, 'sine', 0.2, 0.6), v(23, 'sine', 0.12, -0.6)], cutoff: 2000, level: 0.9, space: 0.9 },
   // Act II: only numbers. Few high glassy notes, almost all space.
   numbers: { voices: [v(19, 'sine', 0.26, -0.5), v(26, 'sine', 0.2, 0.5), v(31, 'sine', 0.14, 0)], cutoff: 3200, level: 1, space: 1 },
   // The finale: a warm major chord, close again.
-  finale: { voices: [v(0, 'triangle', 0.42, -0.3), v(4, 'sine', 0.32, 0.3), v(7, 'sine', 0.32, -0.15), v(12, 'sine', 0.26, 0.45), v(16, 'sine', 0.16, -0.45)], cutoff: 1400, level: 1.05, space: 0.6 },
+  finale: { voices: [v(0, 'triangle', 0.42, -0.3), v(4, 'sine', 0.32, 0.3), v(7, 'sine', 0.32, -0.15), v(12, 'sine', 0.26, 0.45), v(16, 'sine', 0.16, -0.45), v(19, 'sine', 0.16, 0.2), v(24, 'sine', 0.1, -0.2)], cutoff: 1700, level: 1.05, space: 0.6 },
 };
 
 /** Where each region has the background to itself, on the journey axis `u` (see journey.ts). */
