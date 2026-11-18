@@ -36,8 +36,8 @@ import { webData } from './web-data.ts';
 /** The first galaxies: beyond about 33 billion light-years (today's distance of light that left them at redshift ~12) there are none yet. */
 const FIRST_GALAXIES_LY = 33e9;
 
-/** The two looks of the oldest light, to be chosen by Nicola (M5, step 8): 'peach' or 'planck'. */
-const PALETTE: 'peach' | 'planck' = 'peach';
+/** The look of the oldest light: 'planck', chosen by Nicola (M8) over the plain 'peach'. */
+const PALETTE: 'peach' | 'planck' = 'planck';
 
 const QUAD_VERTEX = /* glsl */ `
   varying vec2 vP;
