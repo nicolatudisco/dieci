@@ -8,6 +8,8 @@
  *   npm run smoke                 the real GPU (where there is none, Chrome falls back to software)
  *   npm run smoke -- --software   software rendering (SwiftShader): the maps of the ground run at a
  *                                 few frames per second there, too slow for the timings of the test
+ *   npm run smoke -- --reduced-motion   the whole journey with prefers-reduced-motion: ▶ and ◀ fade
+ *                                 through night instead of zooming (the counter then jumps from stop to stop)
  *   npm run smoke -- --headed     show the browser window
  *   npm run smoke -- --url http://localhost:5173   use a dev server that is already running
  *
@@ -64,7 +66,9 @@ try {
   // Headless Chrome stays on SwiftShader without --enable-gpu. (--gpu is still accepted.)
   const flags = args.has('--software') ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : ['--ignore-gpu-blocklist', '--enable-gpu'];
   browser = await launch(flags);
-  const context = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  const reduced = args.has('--reduced-motion');
+  if (reduced) console.log('\n(con prefers-reduced-motion: niente zoom, si passa dal velo)');
+  const context = await browser.newContext({ viewport: { width: 1180, height: 820 }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
   const page = await context.newPage();
   const errors = [];
   page.on('console', (message) => {
@@ -125,12 +129,31 @@ try {
 
   const ticks = await page.evaluate(() => window.__ticks);
   const wanted = [...Array.from({ length: 28 }, (_, n) => String(n)), '30', '80', '100', 'googol'];
-  check(JSON.stringify(ticks) === JSON.stringify(wanted), `il contatore è scattato a ogni potenza di 10, in ordine (${ticks.length} valori)`);
-  if (JSON.stringify(ticks) !== JSON.stringify(wanted)) console.log(`    visti: ${ticks.join(' ')}`);
+  if (reduced) {
+    // Through the veil the journey jumps from stop to stop: the counter shows each stop's power, in order.
+    const order = ticks.map((t) => wanted.indexOf(t));
+    check(order.every((n, i) => n >= 0 && (i === 0 || n > (order[i - 1] ?? -1))), `col velo il contatore va solo avanti, tappa dopo tappa (${ticks.length} valori)`);
+  } else {
+    check(JSON.stringify(ticks) === JSON.stringify(wanted), `il contatore è scattato a ogni potenza di 10, in ordine (${ticks.length} valori)`);
+    if (JSON.stringify(ticks) !== JSON.stringify(wanted)) console.log(`    visti: ${ticks.join(' ')}`);
+  }
+
 
   console.log('\nFinale ed epilogo');
+  if (reduced) {
+    // No zoom: while the journey jumps to the finale, a veil of night covers the scene whole.
+    await page.evaluate(() => {
+      window.__veil = 0;
+      const watch = () => {
+        for (const veil of document.querySelectorAll('.veil')) window.__veil = Math.max(window.__veil, Number(getComputedStyle(veil).opacity));
+        if (document.documentElement.dataset.at !== 'finale') requestAnimationFrame(watch);
+      };
+      requestAnimationFrame(watch);
+    });
+  }
   await page.click('.nav-button--forward');
   check(await at('finale'), '▶ dall’ultima tappa porta al finale');
+  if (reduced) check((await page.evaluate(() => window.__veil)) > 0.95, 'col movimento ridotto si passa dal velo, senza zoom');
   const message = await text('.finale__message');
   check(message.trim().length > 0, FINALE_IS_PLACEHOLDER ? `il finale mostra il segnaposto («${message.trim()}»)` : 'il finale mostra il messaggio');
   if (FINALE_IS_PLACEHOLDER) check(message.includes('TODO'), 'il segnaposto del finale è evidente');

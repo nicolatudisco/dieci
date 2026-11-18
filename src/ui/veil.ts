@@ -12,14 +12,23 @@ const REVEAL_MS = 420;
 export class Veil {
   readonly element = el('div', 'veil');
   private busy = false;
+  /** One more change asked for while busy: it runs when the veil has lifted. */
+  private next: (() => void | Promise<void>) | null = null;
 
   constructor() {
     this.element.setAttribute('aria-hidden', 'true');
   }
 
-  /** Covers the scene, awaits `change`, uncovers it. Calls made meanwhile are ignored. */
+  /**
+   * Covers the scene, awaits `change`, uncovers it. A call made meanwhile is kept (only the
+   * last one) and runs right after: a ▶ pressed while the veil lifts is not lost, and a
+   * burst of presses goes at most one stop further.
+   */
   async through(change: () => void | Promise<void>): Promise<void> {
-    if (this.busy) return;
+    if (this.busy) {
+      this.next = change;
+      return;
+    }
     this.busy = true;
     try {
       await this.fade(0, 1, COVER_MS);
@@ -30,6 +39,9 @@ export class Veil {
     } finally {
       this.busy = false;
     }
+    const next = this.next;
+    this.next = null;
+    if (next) await this.through(next);
   }
 
   private async fade(from: number, to: number, duration: number): Promise<void> {

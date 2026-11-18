@@ -134,8 +134,11 @@ function boot(): void {
       engine.go(dir);
       return;
     }
-    const node = neighbour(engine.motion.u, dir);
-    if (node) void veil.through(() => engine.jumpTo(node.u));
+    // The stop is chosen when the jump starts: a press kept while the veil lifts goes one further.
+    void veil.through(() => {
+      const node = neighbour(engine.motion.u, dir);
+      return node ? engine.jumpTo(node.u) : undefined;
+    });
   };
 
   /** «Rifai il viaggio»: back to the single star. */
