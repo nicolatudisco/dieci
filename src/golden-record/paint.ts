@@ -315,7 +315,7 @@ export type Grooves = { readonly kind: 'blank' } | { readonly kind: 'plain' } | 
 
 /** The grooves of a design: blank until the disc is created. */
 export function groovesOf(design: DiscDesign): Grooves {
-  if (design.engraving === null) return { kind: 'blank' };
+  if (!design.made) return { kind: 'blank' };
   return design.sound ? { kind: 'sound', id: design.sound } : { kind: 'plain' };
 }
 

@@ -22,11 +22,13 @@ export interface DiscDesign {
   readonly sound: SoundId | null;
   /** As she typed it (at most `MESSAGE_MAX` characters). */
   readonly message: string;
-  /** The words engraved on the label: null until the disc is created. */
+  /** True once she has pressed «Crea il mio disco»: the grooves are cut. */
+  readonly made: boolean;
+  /** The words engraved on the label: null until they are written, after the grooves. */
   readonly engraving: string | null;
 }
 
-export const EMPTY_DESIGN: DiscDesign = { picture: null, sound: null, message: '', engraving: null };
+export const EMPTY_DESIGN: DiscDesign = { picture: null, sound: null, message: '', made: false, engraving: null };
 
 export const MESSAGE_MAX = GOLDEN_RECORD.message.maxLength;
 

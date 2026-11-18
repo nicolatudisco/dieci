@@ -64,8 +64,20 @@
   margin-top: 1.5rem;
 }
 
-.lab__actions[hidden] {
+.lab__actions[hidden],
+.lab button[hidden] {
   display: none;
+}
+
+/* Saving takes a moment on a tablet: the button says it is working. */
+.lab__save[aria-busy='true'] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.lab__create:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 /* ── The three steps ── */
@@ -330,8 +342,9 @@
     top: calc(var(--safe-top) + 1.5rem);
   }
 
+  /* Title, disc and its buttons fit in the first screen of the lab. */
   .lab .lab__disc {
-    width: min(100%, 30rem, calc(100vh - 12rem));
+    width: min(100%, 30rem, calc(100vh - 17rem));
     min-width: 15rem;
   }
 }

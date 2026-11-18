@@ -195,7 +195,7 @@ export class RecordDisc {
     const from = groovesOf(this.design);
     const to = groovesOf(design);
     const layers = this.layers;
-    if (this.motion === 'none' || !layers || !this.pixels || sameGrooves(from, to)) {
+    if (this.motion === 'none' || !this.active || !layers || !this.pixels || sameGrooves(from, to)) {
       this.setDesign(design);
       return Promise.resolve();
     }
@@ -219,7 +219,7 @@ export class RecordDisc {
   write(design: DiscDesign, duration: number): Promise<void> {
     this.finishWriting();
     this.setDesign(design);
-    if (this.motion === 'none' || !design.engraving) return Promise.resolve();
+    if (this.motion === 'none' || !this.active || !design.engraving) return Promise.resolve();
     return new Promise((done) => {
       this.writing = { clock: clockFromNow(), duration, done };
       this.wake();
@@ -230,6 +230,23 @@ export class RecordDisc {
   listen(clock: Clock | null, duration = 0): void {
     this.reading = clock ? { clock, duration } : null;
     this.wake();
+    this.draw();
+  }
+
+  /** Paints her disc again from scratch (once the typeface of the letters has arrived). */
+  repaint(): void {
+    if (!this.layers || !this.pixels) return;
+    this.layers = paintHerLayers(this.pixels, this.design);
+    if (this.cutting) this.layers.base = this.cutting.fromCanvas;
+    this.flatten();
+    this.draw();
+  }
+
+  /** Everything in progress ends where it was going: the grooves cut, the words written, the needle lifted. */
+  settle(): void {
+    this.finishCut();
+    this.finishWriting();
+    this.reading = null;
     this.draw();
   }
 

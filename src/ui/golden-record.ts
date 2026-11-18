@@ -18,10 +18,12 @@ import { setRich, typeset } from './rich-text.ts';
  * True once the lab can really make a disc: the button of the epilogue becomes «Crea il tuo
  * Disco d'oro» and opens the page at the lab.
  */
-export const GOLDEN_RECORD_LAB_READY = false;
+export const GOLDEN_RECORD_LAB_READY = true;
 
 /** The part of the page that `?disco=` and the epilogue can open at. */
 export const LAB_PART = 'laboratorio';
+/** `?disco=fatto`: the lab with a disc already made (for the screenshots). */
+export const DEMO_PART = 'fatto';
 
 export interface GoldenRecordOptions {
   /** False with ?static=1: everything is there at once, and nothing moves. */
@@ -117,12 +119,13 @@ export function buildGoldenRecord(titleId: string, close: () => void, options: G
       reveal.reset();
       disc.start();
       lab.shown();
-      if (at !== LAB_PART) {
+      if (at !== LAB_PART && at !== DEMO_PART) {
         reveal.start();
         return;
       }
       // Straight to the lab: the story is all there for whoever scrolls up.
       reveal.finish();
+      if (at === DEMO_PART) lab.demo();
       lab.heading.scrollIntoView({ block: 'start' });
       return lab.heading;
     },

@@ -17,6 +17,8 @@ const ICONS = {
   plus: 'M12 5v14M5 12h14',
   chevron: 'M6 9.5l6 6 6-6',
   close: 'M6 6l12 12M18 6L6 18',
+  // A rounded square: stop the sound.
+  stop: 'M8 6h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z',
 } as const;
 
 export type IconName = keyof typeof ICONS;
