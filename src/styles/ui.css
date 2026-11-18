@@ -49,15 +49,39 @@
 
 /* ── Counter ──────────────────────────────────────────────────────────────── */
 .counter {
+  position: relative;
   grid-area: counter;
   padding: calc(var(--safe-top) + 0.75rem) calc(var(--safe-right) + var(--gutter)) 0.875rem
     calc(var(--safe-left) + var(--gutter));
   /* A veil of night behind the numbers, so they read over any scene. */
-  background: linear-gradient(to bottom, rgb(5 6 13 / 0.86), rgb(5 6 13 / 0.6) 62%, rgb(5 6 13 / 0));
+  background: linear-gradient(to bottom, rgb(5 6 13 / 0.88), rgb(5 6 13 / 0.7) 66%, rgb(5 6 13 / 0.42));
+}
+
+/* The veil fades out a little below the counter, not right under its last line. */
+.counter::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 1.75rem;
+  background: linear-gradient(to bottom, rgb(5 6 13 / 0.42), rgb(5 6 13 / 0));
+  pointer-events: none;
 }
 
 .counter p {
   margin: 0;
+}
+
+/* A halo of night around the small words, for the scenes full of points (the cosmic web). */
+.counter__label,
+.counter__unit,
+.counter__width,
+.counter__line {
+  text-shadow:
+    0 0 14px rgb(5 6 13 / 0.95),
+    0 0 5px rgb(5 6 13 / 0.95),
+    0 0 2px rgb(5 6 13 / 0.9);
 }
 
 .counter__label {
@@ -573,6 +597,10 @@
     background: none;
   }
 
+  .counter::after {
+    display: none;
+  }
+
   .page,
   .page.is-reading {
     max-height: none;
@@ -625,6 +653,33 @@
 
   .caption {
     padding-top: 0.75rem;
+  }
+
+  /* The sheet leaves more to the scene: a longer caption scrolls, with its fade. */
+  .page {
+    max-height: 42vh;
+    max-height: 42svh;
+  }
+}
+
+/* A small phone, or a phone inside a browser with its toolbars (about 375 × 667). */
+@media (orientation: portrait) and (max-width: 520px) and (max-height: 760px) {
+  :root {
+    --counter: 3.5rem;
+  }
+
+  .counter {
+    padding-top: calc(var(--safe-top) + 0.5rem);
+  }
+
+  .page {
+    max-height: 40vh;
+    max-height: 40svh;
+  }
+
+  /* Still the 18 pixels that running text never goes below on a phone. */
+  .caption__text {
+    font-size: 1rem;
   }
 }
 

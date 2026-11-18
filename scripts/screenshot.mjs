@@ -11,7 +11,7 @@
  *   npm run shots -- --u 28,30,36                  positions of the journey axis (uses ?u=<pos>): Act II transitions
  *   npm run shots -- --from 0 --to 27 --step 0.5   a range of exponents (uses ?s=<e>)
  *   npm run shots -- --scales 0,7.2,13.7           explicit exponents
- *   npm run shots -- --viewports phone,tablet      desktop | tablet | phone
+ *   npm run shots -- --viewports phone,tablet      desktop | tablet | phone | phone-small (375 × 667, not in the default round)
  *   npm run shots -- --gpu                         real GPU instead of SwiftShader (faster)
  *   npm run shots -- --headed                      show the browser window
  *   npm run shots -- --url http://localhost:5173   use a dev server that is already running
@@ -48,6 +48,8 @@ const VIEWPORTS = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
   tablet: { viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
   phone: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
+  // Not in the default round: a small phone, or a phone inside Safari with its toolbars.
+  'phone-small': { viewport: { width: 375, height: 667 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
 };
 
 const args = parseArgs(process.argv.slice(2));
