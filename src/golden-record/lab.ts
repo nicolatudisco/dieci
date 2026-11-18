@@ -109,6 +109,9 @@ export class Lab {
   private readonly actions = el('div', 'lab__actions');
   private readonly listen = button('choice lab__listen');
   private readonly save = button('cta lab__save');
+  /** On a phone the disc is above the steps: while she writes, a small copy stays in view. */
+  private readonly mini = el('div', 'lab__mini');
+  private readonly miniCanvas = el('canvas');
   private playing: Playing | null = null;
   private listening = false;
   private composing = false;
@@ -174,16 +177,26 @@ export class Lab {
       this.typed();
     });
     this.message.addEventListener('input', () => this.typed());
-    // While she writes, the disc stops with her words upright.
-    this.message.addEventListener('focus', () => this.disc.hold(true));
-    this.message.addEventListener('blur', () => this.disc.hold(false));
+    // While she writes, the disc stops with her words upright (and, on a phone, a small copy
+    // of it stays in view above the steps).
+    this.message.addEventListener('focus', () => {
+      this.element.classList.add('is-writing');
+      this.disc.hold(true);
+    });
+    this.message.addEventListener('blur', () => {
+      this.element.classList.remove('is-writing');
+      this.disc.hold(false);
+    });
+    this.mini.setAttribute('aria-hidden', 'true');
+    this.mini.append(this.miniCanvas);
+    this.disc.onDraw = (canvas) => this.copyToMini(canvas);
     writing.append(legend, this.message, this.counter);
 
     this.create.textContent = GOLDEN_RECORD.actions.create;
     this.create.addEventListener('click', () => void this.makeDisc());
 
     const steps = el('div', 'lab__steps');
-    steps.append(pictures, sounds, writing, this.create);
+    steps.append(this.mini, pictures, sounds, writing, this.create);
     const bench = el('div', 'lab__bench');
     bench.append(discColumn, steps);
     this.element.append(this.heading, intro, bench, back);
@@ -192,6 +205,19 @@ export class Lab {
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) this.silence();
     });
+  }
+
+  /** The small disc, while she writes and only where it is shown (a narrow screen). */
+  private copyToMini(canvas: HTMLCanvasElement): void {
+    if (!this.element.classList.contains('is-writing')) return;
+    const css = this.mini.clientWidth;
+    if (css === 0) return;
+    const size = Math.round(css * Math.min(window.devicePixelRatio || 1, 2.5));
+    if (this.miniCanvas.width !== size) this.miniCanvas.width = this.miniCanvas.height = size;
+    const g = this.miniCanvas.getContext('2d');
+    if (!g) return;
+    g.clearRect(0, 0, size, size);
+    g.drawImage(canvas, 0, 0, size, size);
   }
 
   private step<T extends string>(title: string, tiles: readonly Tile<T>[], kind: string): HTMLFieldSetElement {

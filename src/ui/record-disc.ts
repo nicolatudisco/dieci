@@ -125,6 +125,8 @@ export class RecordDisc {
   private cutting: Cut | null = null;
   private writing: Writing | null = null;
   private reading: Reading | null = null;
+  /** Called after every frame with the canvas just drawn (the lab copies it into a small disc). */
+  onDraw: ((canvas: HTMLCanvasElement) => void) | null = null;
 
   constructor(options: RecordDiscOptions) {
     this.spinning = options.spinning;
@@ -362,11 +364,13 @@ export class RecordDisc {
     if (this.layers && (this.cutting || this.writing)) this.drawAtWork(g, size);
     else g.drawImage(this.flat, -c, -c);
     g.restore();
-    if (!this.lights) return;
-    // The light stays where it is.
-    drawLights(g, this.lights, R, this.art === 'voyager' ? VOYAGER_LABEL : HERS.label, size);
-    const needle = this.needleAt();
-    if (needle !== null) drawNeedle(g, size, needleRadius(needle));
+    if (this.lights) {
+      // The light stays where it is.
+      drawLights(g, this.lights, R, this.art === 'voyager' ? VOYAGER_LABEL : HERS.label, size);
+      const needle = this.needleAt();
+      if (needle !== null) drawNeedle(g, size, needleRadius(needle));
+    }
+    this.onDraw?.(this.canvas);
   }
 
   /** Where the needle is, from 0 (the edge) to 1 (the end of the sound); null when it is lifted. */
