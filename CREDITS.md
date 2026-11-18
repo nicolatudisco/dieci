@@ -27,6 +27,14 @@ Questo file si completa durante lo sviluppo: ogni immagine, modello, font o dato
 
 Le immagini del globo sono riproiettate una volta con `scripts/geodata/globe.mjs`, quelle dei pianeti ridimensionate con `scripts/textures.mjs`.
 
+## Il tuo Disco d'oro
+
+- I sei disegni del laboratorio (`src/golden-record/pictures.ts`) sono fatti apposta per questo sito, a linee, senza foto. Le coste della Terra vengono da [Natural Earth](https://www.naturalearthdata.com), scala 1:10m, pubblico dominio (`scripts/golden-record-earth.mjs`).
+- I sei suoni non sono registrazioni: li suona il browser, nota per nota, con la Web Audio API (`src/golden-record/scores.ts` e `synth.ts`). Nessun file audio.
+- La melodia di «Tanti auguri» è «Happy Birthday to You» di Mildred e Patty Hill (1893), di pubblico dominio.
+- «CIAO» in codice Morse internazionale, con i tempi della raccomandazione [ITU-R M.1677-1](https://www.itu.int/rec/R-REC-M.1677-1-200910-I/).
+- Il disco che crei viene disegnato nel tuo browser e salvato solo sul tuo dispositivo.
+
 ## Modelli 3D
 
 _(da completare)_
