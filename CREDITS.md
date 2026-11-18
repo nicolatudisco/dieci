@@ -35,9 +35,13 @@ Le immagini del globo sono riproiettate una volta con `scripts/geodata/globe.mjs
 - «CIAO» in codice Morse internazionale, con i tempi della raccomandazione [ITU-R M.1677-1](https://www.itu.int/rec/R-REC-M.1677-1-200910-I/).
 - Il disco che crei viene disegnato nel tuo browser e salvato solo sul tuo dispositivo.
 
+## Suoni del viaggio
+
+- Il sottofondo del viaggio («Il cielo che respira»), i rintocchi a ogni potenza di 10, l'accordo della bolla e il carillon del finale li suona il browser con la Web Audio API (`src/audio/`): nessuna registrazione, nessun file audio. Il carillon suona la stessa melodia di «Tanti auguri» del Disco d'oro, di pubblico dominio.
+
 ## Modelli 3D
 
-_(da completare)_
+- Nessun modello scaricato. La sonda Voyager 1 nella lente è costruita nel codice con forme semplici, in proporzioni vere (`src/levels/voyager-model.ts`).
 
 ## Font
 
@@ -50,3 +54,5 @@ Tutti i caratteri sono nel sito (pacchetti `@fontsource`), nessuno viene scarica
 
 - [three.js](https://threejs.org), licenza MIT
 - [Vite](https://vite.dev), licenza MIT
+
+Solo per gli script che preparano i dati e controllano il sito (non finiscono nel sito): [TypeScript](https://www.typescriptlang.org), [Playwright](https://playwright.dev) e [sharp](https://sharp.pixelplumbing.com), licenza Apache 2.0.
