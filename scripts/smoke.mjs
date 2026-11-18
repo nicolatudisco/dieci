@@ -14,9 +14,11 @@
  * It checks that: every stop is reached in order with ▶ alone; the caption shows the title
  * of the stop; the counter shows its exponent and ticks once for every power of ten, in
  * order, with none skipped; the finale and the epilogue are reached; the pages on top open
- * and close and give the journey back where it was; nothing is logged as an error.
+ * and close and give the journey back where it was; the Golden Record lab makes a disc and
+ * saves it as a PNG; nothing is logged as an error.
  * Exit code 1 if anything fails.
  */
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
 
@@ -47,6 +49,8 @@ let browser;
 try {
   const { STOPS } = await vite.ssrLoadModule('/src/content/levels.ts');
   const { FINALE, FINALE_IS_PLACEHOLDER } = await vite.ssrLoadModule('/src/content/finale.ts');
+  const { UI } = await vite.ssrLoadModule('/src/content/ui.ts');
+  const { counterText, countCharacters } = await vite.ssrLoadModule('/src/golden-record/design.ts');
   let base = givenUrl;
   if (!base) {
     await vite.listen();
@@ -160,9 +164,54 @@ try {
   await page.waitForTimeout(200);
   check(await page.evaluate(() => document.querySelector('.overlay').hidden), 'Esc chiude la pagina');
   check((await whereAt()) === 'epilogo', 'chiusa la pagina si è ancora nello stesso punto');
+  check(shown(await text('.epilogue__record')) === shown(UI.end.goldenRecord), `nell’epilogo c’è «${UI.end.goldenRecord}»`);
   await page.click('.epilogue__record');
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(400);
   check(await page.evaluate(() => !document.querySelector('.overlay').hidden && document.querySelector('.record') !== null), 'dall’epilogo si apre il Disco d’oro');
+  const opening = await page.evaluate(() => {
+    const title = document.querySelector('.lab__title');
+    const top = title.getBoundingClientRect().top;
+    return { top, focused: document.activeElement === title };
+  });
+  check(opening.top >= 0 && opening.top < 160 && opening.focused, 'la pagina si apre al laboratorio, col fuoco sul suo titolo');
+
+  console.log('\nIl laboratorio del Disco d’oro');
+  await page.click('.lab__tiles--pictures .tile:nth-child(1)');
+  await page.click('.lab__tiles--sounds .tile:nth-child(6)');
+  await page.waitForTimeout(300);
+  const chosen = await page.evaluate(() => ({
+    tiles: [...document.querySelectorAll('.tile.is-chosen')].length,
+    playing: document.querySelector('.lab__tiles--sounds .tile:nth-child(6)').classList.contains('is-playing'),
+  }));
+  check(chosen.tiles === 2, 'un’immagine e un suono scelti con un tocco');
+  check(chosen.playing, 'toccato, il suono suona (e la sua linea scorre)');
+  await page.click('.lab__tiles--sounds .tile:nth-child(6)');
+  await page.waitForTimeout(150);
+  check(!(await page.evaluate(() => document.querySelector('.lab__tiles--sounds .tile:nth-child(6)').classList.contains('is-playing'))), 'toccato di nuovo, si ferma');
+  await page.fill('.lab__message', `${'a'.repeat(139)}👋🏽 e altro`);
+  check(
+    (await text('.lab__counter')) === counterText(140) && countCharacters(await page.inputValue('.lab__message')) === 140,
+    `il messaggio si ferma a 140 caratteri (un’emoji vale 1): «${await text('.lab__counter')}»`,
+  );
+  await page.fill('.lab__message', 'Ciao! 👋');
+  check((await text('.lab__counter')) === counterText(countCharacters('Ciao! 👋')), `il contatore segue il messaggio: «${await text('.lab__counter')}»`);
+  await page.click('.lab__create');
+  const made = await page
+    .waitForFunction(() => !document.querySelector('.lab__actions').hidden, null, { timeout: 25000 })
+    .then(() => true, () => false);
+  check(made && (await page.evaluate(() => document.querySelector('.lab__create').hidden)), '«Crea il mio disco» incide il disco, poi lascia il posto ad «Ascolta» e «Salva il disco»');
+  await page.click('.lab__listen');
+  await page.waitForTimeout(200);
+  const listening = await page.getAttribute('.lab__listen', 'aria-pressed');
+  await page.click('.lab__listen');
+  check(listening === 'true' && (await page.getAttribute('.lab__listen', 'aria-pressed')) === 'false', '«Ascolta» fa suonare il disco, e un secondo tocco lo ferma');
+  const download = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.click('.lab__save')]).then(
+    ([file]) => file,
+    () => null,
+  );
+  const png = download ? await download.path().then((file) => readFileSync(file)) : null;
+  const size = png && png.subarray(1, 4).toString() === 'PNG' ? [png.readUInt32BE(16), png.readUInt32BE(20)] : null;
+  check(download?.suggestedFilename() === 'disco-d-oro.png' && size?.[0] === 2048 && size?.[1] === 2048, `«Salva il disco» scarica il disco come PNG (${size ? size.join(' × ') : 'nessun file'})`);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(200);
   check((await page.evaluate(() => document.querySelector('.overlay').hidden)) && (await whereAt()) === 'epilogo', 'chiuso il Disco d’oro si è ancora all’epilogo');
@@ -188,7 +237,15 @@ try {
   await page.click('.caption__extra button');
   await page.waitForTimeout(300);
   check(await page.evaluate(() => !document.querySelector('.overlay').hidden && document.querySelector('.record') !== null), 'dalla tappa Voyager si apre il Disco d’oro');
-  await page.click('.sheet__back');
+  check(await page.evaluate(() => document.querySelector('.overlay').scrollTop === 0), 'da Voyager la pagina si apre al racconto');
+  await page.click('.record__make');
+  await page.waitForTimeout(1200);
+  const below = await page.evaluate(() => {
+    const top = document.querySelector('.lab__title').getBoundingClientRect().top;
+    return top >= 0 && top < 160 && document.activeElement === document.querySelector('.lab__title');
+  });
+  check(below, '«Crea il tuo Disco d’oro» sotto il racconto scende al laboratorio');
+  await page.click('.record__buttons .choice');
   await page.waitForTimeout(200);
   check((await page.evaluate(() => document.querySelector('.overlay').hidden)) && (await whereAt()) === 'voyager', '«Torna al viaggio» riporta alla tappa Voyager');
 

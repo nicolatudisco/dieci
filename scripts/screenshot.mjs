@@ -4,9 +4,10 @@
  * can look at every scale without clicking through by hand.
  *
  * Usage, from the project root:
- *   npm run shots                                  every stop in levels.ts, then the five views
+ *   npm run shots                                  every stop in levels.ts, then the views
  *   npm run shots -- --stops partenza,bolla        only these stops (uses ?stop=<id>)
- *   npm run shots -- --stops apertura,finale       the views work too: apertura, finale, epilogo, fonti, disco
+ *   npm run shots -- --stops apertura,finale       the views work too: apertura, finale, epilogo, fonti, disco,
+ *                                                  disco-laboratorio, disco-fatto (the Golden Record lab, empty and made)
  *   npm run shots -- --u 28,30,36                  positions of the journey axis (uses ?u=<pos>): Act II transitions
  *   npm run shots -- --from 0 --to 27 --step 0.5   a range of exponents (uses ?s=<e>)
  *   npm run shots -- --scales 0,7.2,13.7           explicit exponents
@@ -35,7 +36,13 @@ import { chromium } from 'playwright';
 import { createServer } from 'vite';
 
 /** Views that are not stops but can be opened with ?stop=<id> (see CLAUDE.md, «Contratto URL»). */
-const VIEWS = ['apertura', 'finale', 'epilogo', 'fonti', 'disco'];
+const VIEWS = ['apertura', 'finale', 'epilogo', 'fonti', 'disco', 'disco-laboratorio', 'disco-fatto'];
+
+/** Views that are a part of another page: `disco-laboratorio` is ?stop=disco&disco=laboratorio. */
+const PARTS = {
+  'disco-laboratorio': { stop: 'disco', disco: 'laboratorio' },
+  'disco-fatto': { stop: 'disco', disco: 'fatto' },
+};
 
 const VIEWPORTS = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
@@ -189,7 +196,7 @@ function buildTargets(a, stops) {
   for (const id of ids) {
     if (!known.includes(id)) fail(`Tappa sconosciuta: "${id}". Valide: ${known.join(', ')}`);
   }
-  return ids.map((id) => ({ label: id, query: { stop: id } }));
+  return ids.map((id) => ({ label: id, query: PARTS[id] ?? { stop: id } }));
 }
 
 async function launchBrowser() {
