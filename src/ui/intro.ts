@@ -34,12 +34,13 @@ export class Intro {
 
     const text = el('div', 'intro__text');
     const items: HTMLElement[] = [];
-    for (const line of lines) {
-      const p = el('p', 'intro__line');
+    lines.forEach((line, index) => {
+      // The greeting, when the link has her name: in the warm light of the star, which is her.
+      const p = el('p', options.name && index === 0 ? 'intro__line intro__line--greeting' : 'intro__line');
       setRich(p, typeset(line));
       text.append(p);
       items.push(p);
-    }
+    });
     this.start.textContent = UI.intro.start;
     this.start.addEventListener('click', (event) => {
       event.stopPropagation();

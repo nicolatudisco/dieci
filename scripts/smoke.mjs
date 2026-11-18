@@ -42,6 +42,8 @@ const shown = (text) =>
   text
     .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, (c) => String(SUPERSCRIPTS.indexOf(c)))
     .replaceAll('’', "'")
+    // A number stays on its line with its word (ui/rich-text.ts): the space is unbreakable, the words the same.
+    .replaceAll('\u00a0', ' ')
     .trim();
 
 const vite = await createServer({ logLevel: 'error', server: { host: '127.0.0.1', port: 5198, strictPort: false } });

@@ -9,14 +9,21 @@ import { icon } from './dom.ts';
 
 const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
 
+/** A space where a line must not break. */
+export const NBSP = '\u00a0';
+
 /**
  * Prepares a content text for display: Unicode superscripts become `^{…}` (see above) and
- * straight apostrophes become typographic ones. The words are never changed.
+ * straight apostrophes become typographic ones. A number never stands alone at the start
+ * or at the end of a line: it stays with the short word before it («per 10», «di 384.000»)
+ * and with the word after it («10 anni»). The words are never changed.
  */
 export function typeset(text: string): string {
   return text
     .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (run) => `^{${[...run].map((c) => SUPERSCRIPT_DIGITS.indexOf(c)).join('')}}`)
-    .replace(/(?<=\p{L})'(?=\p{L}|\p{N}|\s|$)/gu, '’');
+    .replace(/(?<=\p{L})'(?=\p{L}|\p{N}|\s|$)/gu, '’')
+    .replace(/(^|[\s(«“])(\p{L}{1,3}) (?=\d)/gu, `$1$2${NBSP}`)
+    .replace(/(\d(?:\^\{[^}]*\})?) (?=\p{L})/gu, `$1${NBSP}`);
 }
 
 export function setRich(element: HTMLElement, text: string): void {
