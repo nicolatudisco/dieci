@@ -89,7 +89,7 @@ const RAD = Math.PI / 180;
 /**
  * The Milky Way: 100,000 light-years across, the Sun 26,000 light-years below the centre (on
  * screen), on the Local Arm half-way between Sagittarius–Carina and Perseus; the near end
- * of the bar 27° to the left of the line from the Sun to the centre (see content/cosmos.ts).
+ * of the bar 30° to the left of the line from the Sun to the centre (see content/cosmos.ts).
  */
 export function milkyWayLook(radius: number): GalaxyLook {
   const k = Math.tan(MILKY_WAY.pitchDeg * RAD);
@@ -103,7 +103,7 @@ export function milkyWayLook(radius: number): GalaxyLook {
   const armPhase = ((sunAngle - Math.log(scutum) / k) % Math.PI + Math.PI) % Math.PI;
   // The Local Arm passes through the Sun, about 20,000 light-years long.
   const spurPhase = sunAngle - Math.log(sunR) / k;
-  // The bar: its near end is 27° from the Sun–centre line, towards growing longitude (to the left).
+  // The bar: its near end is 30° from the Sun–centre line, towards growing longitude (to the left).
   const barAngle = 90 - MILKY_WAY.barAngleDeg;
   return {
     radius,

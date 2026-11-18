@@ -111,8 +111,9 @@ function sampleBed(duration: number, rate: number, gain: (t: number) => number, 
 }
 
 function heart(): Score {
-  // About 72 beats a minute: «tu» (the valves closing as the heart squeezes), then «tum».
-  const period = 60 / 72;
+  // About 80 beats a minute, a heart at rest at ten: «tu» (the valves closing as the heart
+  // squeezes), then «tum».
+  const period = 60 / 80;
   const events: SoundEvent[] = [];
   for (let k = 0; k < 8; k++) {
     const t = 0.25 + k * period;

@@ -30,6 +30,9 @@ export interface Nebula {
  * Zucker et al. (2020), «A compendium of distances to molecular clouds» (A&A 633, A51,
  * Gaia DR2), rounded; the others from the pages of each object on Wikipedia (checked on
  * 17 Nov 2026). The Orion Nebula is at the stage anchor (1,344 light-years, ESO).
+ * Corrected in the fact-check of M8 (docs/fact-check.md): the California Nebula at the
+ * distance of its star ξ Persei (about 1,300 light-years, Gaia), the Gum Nebula at 450 pc
+ * (Graham 1986), the Vela remnant at the distance of its pulsar (287 pc, Dodson 2003).
  * None of them is named on screen except the Orion Nebula: together they ring the Sun at a
  * few hundred light-years, along the edge of the hot, thin Local Bubble.
  */
@@ -45,7 +48,7 @@ export const NEBULAE: readonly Nebula[] = [
   { name: 'Pleiadi', l: 166.6, b: -23.5, ly: 444, radius: 8, kind: 'reflection' },
   { name: 'Nube del Toro', l: 172.0, b: -15.0, ly: 450, radius: 45, kind: 'dark', angle: 20, squash: 0.5 },
   { name: 'Nube di Perseo', l: 159.0, b: -20.0, ly: 960, radius: 40, kind: 'dark', angle: 40, squash: 0.5 },
-  { name: 'Nebulosa California', l: 160.6, b: -12.4, ly: 1000, radius: 50, kind: 'emission', angle: 70, squash: 0.35 },
+  { name: 'Nebulosa California', l: 160.6, b: -12.4, ly: 1300, radius: 50, kind: 'emission', angle: 70, squash: 0.35 },
   // Towards the centre of the galaxy.
   { name: 'Rho Ophiuchi', l: 353.0, b: 17.0, ly: 450, radius: 30, kind: 'reflection' },
   { name: 'Nube del Serpente', l: 353.0, b: 17.0, ly: 455, radius: 50, kind: 'dark', angle: 160, squash: 0.5 },
@@ -55,8 +58,8 @@ export const NEBULAE: readonly Nebula[] = [
   // The southern sky.
   { name: 'Nubi del Camaleonte', l: 297.0, b: -16.0, ly: 620, radius: 30, kind: 'dark', angle: 30, squash: 0.55 },
   { name: 'Sacco di Carbone', l: 301.0, b: -1.0, ly: 600, radius: 30, kind: 'dark' },
-  { name: 'Nebulosa di Gum', l: 258.0, b: -2.0, ly: 1300, radius: 400, kind: 'shell' },
-  { name: 'Resti della Vela', l: 263.9, b: -3.3, ly: 815, radius: 58, kind: 'shell' },
+  { name: 'Nebulosa di Gum', l: 258.0, b: -2.0, ly: 1450, radius: 400, kind: 'shell' },
+  { name: 'Resti della Vela', l: 263.9, b: -3.3, ly: 950, radius: 58, kind: 'shell' },
   // Towards Cepheus and Cygnus.
   { name: 'Nubi di Cefeo', l: 110.0, b: 15.0, ly: 1100, radius: 70, kind: 'dark', angle: 150, squash: 0.45 },
   { name: 'Nebulosa Nord America', l: 85.6, b: -0.7, ly: 2590, radius: 50, kind: 'emission', angle: 10, squash: 0.7 },
@@ -66,7 +69,7 @@ export const NEBULAE: readonly Nebula[] = [
  * The shape of the Milky Way, for the procedural galaxy (src/levels/galaxy.ts).
  * - 100,000 light-years across (NASA, in the sources of `via-lattea`).
  * - The Sun 26,000 light-years from the centre (stage anchor `galacticCentre`).
- * - A long bar about 16,000 light-years in half-length, its near end turned about 27°–30°
+ * - A long bar about 16,000 light-years in half-length, its near end turned about 30° (28°–33°)
  *   from the line between the Sun and the centre, towards growing longitudes (Wegg, Gerhard
  *   & Portail 2015, «The structure of the Milky Way's bar outside the bulge», MNRAS 450, 4050).
  * - Arms that open at about 12° (the pitch measured from masers: Reid et al. 2019, ApJ 885,
@@ -78,7 +81,7 @@ export const MILKY_WAY = {
   radiusLy: 50_000,
   sunFromCentreLy: 26_000,
   barHalfLengthLy: 16_000,
-  barAngleDeg: 27,
+  barAngleDeg: 30,
   pitchDeg: 12,
 } as const;
 
