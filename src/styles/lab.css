@@ -1,0 +1,344 @@
+/*
+ * «Crea il tuo Disco d'oro» (src/golden-record/lab.ts). The one bold thing is her disc,
+ * gold and alive; everything around it stays quiet. Each picture sits in a circle, the
+ * shape of the label it will go on, and turns gold when chosen: gold means «on your disc».
+ * Made for a finger first: big tiles, nothing that needs a mouse.
+ */
+
+/* The page holds the story and, under it, the lab. */
+.record-page {
+  min-height: 100%;
+}
+
+/* Under the story: on to the lab, or back to the journey. */
+.record__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+
+.lab {
+  max-width: 76rem;
+  padding-top: 3.5rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.lab__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.875rem, 2.4vmin + 1.2rem, 2.625rem);
+  font-weight: 460;
+  font-variation-settings:
+    'opsz' 96,
+    'SOFT' 80;
+  line-height: 1.1;
+  outline: none;
+  scroll-margin-top: calc(var(--safe-top) + 1.5rem);
+  /* Room for the way out at the top right. */
+  padding-right: 3.5rem;
+}
+
+.lab__intro {
+  max-width: 36rem;
+  margin: 0 0 2.25rem;
+  text-wrap: pretty;
+}
+
+.lab__bench {
+  display: grid;
+  gap: 2.25rem;
+}
+
+/* Her disc. On a phone it opens the lab; on a tablet or a computer it stays in view. */
+.lab .lab__disc {
+  width: min(80vw, 22rem);
+  margin: 0 auto;
+}
+
+.lab__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.lab__actions[hidden] {
+  display: none;
+}
+
+/* ── The three steps ── */
+.lab__step {
+  min-width: 0;
+  margin: 0 0 2.25rem;
+  padding: 0;
+  border: 0;
+}
+
+.lab__legend {
+  margin: 0 0 0.875rem;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 480;
+  font-variation-settings: 'opsz' 36;
+  line-height: 1.25;
+}
+
+.lab__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding: 0.875rem 0.5rem 0.875rem;
+  border: 1px solid rgb(143 163 230 / 0.22);
+  border-radius: var(--radius);
+  color: var(--cool-bright);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.25s var(--ease),
+    background-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    transform 0.2s var(--ease);
+}
+
+.tile:active {
+  transform: scale(0.97);
+}
+
+/* The radio button itself is invisible: the whole tile is the button. */
+.tile__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tile:has(.tile__input:focus-visible) {
+  outline: 2px solid var(--cool-bright);
+  outline-offset: 3px;
+}
+
+.tile__label {
+  font-size: var(--text-small);
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+/* A picture in its circle, the label it will go on. */
+.tile__art {
+  display: block;
+  width: min(100%, 5.75rem);
+  aspect-ratio: 1;
+  padding: 9%;
+  border: 1px solid rgb(143 163 230 / 0.3);
+  border-radius: 50%;
+  background: rgb(143 163 230 / 0.05);
+  transition:
+    border-color 0.25s var(--ease),
+    background-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+
+.picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  --picture-line: 1.35px;
+}
+
+.picture__line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: calc(var(--picture-line) * var(--weight));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.picture__line--faint {
+  opacity: 0.5;
+}
+
+.picture__fill {
+  fill: currentColor;
+}
+
+/* A sound: the shape of its loudness, with a line that runs along it while it plays. */
+.tile--sound .tile__art {
+  width: 100%;
+  aspect-ratio: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.tile__wave {
+  position: relative;
+  display: block;
+  height: 2.75rem;
+  margin: 0.25rem 0.25rem 0;
+}
+
+.tile__wave-shape {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  opacity: 0.75;
+}
+
+.tile__head {
+  position: absolute;
+  inset: -0.25rem 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tile__head::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--ink);
+  box-shadow: 0 0 6px rgb(255 230 180 / 0.8);
+}
+
+.tile.is-playing .tile__head {
+  opacity: 1;
+  animation: lab-head var(--duration, 6s) linear forwards;
+}
+
+@keyframes lab-head {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Chosen: it goes on her disc. */
+.tile.is-chosen {
+  border-color: rgb(255 210 122 / 0.75);
+  background: rgb(255 196 104 / 0.08);
+  color: var(--warm);
+}
+
+.tile.is-chosen .tile__art:not(:has(.tile__wave)) {
+  border-color: rgb(255 210 122 / 0.8);
+  background: rgb(255 196 104 / 0.1);
+  box-shadow: 0 0 1.25rem rgb(255 190 90 / 0.18);
+}
+
+@media (hover: hover) {
+  .tile:not(.is-chosen):hover {
+    border-color: rgb(143 163 230 / 0.5);
+    background: rgb(143 163 230 / 0.06);
+  }
+}
+
+/* ── The message ── */
+.lab__message {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 7rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgb(143 163 230 / 0.42);
+  border-radius: var(--radius);
+  background: rgb(143 163 230 / 0.06);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text);
+  line-height: 1.45;
+  resize: vertical;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.lab__message::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.lab__message:focus-visible,
+.lab__message:focus {
+  border-color: var(--cool-bright);
+  outline: 2px solid rgb(185 198 247 / 0.5);
+  outline-offset: 1px;
+}
+
+.lab__counter {
+  margin: 0.5rem 0 0;
+  font-size: var(--text-small);
+  text-align: right;
+  color: var(--muted);
+}
+
+.lab__create {
+  margin-top: 0.25rem;
+}
+
+.lab__back {
+  display: flex;
+  margin: 3.5rem auto 0;
+}
+
+/* ── Tablet and computer: the disc on the left, in view; the steps on the right. ── */
+@media (min-width: 760px) {
+  .lab__bench {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    gap: clamp(2rem, 5vw, 5.5rem);
+  }
+
+  /* As tall as the steps, so that the disc can stay in view along all of them. */
+  .lab__disc-column {
+    align-self: stretch;
+  }
+
+  .lab__steps {
+    align-self: start;
+  }
+
+  .lab__holder {
+    position: sticky;
+    top: calc(var(--safe-top) + 1.5rem);
+  }
+
+  .lab .lab__disc {
+    width: min(100%, 30rem, calc(100vh - 12rem));
+    min-width: 15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .tile__art {
+    transition-duration: 0.01s;
+  }
+}

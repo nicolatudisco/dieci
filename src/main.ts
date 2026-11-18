@@ -10,6 +10,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/ui.css';
 import './styles/views.css';
+import './styles/lab.css';
 import { bubbleAt, bubbleStop, exactRadiusLine } from './bubble.ts';
 import { FINALE_IS_PLACEHOLDER } from './content/finale.ts';
 import { LABELS } from './content/labels.ts';
@@ -28,7 +29,7 @@ import { el } from './ui/dom.ts';
 import { Epilogue } from './ui/epilogue.ts';
 import { Finale } from './ui/finale.ts';
 import { finaleTimeline } from './finale-script.ts';
-import { buildGoldenRecord } from './ui/golden-record.ts';
+import { GOLDEN_RECORD_LAB_READY, LAB_PART, buildGoldenRecord } from './ui/golden-record.ts';
 import { Interface } from './ui/interface.ts';
 import { Intro } from './ui/intro.ts';
 import { LabelLayer } from './ui/labels.ts';
@@ -200,14 +201,22 @@ function boot(): void {
   const epilogue = new Epilogue({
     replay,
     openSources: () => overlays.show('fonti'),
-    openGoldenRecord: () => overlays.show('disco'),
+    // «Crea il tuo Disco d'oro» opens the page at the lab; the story is above it.
+    openGoldenRecord: () => overlays.show('disco', GOLDEN_RECORD_LAB_READY ? LAB_PART : undefined),
     go,
   });
   const underneath = [stage, ui.element, intro.element, finale.element, epilogue.element];
   const overlays = new Overlays(
     {
       fonti: (id, close) => buildSources(id, close, resolve),
-      disco: (id, close) => buildGoldenRecord(id, close, { animated: !route.isStatic, reducedMotion }),
+      disco: (id, close) =>
+        buildGoldenRecord(id, close, {
+          animated: !route.isStatic,
+          reducedMotion,
+          now: () => clock.now(),
+          name: person.name,
+          birth: person.birth,
+        }),
     },
     () => underneath,
   );
@@ -269,7 +278,8 @@ function boot(): void {
     if (!overlays.current && engine.motion.atNode === FINALE) finale.advance();
   });
 
-  if (route.overlay) overlays.show(route.overlay);
+  // `?stop=disco&disco=laboratorio` opens the Golden Record at the lab (see CLAUDE.md, «Contratto URL»).
+  if (route.overlay) overlays.show(route.overlay, route.overlay === 'disco' ? (params.get('disco') ?? undefined) : undefined);
 
   void loadFonts()
     .then(() => engine.start())

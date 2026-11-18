@@ -7,6 +7,7 @@ import { LABELS } from '../content/labels.ts';
 import { UI } from '../content/ui.ts';
 import { button, el, icon } from './dom.ts';
 import { GOLDEN_RECORD_LAB_READY } from './golden-record.ts';
+import { setRich, typeset } from './rich-text.ts';
 
 export interface EpilogueOptions {
   readonly replay: () => void;
@@ -28,7 +29,7 @@ export class Epilogue {
     replay.addEventListener('click', options.replay);
     choices.append(replay);
     const record = button('choice epilogue__record');
-    record.textContent = GOLDEN_RECORD_LAB_READY ? UI.end.goldenRecord : LABELS.goldenRecordStory;
+    setRich(record, typeset(GOLDEN_RECORD_LAB_READY ? UI.end.goldenRecord : LABELS.goldenRecordStory));
     record.addEventListener('click', options.openGoldenRecord);
     choices.append(record);
     const sources = button('choice');

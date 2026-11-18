@@ -531,7 +531,9 @@ html[data-static] .finale__next {
     gap: clamp(2.5rem, 6vw, 6rem);
     align-items: center;
     max-width: 76rem;
-    min-height: 100%;
+    /* The whole screen: the lab begins below it. */
+    min-height: 100vh;
+    min-height: 100dvh;
     padding-top: calc(var(--safe-top) + 3rem);
   }
 

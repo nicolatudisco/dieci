@@ -1,26 +1,37 @@
 /**
- * The Golden Record: the story (`GOLDEN_RECORD.intro`), with the disc turning above it. It
- * opens from the Voyager stop («Che cosa porta con sé?») and from the epilogue, and gives
- * the journey back where it was.
- *
- * M7 adds the lab under the story («Adesso tocca a te», `GOLDEN_RECORD.yourTurn` and the
- * rest): append it to `text`, before the button, and set `GOLDEN_RECORD_LAB_READY`, which
- * also turns the button of the epilogue into «Crea il tuo Disco d'oro».
+ * The Golden Record: the story (`GOLDEN_RECORD.intro`), with the disc turning above it,
+ * then the lab, «Crea il tuo Disco d'oro» (src/golden-record/lab.ts). It opens from the
+ * Voyager stop («Che cosa porta con sé?», at the story) and from the epilogue (at the lab),
+ * and gives the journey back where it was.
  */
 import { GOLDEN_RECORD } from '../content/golden-record.ts';
+import { UI } from '../content/ui.ts';
+import { Lab } from '../golden-record/lab.ts';
+import type { CivilDate } from '../personalization.ts';
 import { button, el, icon } from './dom.ts';
 import type { OverlayPage } from './overlay.ts';
 import { RecordDisc } from './record-disc.ts';
 import { Reveal } from './reveal.ts';
 import { setRich, typeset } from './rich-text.ts';
 
-/** M7 sets this to true when the lab can really make a disc. */
+/**
+ * True once the lab can really make a disc: the button of the epilogue becomes «Crea il tuo
+ * Disco d'oro» and opens the page at the lab.
+ */
 export const GOLDEN_RECORD_LAB_READY = false;
+
+/** The part of the page that `?disco=` and the epilogue can open at. */
+export const LAB_PART = 'laboratorio';
 
 export interface GoldenRecordOptions {
   /** False with ?static=1: everything is there at once, and nothing moves. */
   readonly animated: boolean;
   readonly reducedMotion: boolean;
+  /** Today, from the clock of the site. */
+  readonly now: () => Date;
+  /** From the link fragment only. */
+  readonly name: string | null;
+  readonly birth: CivilDate | null;
 }
 
 /**
@@ -37,8 +48,16 @@ export function quoteParts(text: string): string[] {
   return text.split(/(«[^»]*»)/);
 }
 
+function backButton(close: () => void, className: string): HTMLButtonElement {
+  const back = button(className);
+  back.append(icon('back'), el('span', undefined, GOLDEN_RECORD.actions.back));
+  back.addEventListener('click', close);
+  return back;
+}
+
 export function buildGoldenRecord(titleId: string, close: () => void, options: GoldenRecordOptions): OverlayPage {
-  const page = el('article', 'sheet record');
+  const page = el('article', 'record-page');
+  const story = el('div', 'sheet record');
   const disc = new RecordDisc({ spinning: options.animated && !options.reducedMotion });
 
   const text = el('div', 'record__text');
@@ -46,38 +65,70 @@ export function buildGoldenRecord(titleId: string, close: () => void, options: G
   setRich(title, typeset(GOLDEN_RECORD.title));
   title.id = titleId;
   const { body, closing } = splitClosing(GOLDEN_RECORD.intro);
-  const story = el('p', 'record__story');
+  const words = el('p', 'record__story');
   quoteParts(body).forEach((part, index) => {
     if (!part) return;
     const span = el('span', index % 2 === 1 ? 'record__quote' : undefined);
     setRich(span, typeset(part));
-    story.append(span);
+    words.append(span);
   });
   const end = el('p', 'record__closing');
   setRich(end, typeset(closing));
-  const back = button('cta sheet__back');
-  back.append(icon('back'), el('span', undefined, GOLDEN_RECORD.actions.back));
-  back.addEventListener('click', close);
-  text.append(title, story);
+
+  const lab = new Lab(
+    {
+      motion: !options.animated ? 'none' : options.reducedMotion ? 'reduced' : 'full',
+      now: options.now,
+      name: options.name,
+      birth: options.birth,
+    },
+    backButton(close, 'choice sheet__back lab__back'),
+  );
+  const toLab = (): void => {
+    lab.heading.scrollIntoView({ behavior: options.animated && !options.reducedMotion ? 'smooth' : 'auto', block: 'start' });
+    lab.heading.setAttribute('tabindex', '-1');
+    lab.heading.focus({ preventScroll: true });
+  };
+
+  // Under the story: on to the lab, or back to the journey.
+  const buttons = el('div', 'record__buttons');
+  const make = button('cta record__make');
+  setRich(make, typeset(UI.end.goldenRecord));
+  make.addEventListener('click', toLab);
+  buttons.append(make, backButton(close, 'choice'));
+
+  text.append(title, words);
   if (closing) text.append(end);
-  text.append(back);
-  page.append(disc.element, text);
+  text.append(buttons);
+  story.append(disc.element, text);
+  page.append(story, lab.element);
 
   // The disc first, then the story, then the line about her. A tap brings everything in.
-  const reveal = new Reveal(closing ? [disc.element, title, story, end] : [disc.element, title, story], {
+  const reveal = new Reveal(closing ? [disc.element, title, words, end] : [disc.element, title, words], {
     animated: options.animated,
     first: 120,
     step: 750,
   });
-  page.addEventListener('click', () => reveal.finish());
+  story.addEventListener('click', () => reveal.finish());
 
   return {
     element: page,
-    shown: () => {
+    shown: (at) => {
       reveal.reset();
-      reveal.start();
       disc.start();
+      lab.shown();
+      if (at !== LAB_PART) {
+        reveal.start();
+        return;
+      }
+      // Straight to the lab: the story is all there for whoever scrolls up.
+      reveal.finish();
+      lab.heading.scrollIntoView({ block: 'start' });
+      return lab.heading;
     },
-    hidden: () => disc.stop(),
+    hidden: () => {
+      disc.stop();
+      lab.hidden();
+    },
   };
 }

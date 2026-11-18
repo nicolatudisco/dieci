@@ -10,8 +10,12 @@ import { button, el, icon } from './dom.ts';
 export interface OverlayPage {
   /** The page: an element whose first heading has the id given to the builder. */
   readonly element: HTMLElement;
-  /** Called each time the page opens, once it is on the screen; and each time it closes. */
-  readonly shown?: () => void;
+  /**
+   * Called each time the page opens, once it is on the screen, with the part of the page to
+   * open at (`at`, when the opener asks for one). It may return the element that takes the
+   * focus instead of the title. `hidden` is called each time it closes.
+   */
+  readonly shown?: (at?: string) => HTMLElement | void;
   readonly hidden?: () => void;
 }
 
@@ -50,7 +54,8 @@ export class Overlays {
     return this.open;
   }
 
-  show(id: OverlayId): void {
+  /** Opens a page, at its part `at` if the page has one (the Golden Record: `laboratorio`). */
+  show(id: OverlayId, at?: string): void {
     if (this.open === id) return;
     const titleId = `overlay-${id}-title`;
     let page = this.pages.get(id);
@@ -65,11 +70,10 @@ export class Overlays {
     this.element.hidden = false;
     this.element.scrollTop = 0;
     for (const node of this.underneath()) node.inert = true;
-    page.shown?.();
-    // Focus goes to the title, so that reading starts from the top.
-    const title = page.element.querySelector<HTMLElement>(`#${titleId}`);
-    title?.setAttribute('tabindex', '-1');
-    title?.focus({ preventScroll: true });
+    // Focus goes to the title, so that reading starts from the top (or where the page says).
+    const target = page.shown?.(at) ?? page.element.querySelector<HTMLElement>(`#${titleId}`);
+    target?.setAttribute('tabindex', '-1');
+    target?.focus({ preventScroll: true });
   }
 
   close(): void {
