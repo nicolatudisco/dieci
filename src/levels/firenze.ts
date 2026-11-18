@@ -160,7 +160,8 @@ export default geoSketch(async (s) => {
   const city = await loadGeo('city.json');
   const [x0, y0, x1, y1] = city.box;
   s.mask([x0 + 300, y0 + 300, x1 - 300, y1 - 300], 2200);
-  await drawCity(s, city, { minPx: 0.9, thinDim: 0.7, glow: true });
+  // A view of ten kilometres: tiles of five, a few draw calls instead of hundreds.
+  await drawCity(s, city, { minPx: 0.9, thinDim: 0.7, glow: true, cell: 5000 });
 
   const at = (p: readonly [number, number] | undefined): Vec3 => [(p?.[0] ?? 0) / s.unit, (p?.[1] ?? 0) / s.unit, 0];
   s.label({ id: 'rifredi', text: LABELS.places.rifredi, at: [0, 0.35, 0], kind: 'place', align: 'above', from: 3.4, to: 4.5 });

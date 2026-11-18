@@ -254,14 +254,29 @@ class Zeros extends CanvasLevel {
     const y = at.top * ratio - (at.run - whole + above) * tall;
     // Past the first row there is nothing; once it has run away, rows come from above.
     const from = whole > 0 ? -2 * rowPx : 0;
+    // While the counter and the caption are there, nothing is drawn behind them: the wall is
+    // painted only where it can be seen, and a band around it for the soft edge.
+    const soft = 36 * ratio;
+    const { free } = frame;
+    const visible =
+      open > 0
+        ? { x0: 0, y0: 0, x1: W, y1: H }
+        : {
+            x0: region.bounded.left ? Math.max(0, free.x * ratio - 2) : 0,
+            y0: region.bounded.top ? Math.max(0, free.y * ratio - 2) : 0,
+            x1: region.bounded.right ? Math.min(W, (free.x + free.width) * ratio + 2) : W,
+            y1: region.bounded.bottom ? Math.min(H, (free.y + free.height) * ratio + 2) : H,
+          };
     // Too fast to be read, the zeros blur into what a zero leaves behind when it runs: two
     // lines of light, one for each of its sides.
     const blur = ramp(0.2, 0.7, at.rush);
     if (blur < 1) {
+      const fromX = Math.max(x, visible.x0);
+      const fromY = Math.max(y + from * at.stretch, visible.y0);
       g.setTransform(1, 0, 0, at.stretch, x, y);
       g.globalAlpha = Math.min(1, strength) * (1 - blur);
       g.fillStyle = pattern;
-      g.fillRect(0, from, W - x, (H - y) / at.stretch - from);
+      g.fillRect(fromX - x, (fromY - y) / at.stretch, visible.x1 - fromX, (visible.y1 - fromY) / at.stretch);
     }
     const streaks = blur > 0 ? this.streakTile(g, color) : null;
     if (streaks) {
@@ -299,23 +314,51 @@ class Zeros extends CanvasLevel {
       g.fillStyle = wave;
       g.fillRect(0, 0, W, H);
     }
-    // Nothing behind the counter or the caption, until they leave.
-    if (open < 1) {
-      const soft = 36 * ratio;
-      const edge = (x0: number, y0: number, x1: number, y1: number): void => {
-        const fade = g.createLinearGradient(x0, y0, x1, y1);
-        fade.addColorStop(0, 'rgba(0, 0, 0, 1)');
-        fade.addColorStop(1, `rgba(0, 0, 0, ${open})`);
-        g.fillStyle = fade;
-        g.fillRect(0, 0, W, H);
-      };
-      const { free } = frame;
-      if (region.bounded.left) edge(free.x * ratio + soft, 0, free.x * ratio, 0);
-      if (region.bounded.right) edge((free.x + free.width) * ratio - soft, 0, (free.x + free.width) * ratio, 0);
-      if (region.bounded.top) edge(0, free.y * ratio + soft, 0, free.y * ratio);
-      if (region.bounded.bottom) edge(0, (free.y + free.height) * ratio - soft, 0, (free.y + free.height) * ratio);
-    }
     g.globalCompositeOperation = 'source-over';
+    // Nothing behind the counter or the caption, until they leave: a soft band along each
+    // edge of the free area, and beyond it the wall only as strong as `open`. Erasing only
+    // there (destination-out) is the same as dimming the whole canvas, at a fraction of the cost.
+    if (open < 1) {
+      const erase = 1 - open;
+      g.globalCompositeOperation = 'destination-out';
+      const band = (x0: number, y0: number, x1: number, y1: number, rect: [number, number, number, number]): void => {
+        const fade = g.createLinearGradient(x0, y0, x1, y1);
+        fade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        fade.addColorStop(1, `rgba(0, 0, 0, ${erase})`);
+        g.fillStyle = fade;
+        g.fillRect(...rect);
+      };
+      const beyond = (rx: number, ry: number, rw: number, rh: number): void => {
+        if (rw <= 0 || rh <= 0) return;
+        if (erase >= 0.999) g.clearRect(rx, ry, rw, rh);
+        else {
+          g.fillStyle = `rgba(0, 0, 0, ${erase})`;
+          g.fillRect(rx, ry, rw, rh);
+        }
+      };
+      // On whole pixels, so that the band and what lies beyond it meet without a seam.
+      const fx0 = Math.round(free.x * ratio);
+      const fx1 = Math.round((free.x + free.width) * ratio);
+      const fy0 = Math.round(free.y * ratio);
+      const fy1 = Math.round((free.y + free.height) * ratio);
+      if (region.bounded.left) {
+        band(fx0 + soft, 0, fx0, 0, [fx0, 0, soft, H]);
+        beyond(0, 0, fx0, H);
+      }
+      if (region.bounded.right) {
+        band(fx1 - soft, 0, fx1, 0, [fx1 - soft, 0, soft, H]);
+        beyond(fx1, 0, W - fx1, H);
+      }
+      if (region.bounded.top) {
+        band(0, fy0 + soft, 0, fy0, [0, fy0, W, soft]);
+        beyond(0, 0, W, fy0);
+      }
+      if (region.bounded.bottom) {
+        band(0, fy1 - soft, 0, fy1, [0, fy1 - soft, W, soft]);
+        beyond(0, fy1, W, H - fy1);
+      }
+      g.globalCompositeOperation = 'source-over';
+    }
   }
 
   private zeroTile(g: CanvasRenderingContext2D, cellPx: number, rowPx: number, fontPx: number, color: string): CanvasPattern | null {
@@ -324,7 +367,9 @@ class Zeros extends CanvasLevel {
       this.tileKey = key;
       this.tile.width = cellPx;
       this.tile.height = rowPx;
-      const t = this.tile.getContext('2d', { willReadFrequently: true });
+      // An ordinary canvas (not «willReadFrequently»): the pattern made from it stays on the
+      // graphics card. The streaks read its pixels from a copy (`streakTile`).
+      const t = this.tile.getContext('2d');
       if (!t) return null;
       t.font = `360 ${fontPx.toFixed(2)}px ${DISPLAY_FONT}`;
       t.textAlign = 'center';
@@ -345,8 +390,13 @@ class Zeros extends CanvasLevel {
     const { width, height } = this.tile;
     const shape = `${width}×${height}`;
     if (shape !== this.profileKey) {
-      const t = this.tile.getContext('2d', { willReadFrequently: true });
-      if (!t || width === 0 || height === 0) return null;
+      if (width === 0 || height === 0) return null;
+      const copy = document.createElement('canvas');
+      copy.width = width;
+      copy.height = height;
+      const t = copy.getContext('2d', { willReadFrequently: true });
+      if (!t) return null;
+      t.drawImage(this.tile, 0, 0);
       const data = t.getImageData(0, 0, width, height).data;
       this.profile = Array.from({ length: width }, (_, x) => {
         let sum = 0;

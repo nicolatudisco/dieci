@@ -49,7 +49,7 @@ export function cityGlow(e: number): number {
 }
 
 /** Side of the tiles of the city layers, metres: a tile out of view is not drawn. */
-const CELL = 1500;
+const DEFAULT_CELL = 1500;
 
 export interface CityOptions {
   /** How much streets thinner than their drawn line are dimmed (0..1). */
@@ -61,6 +61,12 @@ export interface CityOptions {
    * covers the whole town), or it would double where two levels overlap.
    */
   readonly glow?: boolean;
+  /**
+   * Side of the tiles the layers are cut in, metres (default 1.5 km). Small tiles suit a view
+   * of a kilometre, where most of them are off screen; a view of ten kilometres would draw
+   * dozens of them for each layer, a draw call each: there larger tiles cost far less.
+   */
+  readonly cell?: number;
 }
 
 export interface City {
@@ -69,6 +75,7 @@ export interface City {
 }
 
 export async function drawCity(s: GeoSketch, data: GeoFile, options: CityOptions): Promise<City> {
+  const CELL = options.cell ?? DEFAULT_CELL;
   const u = s.unit;
   const green = makeAreas(data.areas.green ?? [], u, s.geo);
   setClass(green.palette, GREEN.park, '#0f2622');
